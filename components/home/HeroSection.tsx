@@ -2,16 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import { ChevronDown, ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import settingsData from "@/data/settings.json";
 
 export function HeroSection() {
-  const scrollToContent = () => {
-    const nextSection = document.getElementById("danh-muc");
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+
 
   return (
     <>
@@ -33,7 +28,7 @@ export function HeroSection() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#C8963E] animate-pulse" />
               <span>Bảo vật mộc xưa</span>
             </div>
-            <h1 className="font-serif text-xl sm:text-2xl text-white leading-tight font-bold tracking-tight drop-shadow-sm">
+            <h1 className="font-serif text-xl sm:text-2xl text-white leading-tight font-bold tracking-normal drop-shadow-sm">
               Vòng tay gỗ quý tuyển chọn
             </h1>
             <p className="text-xs text-[#FEDCC8] line-clamp-1 mt-1 font-normal opacity-95">
@@ -93,7 +88,7 @@ export function HeroSection() {
             </div>
 
             {/* Heading */}
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-[1.15]">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-normal text-white leading-[1.15]">
               Tinh hoa từ những <br className="hidden sm:inline" />
               <span className="italic font-normal text-[#E8BF87]">thớ gỗ quý ngàn năm</span>
             </h1>
@@ -125,15 +120,7 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Scroll Chevron */}
-          <button
-            type="button"
-            onClick={scrollToContent}
-            className="pt-12 flex items-center gap-2 text-[#F5D3C0]/80 hover:text-white text-xs tracking-widest uppercase transition-colors"
-          >
-            <ChevronDown className="w-5 h-5 animate-bounce text-[#C8963E]" />
-            <span>Cuộn xuống thưởng lãm</span>
-          </button>
+
         </div>
       </section>
     </>

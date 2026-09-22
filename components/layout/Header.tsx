@@ -49,7 +49,6 @@ export function Header() {
   }, []);
 
   const navLinks = [
-    { label: "Trang chủ", href: "/" },
     { label: "Sản phẩm", href: "/san-pham" },
     { label: "Giới thiệu", href: "/gioi-thieu" },
     { label: "Bài viết", href: "/bai-viet" },

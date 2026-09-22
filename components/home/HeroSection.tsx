@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import settingsData from "@/data/settings.json";
 
 export function HeroSection() {
@@ -42,15 +42,7 @@ export function HeroSection() {
                 <span>Xem ngay</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
-              <a
-                href={settingsData.brand.zaloLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 bg-zalo text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md active:scale-95"
-              >
-                <MessageCircle className="w-3.5 h-3.5 fill-white text-zalo" />
-                <span>Zalo</span>
-              </a>
+
             </div>
           </div>
 
@@ -108,15 +100,7 @@ export function HeroSection() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
-              <a
-                href={settingsData.brand.zaloLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white font-semibold text-sm transition-all duration-300 shadow-lg hover:-translate-y-0.5 bg-zalo hover:brightness-105"
-              >
-                <MessageCircle className="w-4 h-4 fill-white text-zalo" />
-                <span>Nhắn Zalo ngay</span>
-              </a>
+
             </div>
           </div>
 

@@ -43,12 +43,14 @@ export function CategoryGrid({ products }: CategoryGridProps) {
           {/* Item: Tất cả */}
           <Link
             href="/san-pham"
-            className="flex flex-col items-center gap-1.5 shrink-0 group"
+            className="flex flex-col items-center gap-1 shrink-0 group"
           >
-            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-md text-white group-active:scale-95 transition-transform">
-              <LayoutGrid className="w-6 h-6" />
+            <div className="w-16 h-16 rounded-full border-2 border-[#C5A059]/60 p-[2px] shrink-0 group-active:scale-95 transition-transform">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-primary to-[#5C3A21] flex items-center justify-center shadow-inner">
+                <LayoutGrid className="w-6 h-6 text-[#E8BF87]" />
+              </div>
             </div>
-            <span className="text-[12px] font-medium text-primary tracking-tight">Tất cả</span>
+            <span className="text-[12px] font-bold text-primary mt-0.5">Tất cả</span>
           </Link>
 
           {/* Dynamic Categories */}
@@ -56,18 +58,20 @@ export function CategoryGrid({ products }: CategoryGridProps) {
             <Link
               key={cat.id}
               href={`/san-pham?category=${cat.id}`}
-              className="flex flex-col items-center gap-1.5 shrink-0 group"
+              className="flex flex-col items-center gap-1 shrink-0 group"
             >
-              <div className="w-16 h-16 rounded-full overflow-hidden shadow-sm bg-[#f5efe6] border border-border group-active:scale-95 transition-transform relative wood-sheen-container">
-                <Image
-                  src={cat.image}
-                  alt={cat.name}
-                  fill
-                  sizes="64px"
-                  className="object-cover"
-                />
+              <div className="w-16 h-16 rounded-full border border-border/80 p-[2px] shrink-0 group-active:scale-95 transition-transform">
+                <div className="w-full h-full rounded-full overflow-hidden relative bg-[#f5efe6]">
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                </div>
               </div>
-              <span className="text-[12px] font-normal text-text-muted group-hover:text-primary max-w-[68px] truncate text-center">
+              <span className="text-[11px] font-medium text-text-muted max-w-[72px] text-center leading-snug mt-0.5">
                 {cat.name}
               </span>
             </Link>
@@ -103,30 +107,39 @@ export function CategoryGrid({ products }: CategoryGridProps) {
               <div key={cat.id} className="h-full">
                 <Link
                   href={`/san-pham?category=${cat.id}`}
-                  className="group flex flex-col p-4 rounded-xl bg-surface border border-border shadow-card hover:shadow-xl hover:-translate-y-1 hover:border-primary transition-all duration-300 h-full justify-between"
+                  className="group flex flex-col relative rounded-xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 h-full w-full"
                 >
-                  <div>
-                    <div className="aspect-square w-full rounded-lg overflow-hidden relative mb-3 bg-[#f5efe6] wood-sheen-container">
-                      <Image
-                        src={cat.image}
-                        alt={cat.name}
-                        fill
-                        sizes="(max-width: 1024px) 50vw, 25vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <h3 className="font-serif text-lg text-primary group-hover:text-secondary transition-colors font-bold">
+                  {/* Image Background */}
+                  <div className="absolute inset-0 z-0 bg-[#2C1A0E]">
+                    <Image
+                      src={cat.image}
+                      alt={cat.name}
+                      fill
+                      sizes="(max-width: 1024px) 50vw, 25vw"
+                      className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-transform duration-700 ease-out"
+                    />
+                  </div>
+                  
+                  {/* Gradient Overlay for Text */}
+                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
+                  
+                  {/* Content Overlay */}
+                  <div className="relative z-20 flex flex-col justify-end p-5 md:p-6 h-full aspect-[4/5]">
+                    <h3 className="font-serif text-xl md:text-2xl text-white font-bold drop-shadow-md group-hover:text-[#E8BF87] transition-colors duration-300">
                       {cat.name}
                     </h3>
-                    <p className="text-xs text-text-muted mt-1 line-clamp-1">
-                      {cat.description}
-                    </p>
+                    
+                    {/* The description and link are hidden by default, and reveal on hover using max-height or opacity */}
+                    <div className="overflow-hidden max-h-0 opacity-0 group-hover:max-h-[100px] group-hover:opacity-100 group-hover:mt-2 transition-all duration-500 ease-in-out">
+                      <p className="text-sm text-white/90 line-clamp-2">
+                        {cat.description}
+                      </p>
+                      <span className="inline-flex items-center gap-1.5 text-xs text-[#E8BF87] font-semibold mt-3">
+                        <span>Khám phá {count} tác phẩm</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    </div>
                   </div>
-
-                  <span className="inline-flex items-center justify-between text-xs text-secondary font-semibold mt-4 pt-2 border-t border-border/60">
-                    <span>Xem {count} tác phẩm</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </span>
                 </Link>
               </div>
             );
@@ -136,18 +149,18 @@ export function CategoryGrid({ products }: CategoryGridProps) {
           <div className="h-full">
             <Link
               href="/san-pham"
-              className="group flex flex-col items-center justify-center p-6 rounded-xl text-center border-2 border-dashed border-secondary/40 bg-bg hover:bg-accent-soft/50 hover:border-primary hover:-translate-y-1 transition-all duration-300 h-full min-h-[260px]"
+              className="group flex flex-col items-center justify-center p-6 rounded-xl text-center border border-secondary/30 bg-surface/50 hover:bg-primary hover:border-primary hover:-translate-y-1 transition-all duration-500 h-full aspect-[4/5] shadow-sm hover:shadow-xl"
             >
-              <span className="w-14 h-14 rounded-full bg-surface flex items-center justify-center text-primary shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all mb-3">
+              <span className="w-16 h-16 rounded-full bg-bg flex items-center justify-center text-primary shadow-sm group-hover:scale-110 group-hover:bg-white/10 group-hover:text-white transition-all duration-500 mb-4">
                 <LayoutGrid className="w-7 h-7" />
               </span>
-              <h3 className="font-serif text-lg text-primary font-bold">
-                Xem Tất Cả Danh Mục
+              <h3 className="font-serif text-xl text-primary group-hover:text-white font-bold transition-colors">
+                Xem Tất Cả<br />Danh Mục
               </h3>
-              <p className="text-xs text-text-muted mt-1.5 max-w-[200px]">
-                Hơn {productsData.length} tác phẩm và mẫu quà tặng thủ công
+              <p className="text-xs text-text-muted group-hover:text-white/80 mt-2 max-w-[200px] transition-colors">
+                Hơn {productsData.length} tác phẩm và mẫu quà tặng
               </p>
-              <span className="inline-flex items-center gap-1 text-xs text-primary font-bold mt-4">
+              <span className="inline-flex items-center gap-1.5 text-xs text-secondary group-hover:text-[#E8BF87] font-semibold mt-5 transition-colors">
                 <span>Khám phá ngay</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </span>

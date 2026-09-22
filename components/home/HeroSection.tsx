@@ -28,7 +28,7 @@ export function HeroSection() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#C8963E] animate-pulse" />
               <span>Bảo vật mộc xưa</span>
             </div>
-            <h1 className="font-serif text-xl sm:text-2xl text-white leading-tight font-bold tracking-normal drop-shadow-sm">
+            <h1 className="font-serif text-xl sm:text-2xl text-white leading-tight font-bold tracking-wide drop-shadow-sm">
               Vòng tay gỗ quý tuyển chọn
             </h1>
             <p className="text-xs text-[#FEDCC8] line-clamp-1 mt-1 font-normal opacity-95">
@@ -74,19 +74,19 @@ export function HeroSection() {
             {/* Eyebrow badge with amber pulse */}
             <div className="inline-flex items-center gap-2 self-start px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[#E0C097]">
               <span className="w-2 h-2 rounded-full bg-[#C8963E] animate-pulse" />
-              <span className="text-[11px] tracking-[0.25em] uppercase font-semibold">
+              <span className="text-[13px] tracking-[0.25em] uppercase font-semibold">
                 ĐỒ MỸ NGHỆ GỖ QUÝ THỦ CÔNG
               </span>
             </div>
 
             {/* Heading */}
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-normal text-white leading-[1.15]">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-wide text-white leading-[1.25]">
               Tinh hoa từ những <br className="hidden sm:inline" />
-              <span className="italic font-normal text-[#E8BF87]">thớ gỗ quý ngàn năm</span>
+              <span className="italic font-normal tracking-wide text-[#E8BF87]">thớ gỗ quý ngàn năm</span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-[#F5D3C0] font-light max-w-2xl leading-relaxed">
+            <p className="text-lg sm:text-xl text-[#F5D3C0] font-light max-w-2xl leading-relaxed">
               Mỗi tác phẩm là kết tinh của thời gian, thổ nhưỡng ngàn năm và đôi bàn tay tài hoa của nghệ nhân làng mộc truyền thống Đông Phong.
             </p>
 
@@ -94,7 +94,7 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center gap-4 pt-4">
               <Link
                 href="#danh-muc"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white font-semibold text-sm transition-all duration-300 shadow-lg hover:-translate-y-0.5 bg-primary hover:bg-primary-hover"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white font-semibold text-base transition-all duration-300 shadow-lg hover:-translate-y-0.5 bg-primary hover:bg-primary-hover"
               >
                 <span>Khám phá sản phẩm</span>
                 <ArrowRight className="w-4 h-4" />

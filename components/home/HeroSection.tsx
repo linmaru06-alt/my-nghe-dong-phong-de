@@ -24,10 +24,6 @@ export function HeroSection() {
 
           {/* Content Overlay */}
           <div className="relative z-10 flex flex-col items-start max-w-[290px]">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FEB783]/90 text-[#673C1C] text-[11px] font-semibold tracking-wide mb-1.5 backdrop-blur-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C8963E] animate-pulse" />
-              <span>Bảo vật mộc xưa</span>
-            </div>
             <h1 className="font-serif text-xl sm:text-2xl text-white leading-snug font-bold tracking-wide drop-shadow-sm">
               Vòng tay gỗ quý tuyển chọn
             </h1>
@@ -71,13 +67,7 @@ export function HeroSection() {
         {/* Hero Content */}
         <div className="relative z-10 max-w-[1320px] w-full mx-auto px-4 md:px-8 pt-32 pb-20 flex flex-col justify-between items-start">
           <div className="max-w-3xl flex flex-col space-y-5">
-            {/* Eyebrow badge with amber pulse */}
-            <div className="inline-flex items-center gap-2 self-start px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[#E0C097]">
-              <span className="w-2 h-2 rounded-full bg-[#C8963E] animate-pulse" />
-              <span className="text-[13px] tracking-[0.25em] uppercase font-semibold">
-                ĐỒ MỸ NGHỆ GỖ QUÝ THỦ CÔNG
-              </span>
-            </div>
+            {/* Heading */}
 
             {/* Heading */}
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-wide text-white leading-[1.45]">

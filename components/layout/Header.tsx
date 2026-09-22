@@ -115,11 +115,11 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "text-sm font-medium transition-colors relative py-1",
+                    "text-base font-medium transition-colors relative py-1",
                     isTransparent
                       ? isActive
                         ? "text-white font-semibold"
-                        : "text-white/85 hover:text-white"
+                        : "text-white hover:text-white/80"
                       : isActive
                       ? "text-primary font-semibold"
                       : "text-text hover:text-primary"

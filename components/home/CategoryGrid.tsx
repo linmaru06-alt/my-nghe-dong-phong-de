@@ -50,7 +50,7 @@ export function CategoryGrid({ products }: CategoryGridProps) {
                 <LayoutGrid className="w-6 h-6 text-[#E8BF87]" />
               </div>
             </div>
-            <span className="text-[12px] font-bold text-primary mt-0.5">Tất cả</span>
+            <span className="text-[12px] font-medium tracking-wide text-primary mt-1">Tất cả</span>
           </Link>
 
           {/* Dynamic Categories */}
@@ -71,7 +71,7 @@ export function CategoryGrid({ products }: CategoryGridProps) {
                   />
                 </div>
               </div>
-              <span className="text-[11px] font-medium text-text-muted max-w-[72px] text-center leading-snug mt-0.5">
+              <span className="text-[11px] font-medium tracking-wide text-text-muted max-w-[72px] text-center leading-snug mt-1">
                 {cat.name}
               </span>
             </Link>
@@ -125,7 +125,7 @@ export function CategoryGrid({ products }: CategoryGridProps) {
                   
                   {/* Content Overlay */}
                   <div className="relative z-20 flex flex-col justify-end p-5 md:p-6 h-full aspect-[4/5]">
-                    <h3 className="font-serif text-xl md:text-2xl text-white font-bold drop-shadow-md group-hover:text-[#E8BF87] transition-colors duration-300">
+                    <h3 className="font-serif text-xl md:text-2xl text-white font-medium tracking-wide drop-shadow-md group-hover:text-[#E8BF87] transition-colors duration-300">
                       {cat.name}
                     </h3>
                     
@@ -154,7 +154,7 @@ export function CategoryGrid({ products }: CategoryGridProps) {
               <span className="w-16 h-16 rounded-full bg-bg flex items-center justify-center text-primary shadow-sm group-hover:scale-110 group-hover:bg-white/10 group-hover:text-white transition-all duration-500 mb-4">
                 <LayoutGrid className="w-7 h-7" />
               </span>
-              <h3 className="font-serif text-xl text-primary group-hover:text-white font-bold transition-colors">
+              <h3 className="font-serif text-xl text-primary group-hover:text-white font-medium tracking-wide transition-colors">
                 Xem Tất Cả<br />Danh Mục
               </h3>
               <p className="text-xs text-text-muted group-hover:text-white/80 mt-2 max-w-[200px] transition-colors">

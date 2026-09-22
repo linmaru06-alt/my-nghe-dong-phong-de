@@ -32,7 +32,7 @@ export const BlogCard = React.memo(function BlogCard({
   };
 
   return (
-    <article className="group flex flex-col rounded-xl bg-surface shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden border border-transparent hover:border-primary/20">
+    <article className="group flex flex-col h-full rounded-xl bg-surface shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden border border-transparent hover:border-primary/20">
       {/* Thumbnail */}
       <Link
         href={`/bai-viet/${slug}`}

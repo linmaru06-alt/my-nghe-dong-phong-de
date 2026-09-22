@@ -23,29 +23,29 @@ export function FeaturedProducts({ products, totalCount }: FeaturedProductsProps
   const displayTotal = totalCount !== undefined ? totalCount : products?.length || productsData.length;
 
   return (
-    <section className="py-16 md:py-24 bg-surface border-y border-border/60 select-none overflow-hidden">
+    <section className="py-20 md:py-32 bg-surface select-none overflow-hidden">
       <div className="container mx-auto px-4 md:px-6">
         {/* Header with Scroll Reveal */}
         <ScrollReveal direction="up" delay={0}>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-            <div>
-              <span className="text-xs font-bold tracking-widest text-secondary uppercase block mb-2">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+            <div className="max-w-2xl">
+              <span className="text-[11px] font-medium tracking-[0.2em] text-text-muted uppercase block mb-3">
                 Bộ Sưu Tập Tuyển Chọn
               </span>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-primary">
-                Tác Phẩm Gỗ Quý Nổi Bật
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium text-primary tracking-wide mb-4">
+                Tác Phẩm Nổi Bật
               </h2>
-              <p className="mt-2 text-sm text-text-muted">
+              <p className="text-base text-text-muted font-light leading-relaxed">
                 Những phôi gỗ lâu năm có vân hoa độc đáo, thớ gỗ đanh chắc và hương thơm quý phái.
               </p>
             </div>
 
             <Link
               href="/san-pham"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-hover transition-colors group flex-shrink-0"
+              className="inline-flex items-center gap-2 text-[13px] font-semibold tracking-wide text-primary hover:text-secondary transition-colors group flex-shrink-0 pb-1 border-b border-transparent hover:border-secondary"
             >
-              <span>Xem tất cả ({displayTotal})</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              <span>Xem tất cả bộ sưu tập</span>
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1.5" />
             </Link>
           </div>
         </ScrollReveal>
@@ -54,7 +54,7 @@ export function FeaturedProducts({ products, totalCount }: FeaturedProductsProps
         <ScrollRevealGroup
           staggerDelay={70}
           direction="up"
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-8 md:gap-y-16"
         >
           {featured.map((product) => (
             <ProductCard key={product.id} {...product} />

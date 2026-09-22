@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, Eye } from "lucide-react";
 import PriceDisplay from "./PriceDisplay";
-import { QuickConsultSheet } from "./QuickConsultSheet";
-import { Product } from "@/lib/useProducts";
 
 export interface ProductCardProps {
   id: string;
@@ -31,115 +28,62 @@ export const ProductCard = React.memo(function ProductCard({
   sizes,
   featured,
 }: ProductCardProps) {
-  const [isConsultOpen, setIsConsultOpen] = useState(false);
-
   const firstPrice = sizes && sizes.length > 0 ? sizes[0].price : null;
   const imageUrl = images && images.length > 0 ? images[0] : "/images/placeholder.svg";
 
-  const productObject: Product = {
-    id,
-    slug,
-    name,
-    code,
-    category,
-    woodType,
-    description: "",
-    preservation: "",
-    sizes: sizes || [],
-    images: images || [],
-    featured: !!featured,
-    status: "published",
-    createdAt: "",
-  };
-
   return (
-    <>
-      <Link
-        href={`/san-pham/${slug}`}
-        prefetch={true}
-        className="group flex flex-col rounded-2xl bg-white border border-[#C5A059]/25 hover:border-[#C5A059]/80 shadow-[0_4px_16px_rgba(44,26,14,0.06)] hover:shadow-[0_16px_36px_rgba(44,26,14,0.14)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden relative block gpu-accelerated"
-      >
-        {/* Product Image Container */}
-        <div className="relative aspect-square w-full bg-[#FAF6F0] overflow-hidden block wood-sheen-container">
-          <Image
-            src={imageUrl}
-            alt={name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
-          />
+    <Link
+      href={`/san-pham/${slug}`}
+      prefetch={true}
+      className="group flex flex-col bg-surface hover:-translate-y-1 transition-all duration-500 overflow-hidden relative block h-full"
+    >
+      {/* Product Image Container */}
+      <div className="relative aspect-square w-full bg-accent-soft/30 overflow-hidden block rounded-xl border border-border/40 group-hover:border-primary/20 transition-colors duration-500">
+        <Image
+          src={imageUrl}
+          alt={name}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="object-cover object-center opacity-95 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"
+        />
 
-          {/* Badges on Image */}
-          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10">
-            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#1F1610]/80 text-white backdrop-blur-xs shadow-xs border border-white/20">
-              {code}
+        {/* Badges on Image */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+          {featured && (
+            <span className="text-[10px] font-medium uppercase tracking-widest px-2.5 py-1 bg-black/60 text-white backdrop-blur-md rounded-sm">
+              Nổi bật
             </span>
-            {featured && (
-              <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#C5A059] text-[#1F1610] shadow-sm">
-                ★ Nổi Bật
-              </span>
-            )}
-          </div>
-
-          {/* Quick Hover Action Overlay (Desktop) */}
-          <div className="absolute inset-0 bg-[#2A160C]/20 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-2">
-            <span className="px-3.5 py-1.5 rounded-full bg-white/95 text-[#2A160C] text-xs font-semibold shadow-md flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-              <Eye className="w-3.5 h-3.5 text-[#C5A059]" />
-              Chi tiết tác phẩm
-            </span>
-          </div>
+          )}
+        </div>
+        <div className="absolute bottom-3 left-3 z-10">
+          <span className="font-mono text-[10px] font-medium px-2 py-0.5 bg-white/90 text-text shadow-sm backdrop-blur-sm rounded-sm">
+            {code}
+          </span>
         </div>
 
-        {/* Content */}
-        <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between bg-gradient-to-b from-white to-[#FAF6F0]/40">
-          <div>
-            <div className="flex items-center justify-between gap-1 mb-1">
-              <span className="text-[11px] text-[#5C3A21] font-medium block truncate">
-                {woodType}
-              </span>
-              <span className="text-[10px] text-[#C5A059] font-medium hidden sm:inline-block">
-                Gỗ Quý
-              </span>
-            </div>
-            <h3 className="font-serif text-sm sm:text-base font-bold text-[#1F1610] group-hover:text-[#5C3A21] transition-colors line-clamp-2 leading-snug">
-              {name}
-            </h3>
-          </div>
+        {/* Subtle overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      </div>
 
-          {/* Price & Action Row */}
-          <div className="mt-3.5 pt-3 border-t border-[#C5A059]/20 flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <span className="text-[10px] text-[#5A4A42] block">Thời giá tác phẩm:</span>
-              <PriceDisplay price={firstPrice} size="md" />
-            </div>
-
-            {/* Quick Consult Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsConsultOpen(true);
-              }}
-              title="Nhận tư vấn & báo giá nhanh"
-              className="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-[#0068FF]/10 hover:bg-[#0068FF] text-[#0068FF] hover:text-white transition-all duration-200 flex items-center gap-1.5 shrink-0 active:scale-95 shadow-2xs z-20"
-              aria-label={`Tư vấn sản phẩm ${code}`}
-            >
-              <MessageCircle className="w-4 h-4 fill-current" />
-              <span className="text-xs font-semibold hidden md:inline">Tư vấn</span>
-            </button>
+      {/* Content */}
+      <div className="pt-4 pb-2 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center justify-between gap-1 mb-1.5">
+            <span className="text-[11px] uppercase tracking-wider text-text-muted font-medium block truncate">
+              {woodType}
+            </span>
           </div>
+          <h3 className="font-serif text-base font-medium text-text group-hover:text-primary transition-colors line-clamp-2 leading-snug tracking-wide">
+            {name}
+          </h3>
         </div>
-      </Link>
 
-      {/* Quick Consult Bottom Sheet */}
-      <QuickConsultSheet
-        isOpen={isConsultOpen}
-        onClose={() => setIsConsultOpen(false)}
-        product={productObject}
-        selectedSize={sizes?.[0]}
-      />
-    </>
+        {/* Price Row */}
+        <div className="mt-3">
+          <PriceDisplay price={firstPrice} size="sm" />
+        </div>
+      </div>
+    </Link>
   );
 });
 

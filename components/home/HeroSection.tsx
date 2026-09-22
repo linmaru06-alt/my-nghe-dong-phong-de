@@ -28,7 +28,7 @@ export function HeroSection() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#C8963E] animate-pulse" />
               <span>Bảo vật mộc xưa</span>
             </div>
-            <h1 className="font-serif text-xl sm:text-2xl text-white leading-tight font-bold tracking-wide drop-shadow-sm">
+            <h1 className="font-serif text-xl sm:text-2xl text-white leading-snug font-bold tracking-wide drop-shadow-sm">
               Vòng tay gỗ quý tuyển chọn
             </h1>
             <p className="text-xs text-[#FEDCC8] line-clamp-1 mt-1 font-normal opacity-95">
@@ -80,9 +80,9 @@ export function HeroSection() {
             </div>
 
             {/* Heading */}
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-wide text-white leading-[1.25]">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-wide text-white leading-[1.45]">
               Tinh hoa từ những <br className="hidden sm:inline" />
-              <span className="italic font-normal tracking-wide text-[#E8BF87]">thớ gỗ quý ngàn năm</span>
+              <span className="inline-block mt-1 sm:mt-2 italic font-normal tracking-wide text-[#E8BF87]">thớ gỗ quý ngàn năm</span>
             </h1>
 
             {/* Subtitle */}

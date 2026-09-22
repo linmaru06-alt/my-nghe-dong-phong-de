@@ -167,55 +167,41 @@ export function Footer() {
                   <Phone className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[11px] text-[#A8988C] block">Hotline tư vấn:</span>
-                  <span className="font-bold font-mono">{phone}</span>
+                  <span className="font-bold font-mono text-base">{phone}</span>
                 </div>
               </a>
 
-              <a
-                href={zaloLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-white hover:text-zalo transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-zalo/20 flex items-center justify-center text-zalo flex-shrink-0">
-                  <MessageCircle className="w-4 h-4 fill-zalo text-transparent" />
-                </div>
-                <div>
-                  <span className="text-[11px] text-[#A8988C] block">Zalo chính thức:</span>
-                  <span className="font-medium text-zalo">Nhắn Zalo ({phone})</span>
-                </div>
-              </a>
+              <div className="flex items-center gap-3 pt-2 pb-1">
+                <a
+                  href={zaloLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-zalo/20 flex items-center justify-center text-zalo hover:bg-zalo hover:text-white transition-all duration-300"
+                  title="Zalo"
+                >
+                  <MessageCircle className="w-5 h-5 fill-current" />
+                </a>
 
-              <a
-                href={shopeeLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-white hover:text-[#EE4D2D] transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-[#EE4D2D]/20 flex items-center justify-center text-[#EE4D2D] flex-shrink-0">
-                  <ShoppingBag className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-[11px] text-[#A8988C] block">Gian hàng Shopee:</span>
-                  <span className="font-medium text-[#FF7A59]">Mua online nhận mã giảm giá</span>
-                </div>
-              </a>
+                <a
+                  href={shopeeLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-[#EE4D2D]/20 flex items-center justify-center text-[#EE4D2D] hover:bg-[#EE4D2D] hover:text-white transition-all duration-300"
+                  title="Shopee"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                </a>
 
-              <a
-                href={facebookLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-white hover:text-[#1877F2] transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-[#1877F2]/20 flex items-center justify-center text-[#1877F2] flex-shrink-0">
-                  <Facebook className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-[11px] text-[#A8988C] block">Facebook kết nối:</span>
-                  <span className="font-medium text-[#6CA9FF]">Ghé thăm Facebook xưởng</span>
-                </div>
-              </a>
+                <a
+                  href={facebookLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-[#1877F2]/20 flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all duration-300"
+                  title="Facebook"
+                >
+                  <Facebook className="w-5 h-5" />
+                </a>
+              </div>
 
               <div className="flex items-start gap-3 text-xs text-[#A8988C] pt-1">
                 <MapPin className="w-4 h-4 text-[#C5A059] flex-shrink-0 mt-0.5" />

@@ -27,15 +27,15 @@ export function ContactBanner() {
               href={settingsData.brand.zaloLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-zalo hover:brightness-105 text-white font-bold py-3.5 px-8 rounded-pill shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-transparent border-2 border-[#3D2314] hover:bg-[#3D2314] text-[#3D2314] hover:text-white font-bold py-3 px-8 rounded-pill shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
-              <MessageCircle className="w-5 h-5 fill-white text-zalo" />
+              <MessageCircle className="w-5 h-5" />
               <span>Chat Zalo Với Nghệ Nhân</span>
             </a>
 
             <a
               href={`tel:${cleanPhone}`}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-semibold py-3.5 px-8 rounded-pill shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-bold py-3 px-8 rounded-pill shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
               <Phone className="w-5 h-5" />
               <span>Gọi Hotline: {settingsData.brand.phone}</span>

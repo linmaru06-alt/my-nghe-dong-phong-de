@@ -54,7 +54,7 @@ export function FeaturedProducts({ products, totalCount }: FeaturedProductsProps
         <ScrollRevealGroup
           staggerDelay={70}
           direction="up"
-          className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-8 md:gap-y-16"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 md:gap-x-10 md:gap-y-20"
         >
           {featured.map((product) => (
             <ProductCard key={product.id} {...product} />

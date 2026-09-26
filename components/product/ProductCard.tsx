@@ -29,6 +29,9 @@ export const ProductCard = React.memo(function ProductCard({
   featured,
 }: ProductCardProps) {
   const firstPrice = sizes && sizes.length > 0 ? sizes[0].price : null;
+  // TODO: replace with clean product photo — current asset looks like a UI screenshot
+  // Most product images in products.json are AI-generated (aida-public) placeholders.
+  // Many URLs are reused across different products. Replace with real product photography.
   const imageUrl = images && images.length > 0 ? images[0] : "/images/placeholder.svg";
 
   return (
@@ -50,7 +53,7 @@ export const ProductCard = React.memo(function ProductCard({
         {/* Badges on Image */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
           {featured && (
-            <span className="text-[10px] font-medium uppercase tracking-widest px-2.5 py-1 bg-black/60 text-white backdrop-blur-md rounded-sm">
+            <span className="text-[10px] font-medium uppercase tracking-widest px-2.5 py-1 bg-[#3D2314]/90 text-[#E8BF87] backdrop-blur-md rounded-sm">
               Nổi bật
             </span>
           )}

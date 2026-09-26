@@ -14,6 +14,7 @@ export function HeroSection() {
       <section className="block md:hidden px-4 pt-[72px] pb-3 select-none">
         <div className="relative w-full h-[220px] rounded-[16px] overflow-hidden shadow-[0_8px_24px_rgba(107,63,31,0.16)] flex flex-col justify-end p-4">
           {/* Background Image with Warm Amber Scrim */}
+          {/* TODO: replace with clean product photo — current asset looks like a UI screenshot */}
           <div
             className="absolute inset-0 w-full h-full bg-cover bg-center"
             style={{
@@ -54,6 +55,7 @@ export function HeroSection() {
       {/* ─── DESKTOP VIEW (Stitch Screen 15: Desktop 1 - Trang Chủ) ─── */}
       <section className="relative w-full -mt-20 overflow-hidden bg-primary text-white min-h-[640px] lg:min-h-[760px] hidden md:flex items-center select-none">
         {/* Background Image from Stitch */}
+        {/* TODO: replace with clean product photo — current asset looks like a UI screenshot */}
         <div className="absolute inset-0 z-0">
           <div
             className="w-full h-full bg-cover bg-center opacity-40 scale-105 transition-transform duration-1000 ease-out"
@@ -65,7 +67,7 @@ export function HeroSection() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-[1320px] w-full mx-auto px-4 md:px-8 pt-32 pb-20 flex flex-col justify-between items-start">
+        <div className="relative z-10 max-w-[1320px] w-full mx-auto px-4 md:px-8 pt-32 pb-10 flex flex-col justify-between items-start">
           <div className="max-w-3xl flex flex-col space-y-5">
             {/* Heading */}
 
@@ -84,7 +86,7 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center gap-4 pt-4">
               <Link
                 href="#danh-muc"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white font-semibold text-base transition-all duration-300 shadow-lg hover:-translate-y-0.5 bg-primary hover:bg-primary-hover"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[#2C1A0E] font-semibold text-base transition-all duration-300 shadow-lg hover:-translate-y-0.5 bg-[#C5A059] hover:bg-[#D4AF37]"
               >
                 <span>Khám phá sản phẩm</span>
                 <ArrowRight className="w-4 h-4" />

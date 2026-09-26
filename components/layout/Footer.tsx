@@ -60,11 +60,11 @@ export function Footer() {
             <p className="text-[13px] text-[#A8988C] font-light leading-relaxed max-w-sm">
               Chế tác mộc thủ công truyền thống từ các loại gỗ quý tự nhiên. Mỗi tác phẩm là một câu chuyện độc bản về thời gian và tâm huyết nghệ nhân.
             </p>
-            <div className="flex items-center gap-5 pt-2 text-[11px] text-[#C5A059] uppercase tracking-wide font-medium">
-              <span className="flex items-center gap-1.5">
+            <div className="flex items-center gap-3 pt-2">
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-[#C5A059] uppercase tracking-wide font-medium border border-[#C5A059]/40 rounded-full px-3 py-1.5">
                 <ShieldCheck className="w-4 h-4" /> Gỗ thật 100%
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-[#C5A059] uppercase tracking-wide font-medium border border-[#C5A059]/40 rounded-full px-3 py-1.5">
                 <HeartHandshake className="w-4 h-4" /> Bảo hành trọn đời
               </span>
             </div>
@@ -125,17 +125,17 @@ export function Footer() {
                   href={zaloLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-zalo/10 flex items-center justify-center text-zalo hover:bg-zalo hover:text-white transition-all duration-300"
+                  className="w-8 h-8 rounded-full bg-[#C5A059]/10 flex items-center justify-center text-[#C5A059] hover:bg-[#C5A059] hover:text-[#23150D] transition-all duration-300"
                   title="Zalo"
                 >
-                  <MessageCircle className="w-4 h-4 fill-current" />
+                  <MessageCircle className="w-4 h-4" />
                 </a>
 
                 <a
                   href={shopeeLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-[#EE4D2D]/10 flex items-center justify-center text-[#EE4D2D] hover:bg-[#EE4D2D] hover:text-white transition-all duration-300"
+                  className="w-8 h-8 rounded-full bg-[#C5A059]/10 flex items-center justify-center text-[#C5A059] hover:bg-[#C5A059] hover:text-[#23150D] transition-all duration-300"
                   title="Shopee"
                 >
                   <ShoppingBag className="w-4 h-4" />
@@ -145,7 +145,7 @@ export function Footer() {
                   href={facebookLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all duration-300"
+                  className="w-8 h-8 rounded-full bg-[#C5A059]/10 flex items-center justify-center text-[#C5A059] hover:bg-[#C5A059] hover:text-[#23150D] transition-all duration-300"
                   title="Facebook"
                 >
                   <Facebook className="w-4 h-4" />

@@ -4,6 +4,9 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, LayoutGrid } from "lucide-react";
+// TODO: replace with clean product photo — current asset looks like a UI screenshot
+// All category images in categories.json are AI-generated (aida-public) placeholders.
+// Replace each category's "image" field with real photography of the actual products.
 import categoriesData from "@/data/categories.json";
 import productsData from "@/data/products.json";
 import ScrollReveal, { ScrollRevealGroup } from "@/components/ui/ScrollReveal";
@@ -149,18 +152,18 @@ export function CategoryGrid({ products }: CategoryGridProps) {
           <div className="h-full">
             <Link
               href="/san-pham"
-              className="group flex flex-col items-center justify-center p-6 rounded-xl text-center border border-secondary/30 bg-surface/50 hover:bg-primary hover:border-primary hover:-translate-y-1 transition-all duration-500 h-full aspect-[4/5] shadow-sm hover:shadow-xl"
+              className="group flex flex-col items-center justify-center p-6 rounded-xl text-center border border-[#C5A059]/30 bg-gradient-to-br from-[#2C1A0E] to-[#3D2314] hover:from-[#3D2314] hover:to-[#4E2D12] hover:-translate-y-1 transition-all duration-500 h-full aspect-[4/5] shadow-sm hover:shadow-xl"
             >
-              <span className="w-16 h-16 rounded-full bg-bg flex items-center justify-center text-primary shadow-sm group-hover:scale-110 group-hover:bg-white/10 group-hover:text-white transition-all duration-500 mb-4">
+              <span className="w-16 h-16 rounded-full bg-[#C5A059]/15 flex items-center justify-center text-[#C5A059] shadow-sm group-hover:scale-110 group-hover:bg-[#C5A059]/25 transition-all duration-500 mb-4">
                 <LayoutGrid className="w-7 h-7" />
               </span>
-              <h3 className="font-serif text-xl text-primary group-hover:text-white font-medium tracking-wide transition-colors">
+              <h3 className="font-serif text-xl text-white font-medium tracking-wide">
                 Xem Tất Cả<br />Danh Mục
               </h3>
-              <p className="text-xs text-text-muted group-hover:text-white/80 mt-2 max-w-[200px] transition-colors">
+              <p className="text-xs text-white/60 mt-2 max-w-[200px]">
                 Hơn {productsData.length} tác phẩm và mẫu quà tặng
               </p>
-              <span className="inline-flex items-center gap-1.5 text-xs text-secondary group-hover:text-[#E8BF87] font-semibold mt-5 transition-colors">
+              <span className="inline-flex items-center gap-1.5 text-xs text-[#C5A059] group-hover:text-[#E8BF87] font-semibold mt-5 transition-colors">
                 <span>Khám phá ngay</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </span>

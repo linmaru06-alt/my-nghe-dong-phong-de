@@ -36,7 +36,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       secondary:
         "bg-transparent border border-primary text-primary hover:bg-accent-soft/30",
       zalo:
-        "bg-zalo text-white hover:brightness-105 shadow-sm hover:shadow",
+        "bg-primary text-white hover:bg-primary-hover shadow-sm hover:shadow",
       phone:
         "bg-[#B84E29] text-white hover:bg-[#9E3E1E] shadow-sm hover:shadow",
       ghost:

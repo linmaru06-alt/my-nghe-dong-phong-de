@@ -127,7 +127,9 @@ export default function AboutPage() {
 
         {/* Workshop Visit & CTA */}
         <section className="max-w-3xl mx-auto text-center p-8 md:p-12 rounded-card bg-surface border border-border shadow-card">
-          <MapPin className="w-8 h-8 text-primary mx-auto mb-4" />
+          <div className="w-12 h-12 rounded-full bg-accent-soft flex items-center justify-center text-primary mx-auto mb-4">
+            <MapPin className="w-6 h-6" />
+          </div>
           <h2 className="font-serif text-2xl md:text-3xl font-bold text-primary mb-3">
             Mời Quý Khách Ghé Thăm Xưởng Mộc
           </h2>
@@ -144,14 +146,14 @@ export default function AboutPage() {
               href={settingsData.brand.zaloLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-zalo hover:brightness-105 text-white font-bold py-3 px-6 rounded-pill text-sm transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold py-3 px-6 rounded-btn text-sm transition-all"
             >
-              <MessageCircle className="w-4 h-4 fill-white text-zalo" />
+              <MessageCircle className="w-4 h-4" />
               <span>Hẹn Giờ Ghé Thăm Qua Zalo</span>
             </a>
             <Link
               href="/san-pham"
-              className="w-full sm:w-auto px-6 py-3 rounded-pill border border-border hover:border-primary text-text hover:text-primary text-sm font-semibold transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center px-6 py-3 rounded-btn border border-border hover:border-primary text-text hover:text-primary text-sm font-bold transition-colors"
             >
               Xem tác phẩm sẵn có
             </Link>

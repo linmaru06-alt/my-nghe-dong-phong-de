@@ -217,9 +217,9 @@ export default function SearchClient({
               href={settingsData.brand.zaloLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-pill bg-zalo hover:brightness-105 text-white text-xs font-bold transition-all shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-pill bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-sm"
             >
-              <MessageCircle className="w-4 h-4 fill-white text-zalo" />
+              <MessageCircle className="w-4 h-4" />
               <span>Gửi Mẫu Qua Zalo</span>
             </a>
           </div>

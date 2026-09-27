@@ -46,8 +46,43 @@ export default async function BlogDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  // Schema.org BlogPosting chuẩn Google & tăng độ uy tín E-E-A-T
+  const blogSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt || post.title,
+    image: post.thumbnail ? [post.thumbnail] : ["https://mynghedongphong.vn/images/logo.png"],
+    datePublished: post.publishedAt || new Date().toISOString(),
+    author: {
+      "@type": "Person",
+      name: "Nghệ nhân Đông Phong",
+      jobTitle: "Nghệ nhân điêu khắc mộc truyền thống",
+      worksFor: {
+        "@type": "Organization",
+        name: "Mỹ Nghệ Đông Phong",
+      },
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Mỹ Nghệ Đông Phong",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://mynghedongphong.vn/images/logo.png",
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://mynghedongphong.vn/bai-viet/${post.slug}`,
+    },
+  };
+
   return (
     <main className="flex-1 w-full">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }}
+      />
       <BlogDetailClient post={post} />
     </main>
   );

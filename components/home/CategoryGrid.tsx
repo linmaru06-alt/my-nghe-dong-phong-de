@@ -115,7 +115,7 @@ export function CategoryGrid({ products }: CategoryGridProps) {
                   className="group flex flex-col h-full w-full"
                 >
                   {/* Image */}
-                  <div className="relative w-full aspect-[3/4] overflow-hidden mb-4 bg-[#f5efe6]">
+                  <div className="relative w-full aspect-square overflow-hidden mb-4 bg-[#f5efe6]">
                     <Image
                       src={cat.image}
                       alt={cat.name}
@@ -132,7 +132,7 @@ export function CategoryGrid({ products }: CategoryGridProps) {
                     </h3>
                     
                     <div className="mt-2.5 mb-1.5 flex items-center">
-                      <span className="inline-block bg-[#B32025] text-white text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[1px] uppercase">
+                      <span className="inline-block bg-[#3D2314] text-[#E8BF87] text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[1px] uppercase">
                         {count > 0 ? "CÓ SẴN" : "LIÊN HỆ"}
                       </span>
                     </div>

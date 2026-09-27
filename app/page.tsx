@@ -2,7 +2,9 @@ import HeroSection from "@/components/home/HeroSection";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import ContactBanner from "@/components/home/ContactBanner";
+import LatestArticles from "@/components/home/LatestArticles";
 import { getPublishedProducts } from "@/lib/server/products";
+import { getLatestPosts } from "@/lib/server/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,7 @@ export const metadata = {
 
 export default async function HomePage() {
   const products = await getPublishedProducts();
+  const posts = await getLatestPosts(3);
 
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -62,7 +65,7 @@ export default async function HomePage() {
       <HeroSection />
       <CategoryGrid products={products} />
       <FeaturedProducts products={products} totalCount={products.length} />
-
+      <LatestArticles posts={posts} />
       <ContactBanner />
     </main>
   );

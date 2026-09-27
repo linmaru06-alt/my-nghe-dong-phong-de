@@ -15,6 +15,21 @@ export function LatestArticles({ posts }: LatestArticlesProps) {
   return (
     <section className="py-16 md:py-24 bg-[#FDFBF7] select-none overflow-hidden">
       <div className="w-full max-w-[1320px] mx-auto px-4 md:px-8">
+        {/* Section Header with Scroll Reveal */}
+        <ScrollReveal direction="up" delay={0}>
+          <div className="mb-10 pb-2">
+            <h3 className="text-[10px] md:text-[11px] font-bold tracking-widest text-[#B32025] uppercase mb-3">
+              KIẾN THỨC TỪ NGHỆ NHÂN
+            </h3>
+            <h2 className="font-serif text-3xl md:text-4xl text-primary font-normal mb-4">
+              Tin Tức & Khám Phá
+            </h2>
+            <p className="text-sm text-text-muted max-w-3xl">
+              Khám phá nghệ thuật mộc truyền thống, bí quyết nhận biết gỗ quý và kiến thức phong thủy ứng dụng thực tế.
+            </p>
+          </div>
+        </ScrollReveal>
+
         <ScrollRevealGroup
           staggerDelay={70}
           direction="up"
@@ -22,12 +37,8 @@ export function LatestArticles({ posts }: LatestArticlesProps) {
         >
           {posts.map((post) => {
             const date = new Date(post.publishedAt || Date.now());
-            // Format like: "12 September 2026"
-            const dateStr = date.toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric"
-            });
+            // Format like: "12 Tháng 9, 2026"
+            const dateStr = `${date.getDate()} Tháng ${date.getMonth() + 1}, ${date.getFullYear()}`;
 
             return (
               <div key={post.id} className="h-full">

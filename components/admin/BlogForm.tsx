@@ -3,11 +3,13 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import ReactMarkdown from "react-markdown";
-import { Save, Send, Eye, Upload, Image as ImageIcon, X, Loader2 } from "lucide-react";
+import { Save, Send, Eye, Upload, Image as ImageIcon, X, Loader2, LayoutTemplate, FileCode } from "lucide-react";
 import { usePostsStore } from "@/lib/usePosts";
 import { slugify } from "@/lib/slugify";
 import { toast } from "@/components/ui/Toast";
+import { VisualBlockEditor } from "./block-editor/VisualBlockEditor";
+import { markdownToBlocks, blocksToMarkdown, EditorBlock } from "@/lib/blockEditor";
+import { ArticleContentRenderer } from "@/components/blog/ArticleContentRenderer";
 
 export interface BlogFormData {
   id?: string;
@@ -45,7 +47,8 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     }
   );
 
-  const [isPreviewTab, setIsPreviewTab] = useState(false);
+  const [editorMode, setEditorMode] = useState<"visual" | "markdown" | "preview">("visual");
+  const [blocks, setBlocks] = useState<EditorBlock[]>(() => markdownToBlocks(formData.content));
   const [isUploadingThumb, setIsUploadingThumb] = useState(false);
   const [isUploadingContentImg, setIsUploadingContentImg] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -59,7 +62,27 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
 
-  // Estimate reading time from words
+  // Đồng bộ thay đổi từ khối trực quan sang Markdown & thời gian đọc
+  const handleBlocksChange = (newBlocks: EditorBlock[]) => {
+    setBlocks(newBlocks);
+    const newContent = blocksToMarkdown(newBlocks);
+    const words = newContent.trim().split(/\s+/).length;
+    const readingTime = Math.max(1, Math.ceil(words / 200));
+    setFormData((prev) => ({ ...prev, content: newContent, readingTime }));
+  };
+
+  // Chuyển tab và tự động parse lại dữ liệu nếu cần
+  const handleSwitchTab = (tab: "visual" | "markdown" | "preview") => {
+    if (tab === "visual" && editorMode === "markdown") {
+      setBlocks(markdownToBlocks(formData.content));
+    } else if (tab === "markdown" && editorMode === "visual") {
+      const md = blocksToMarkdown(blocks);
+      setFormData((prev) => ({ ...prev, content: md }));
+    }
+    setEditorMode(tab);
+  };
+
+  // Estimate reading time from words khi gõ trực tiếp trong tab Markdown
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const content = e.target.value;
     const words = content.trim().split(/\s+/).length;
@@ -156,8 +179,10 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
     setIsSaving(true);
     const finalStatus = statusToSet || formData.status;
+    const finalContent = editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content;
     const postPayload = {
       ...formData,
+      content: finalContent,
       status: finalStatus,
       id: formData.id || `post-${Date.now()}`,
       publishedAt:
@@ -351,75 +376,111 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           />
         </div>
 
-        {/* Markdown Editor with Preview Toggle & Image Insert */}
+        {/* Visual Block Editor / Markdown / Preview Modes */}
         <div>
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <label className="text-xs font-semibold text-text uppercase tracking-wider">
-              Nội dung bài viết (Markdown)
-            </label>
-
-            <div className="flex items-center gap-2">
-              {/* Insert Image Button */}
-              <label className={`inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium border border-border hover:border-primary text-text cursor-pointer transition-colors ${isUploadingContentImg ? 'opacity-60 pointer-events-none' : ''}`}>
-                {isUploadingContentImg ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                    <span className="text-[11px]">Đang chèn...</span>
-                  </>
-                ) : (
-                  <>
-                    <ImageIcon className="w-3.5 h-3.5 text-primary" />
-                    <span>+ Chèn ảnh vào bài viết</span>
-                  </>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  disabled={isUploadingContentImg}
-                  onChange={handleContentImageUpload}
-                  className="hidden"
-                />
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div>
+              <label className="text-xs font-semibold text-text uppercase tracking-wider block">
+                Nội dung bài viết
               </label>
+              <p className="text-[11px] text-text-muted mt-0.5">
+                Di chuyển chuột vào giữa các dòng/khối và bấm <span className="font-semibold text-primary">(+)</span> để chèn bất kỳ mẫu nào (Heading, Ảnh, 2 Cột, Khối hộp, v.v.)
+              </p>
+            </div>
 
-              <div className="flex items-center border border-border rounded overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setIsPreviewTab(false)}
-                  className={`px-3 py-1 text-xs font-medium transition-colors ${
-                    !isPreviewTab
-                      ? "bg-primary text-white"
-                      : "bg-surface text-text-muted hover:text-text"
-                  }`}
-                >
-                  Soạn thảo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsPreviewTab(true)}
-                  className={`px-3 py-1 text-xs font-medium transition-colors ${
-                    isPreviewTab
-                      ? "bg-primary text-white"
-                      : "bg-surface text-text-muted hover:text-text"
-                  }`}
-                >
-                  Xem trước
-                </button>
-              </div>
+            {/* Mode Switcher Tabs */}
+            <div className="flex items-center gap-1.5 p-1 bg-bg border border-border rounded-btn shadow-xs">
+              <button
+                type="button"
+                onClick={() => handleSwitchTab("visual")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-all ${
+                  editorMode === "visual"
+                    ? "bg-primary text-white shadow-xs"
+                    : "text-text-muted hover:text-text hover:bg-surface"
+                }`}
+              >
+                <LayoutTemplate className="w-3.5 h-3.5" />
+                <span>Trực quan (Khối)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSwitchTab("markdown")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-all ${
+                  editorMode === "markdown"
+                    ? "bg-primary text-white shadow-xs"
+                    : "text-text-muted hover:text-text hover:bg-surface"
+                }`}
+              >
+                <FileCode className="w-3.5 h-3.5" />
+                <span>Mã nguồn (Markdown)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSwitchTab("preview")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-all ${
+                  editorMode === "preview"
+                    ? "bg-primary text-white shadow-xs"
+                    : "text-text-muted hover:text-text hover:bg-surface"
+                }`}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Xem trước</span>
+              </button>
             </div>
           </div>
 
-          {!isPreviewTab ? (
-            <textarea
-              ref={textareaRef}
-              rows={16}
-              value={formData.content}
-              onChange={handleContentChange}
-              placeholder="Sử dụng cú pháp Markdown: ## Tiêu đề h2, ### Tiêu đề h3, ![Ảnh minh họa](/url), > Trích dẫn..."
-              className="w-full font-mono text-xs bg-bg border border-border rounded-btn p-4 text-text focus:outline-none focus:border-primary leading-relaxed"
-            />
-          ) : (
-            <div className="p-6 rounded-btn border border-border bg-bg min-h-[350px] prose prose-stone max-w-none text-sm leading-relaxed">
-              <ReactMarkdown>{formData.content}</ReactMarkdown>
+          {/* Mode 1: Visual Block Editor */}
+          {editorMode === "visual" && (
+            <div className="bg-bg/40 p-4 md:p-6 rounded-card border border-border">
+              <VisualBlockEditor blocks={blocks} onChange={handleBlocksChange} />
+            </div>
+          )}
+
+          {/* Mode 2: Markdown Editor */}
+          {editorMode === "markdown" && (
+            <div className="space-y-2">
+              <div className="flex justify-end">
+                <label className={`inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium border border-border hover:border-primary text-text cursor-pointer transition-colors ${isUploadingContentImg ? 'opacity-60 pointer-events-none' : ''}`}>
+                  {isUploadingContentImg ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                      <span className="text-[11px]">Đang chèn...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ImageIcon className="w-3.5 h-3.5 text-primary" />
+                      <span>+ Chèn ảnh vào Markdown</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={isUploadingContentImg}
+                    onChange={handleContentImageUpload}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              <textarea
+                ref={textareaRef}
+                rows={16}
+                value={formData.content}
+                onChange={handleContentChange}
+                placeholder="Sử dụng cú pháp Markdown: ## Tiêu đề h2, ### Tiêu đề h3, ![Ảnh minh họa](/url), > Trích dẫn..."
+                className="w-full font-mono text-xs bg-bg border border-border rounded-btn p-4 text-text focus:outline-none focus:border-primary leading-relaxed"
+              />
+            </div>
+          )}
+
+          {/* Mode 3: Preview */}
+          {editorMode === "preview" && (
+            <div className="p-6 md:p-8 rounded-card border border-border bg-[#FDFBF7] shadow-xs">
+              <div className="max-w-3xl mx-auto">
+                <ArticleContentRenderer content={formData.content} />
+              </div>
             </div>
           )}
         </div>

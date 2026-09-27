@@ -3,7 +3,6 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import ReactMarkdown, { type Components } from "react-markdown";
 import { Calendar, Clock, ArrowLeft, Sparkles } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Badge from "@/components/ui/Badge";
@@ -14,76 +13,7 @@ import BlogCard from "@/components/blog/BlogCard";
 import postsData from "@/data/posts.json";
 import productsData from "@/data/products.json";
 import { formatDate } from "@/lib/utils";
-
-const markdownComponents: Components = {
-  h2: ({ children }) => {
-    const text = String(children);
-    const id = text
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-");
-    return (
-      <h2
-        id={id}
-        className="font-serif text-2xl md:text-3xl font-bold text-primary mt-10 mb-4 pb-2 border-b border-border/60 scroll-mt-24"
-      >
-        {children}
-      </h2>
-    );
-  },
-  h3: ({ children }) => {
-    const text = String(children);
-    const id = text
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-");
-    return (
-      <h3
-        id={id}
-        className="font-serif text-xl font-bold text-secondary mt-6 mb-3 scroll-mt-24"
-      >
-        {children}
-      </h3>
-    );
-  },
-  p: ({ children }) => (
-    <p className="text-sm md:text-base text-[#3D2C21] leading-relaxed mb-4">
-      {children}
-    </p>
-  ),
-  blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-primary bg-accent-soft/40 p-4 rounded-r-lg my-6 text-sm text-text font-serif italic">
-      {children}
-    </blockquote>
-  ),
-  ul: ({ children }) => (
-    <ul className="list-disc list-inside space-y-2 text-sm md:text-base text-[#3D2C21] my-4 pl-2">
-      {children}
-    </ul>
-  ),
-  ol: ({ children }) => (
-    <ol className="list-decimal list-inside space-y-2 text-sm md:text-base text-[#3D2C21] my-4 pl-2">
-      {children}
-    </ol>
-  ),
-  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-  img: ({ src, alt }: any) => (
-    <figure className="my-6 block text-center">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={alt || "Ảnh bài viết Mỹ Nghệ Đông Phong"}
-        className="rounded-lg max-w-full h-auto mx-auto shadow-sm border border-border"
-        loading="lazy"
-      />
-      {alt && (
-        <figcaption className="text-center text-xs text-text-muted mt-2 italic font-serif">
-          {alt}
-        </figcaption>
-      )}
-    </figure>
-  ),
-};
+import { ArticleContentRenderer } from "@/components/blog/ArticleContentRenderer";
 
 
 export interface BlogDetailClientProps {
@@ -230,12 +160,8 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
               />
             </div>
 
-            {/* Markdown Renderer */}
-            <div className="prose prose-stone max-w-none text-text leading-relaxed">
-              <ReactMarkdown components={markdownComponents}>
-                {post.content}
-              </ReactMarkdown>
-            </div>
+            {/* Rich Block & Markdown Renderer */}
+            <ArticleContentRenderer content={post.content} />
           </article>
 
           {/* Desktop Table of Contents Sidebar (4 cols) */}

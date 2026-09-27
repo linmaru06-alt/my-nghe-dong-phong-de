@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Menu, X, MessageCircle } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SearchDropdown from "@/components/ui/SearchDropdown";
 import MobileMenu from "@/components/layout/MobileMenu";
@@ -49,7 +49,6 @@ export function Header() {
   }, []);
 
   const navLinks = [
-    { label: "Trang chủ", href: "/" },
     { label: "Sản phẩm", href: "/san-pham" },
     { label: "Giới thiệu", href: "/gioi-thieu" },
     { label: "Bài viết", href: "/bai-viet" },
@@ -74,8 +73,9 @@ export function Header() {
         )}
       >
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group shrink-0">
+          <div className="flex items-center gap-8 lg:gap-12">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-3 group shrink-0">
             <img
               src="/images/logo.png"
               alt="Mỹ Nghệ Đông Phong Logo"
@@ -115,11 +115,11 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "text-sm font-medium transition-colors relative py-1",
+                    "text-base font-medium transition-colors relative py-1",
                     isTransparent
                       ? isActive
                         ? "text-white font-semibold"
-                        : "text-white/85 hover:text-white"
+                        : "text-white hover:text-white/80"
                       : isActive
                       ? "text-primary font-semibold"
                       : "text-text hover:text-primary"
@@ -138,6 +138,7 @@ export function Header() {
               );
             })}
           </nav>
+          </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
@@ -156,16 +157,7 @@ export function Header() {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Zalo CTA Button (Desktop) */}
-            <a
-              href={settingsData.brand.zaloLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-2 bg-zalo hover:brightness-105 text-white text-xs font-semibold px-4 py-2 rounded-pill shadow-sm transition-all duration-200 active:scale-95"
-            >
-              <MessageCircle className="w-4 h-4 fill-white text-zalo" />
-              <span>Nhắn Zalo</span>
-            </a>
+
 
             {/* Mobile Menu Toggle */}
             <button

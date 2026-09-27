@@ -38,9 +38,9 @@ export function ContactCTA({
           href={zaloUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2.5 bg-zalo hover:brightness-105 text-white font-bold py-3.5 px-6 rounded-btn shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-sm"
+          className="flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-bold py-3.5 px-6 rounded-btn shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-sm"
         >
-          <MessageCircle className="w-5 h-5 fill-white text-zalo" />
+          <MessageCircle className="w-5 h-5" />
           <span>Nhắn Zalo Thỉnh Tác Phẩm</span>
         </a>
 

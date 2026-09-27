@@ -16,7 +16,7 @@ export function ContactBanner() {
             Kết Nối Với Xưởng Gỗ
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-primary mb-4">
-            Bạn Cần Tư Vấn Riêng Về Loại Gỗ Hay Kích Cỡ?
+            Liên Hệ Với Chúng Tôi
           </h2>
           <p className="text-sm md:text-base text-text-muted leading-relaxed mb-8">
             Đội ngũ nghệ nhân Mỹ Nghệ Đông Phong sẵn sàng quay video trực tiếp thớ vân, đo ni hạt vòng tay và tư vấn phong thủy hợp mệnh hoàn toàn miễn phí.
@@ -27,18 +27,18 @@ export function ContactBanner() {
               href={settingsData.brand.zaloLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-zalo hover:brightness-105 text-white font-bold py-3.5 px-8 rounded-pill shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-transparent border-2 border-[#3D2314] hover:bg-[#3D2314] text-[#3D2314] hover:text-white font-bold py-3 px-8 rounded-pill shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
-              <MessageCircle className="w-5 h-5 fill-white text-zalo" />
-              <span>Chat Zalo Với Nghệ Nhân</span>
+              <MessageCircle className="w-5 h-5" />
+              <span>Zalo</span>
             </a>
 
             <a
               href={`tel:${cleanPhone}`}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-semibold py-3.5 px-8 rounded-pill shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-hover text-white font-bold py-3 px-8 rounded-pill shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
               <Phone className="w-5 h-5" />
-              <span>Gọi Hotline: {settingsData.brand.phone}</span>
+              <span>Hotline</span>
             </a>
           </div>
 

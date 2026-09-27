@@ -1,11 +1,8 @@
 import HeroSection from "@/components/home/HeroSection";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
-import TrustStrip from "@/components/home/TrustStrip";
-import BlogPreview from "@/components/home/BlogPreview";
 import ContactBanner from "@/components/home/ContactBanner";
 import { getPublishedProducts } from "@/lib/server/products";
-import { getLatestPosts } from "@/lib/server/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -16,10 +13,7 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const [products, latestPosts] = await Promise.all([
-    getPublishedProducts(),
-    getLatestPosts(2),
-  ]);
+  const products = await getPublishedProducts();
 
   return (
     <main className="flex-1 flex flex-col w-full">
@@ -27,8 +21,6 @@ export default async function HomePage() {
       <CategoryGrid products={products} />
       <FeaturedProducts products={products} totalCount={products.length} />
 
-      <TrustStrip />
-      <BlogPreview posts={latestPosts} />
       <ContactBanner />
     </main>
   );

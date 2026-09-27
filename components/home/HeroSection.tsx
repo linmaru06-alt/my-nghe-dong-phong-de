@@ -2,16 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import { ChevronDown, ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import settingsData from "@/data/settings.json";
 
 export function HeroSection() {
-  const scrollToContent = () => {
-    const nextSection = document.getElementById("danh-muc");
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+
 
   return (
     <>
@@ -19,6 +14,7 @@ export function HeroSection() {
       <section className="block md:hidden px-4 pt-[72px] pb-3 select-none">
         <div className="relative w-full h-[220px] rounded-[16px] overflow-hidden shadow-[0_8px_24px_rgba(107,63,31,0.16)] flex flex-col justify-end p-4">
           {/* Background Image with Warm Amber Scrim */}
+          {/* TODO: replace with clean product photo — current asset looks like a UI screenshot */}
           <div
             className="absolute inset-0 w-full h-full bg-cover bg-center"
             style={{
@@ -29,11 +25,7 @@ export function HeroSection() {
 
           {/* Content Overlay */}
           <div className="relative z-10 flex flex-col items-start max-w-[290px]">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FEB783]/90 text-[#673C1C] text-[11px] font-semibold tracking-wide mb-1.5 backdrop-blur-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C8963E] animate-pulse" />
-              <span>Bảo vật mộc xưa</span>
-            </div>
-            <h1 className="font-serif text-xl sm:text-2xl text-white leading-tight font-bold tracking-tight drop-shadow-sm">
+            <h1 className="font-serif text-xl sm:text-2xl text-white leading-snug font-bold tracking-wide drop-shadow-sm">
               Vòng tay gỗ quý tuyển chọn
             </h1>
             <p className="text-xs text-[#FEDCC8] line-clamp-1 mt-1 font-normal opacity-95">
@@ -47,15 +39,7 @@ export function HeroSection() {
                 <span>Xem ngay</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
-              <a
-                href={settingsData.brand.zaloLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 bg-zalo text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md active:scale-95"
-              >
-                <MessageCircle className="w-3.5 h-3.5 fill-white text-zalo" />
-                <span>Zalo</span>
-              </a>
+
             </div>
           </div>
 
@@ -71,6 +55,7 @@ export function HeroSection() {
       {/* ─── DESKTOP VIEW (Stitch Screen 15: Desktop 1 - Trang Chủ) ─── */}
       <section className="relative w-full -mt-20 overflow-hidden bg-primary text-white min-h-[640px] lg:min-h-[760px] hidden md:flex items-center select-none">
         {/* Background Image from Stitch */}
+        {/* TODO: replace with clean product photo — current asset looks like a UI screenshot */}
         <div className="absolute inset-0 z-0">
           <div
             className="w-full h-full bg-cover bg-center opacity-40 scale-105 transition-transform duration-1000 ease-out"
@@ -82,24 +67,18 @@ export function HeroSection() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-[1320px] w-full mx-auto px-4 md:px-8 pt-32 pb-20 flex flex-col justify-between items-start">
+        <div className="relative z-10 max-w-[1320px] w-full mx-auto px-4 md:px-8 pt-32 pb-10 flex flex-col justify-between items-start">
           <div className="max-w-3xl flex flex-col space-y-5">
-            {/* Eyebrow badge with amber pulse */}
-            <div className="inline-flex items-center gap-2 self-start px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[#E0C097]">
-              <span className="w-2 h-2 rounded-full bg-[#C8963E] animate-pulse" />
-              <span className="text-[11px] tracking-[0.25em] uppercase font-semibold">
-                ĐỒ MỸ NGHỆ GỖ QUÝ THỦ CÔNG
-              </span>
-            </div>
+            {/* Heading */}
 
             {/* Heading */}
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-[1.15]">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-wide text-white leading-[1.45]">
               Tinh hoa từ những <br className="hidden sm:inline" />
-              <span className="italic font-normal text-[#E8BF87]">thớ gỗ quý ngàn năm</span>
+              <span className="inline-block mt-1 sm:mt-2 italic font-normal tracking-wide text-[#E8BF87]">thớ gỗ quý ngàn năm</span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-[#F5D3C0] font-light max-w-2xl leading-relaxed">
+            <p className="text-lg sm:text-xl text-[#F5D3C0] font-light max-w-2xl leading-relaxed">
               Mỗi tác phẩm là kết tinh của thời gian, thổ nhưỡng ngàn năm và đôi bàn tay tài hoa của nghệ nhân làng mộc truyền thống Đông Phong.
             </p>
 
@@ -107,33 +86,17 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center gap-4 pt-4">
               <Link
                 href="#danh-muc"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white font-semibold text-sm transition-all duration-300 shadow-lg hover:-translate-y-0.5 bg-primary hover:bg-primary-hover"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-[#2C1A0E] font-semibold text-base transition-all duration-300 shadow-lg hover:-translate-y-0.5 bg-[#C5A059] hover:bg-[#D4AF37]"
               >
                 <span>Khám phá sản phẩm</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
-              <a
-                href={settingsData.brand.zaloLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white font-semibold text-sm transition-all duration-300 shadow-lg hover:-translate-y-0.5 bg-zalo hover:brightness-105"
-              >
-                <MessageCircle className="w-4 h-4 fill-white text-zalo" />
-                <span>Nhắn Zalo ngay</span>
-              </a>
+
             </div>
           </div>
 
-          {/* Scroll Chevron */}
-          <button
-            type="button"
-            onClick={scrollToContent}
-            className="pt-12 flex items-center gap-2 text-[#F5D3C0]/80 hover:text-white text-xs tracking-widest uppercase transition-colors"
-          >
-            <ChevronDown className="w-5 h-5 animate-bounce text-[#C8963E]" />
-            <span>Cuộn xuống thưởng lãm</span>
-          </button>
+
         </div>
       </section>
     </>

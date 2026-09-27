@@ -1,5 +1,5 @@
 import React from "react";
-import { MessageCircle, Phone, MapPin, Clock, HelpCircle, ShoppingBag, Facebook, ExternalLink, Sparkles } from "lucide-react";
+import { MessageCircle, Phone, MapPin, Clock, HelpCircle, ShoppingBag, Facebook, Sparkles } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Accordion from "@/components/ui/Accordion";
 import settingsData from "@/data/settings.json";
@@ -52,14 +52,11 @@ export default function ContactPage() {
 
         {/* 3 Contact Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
-          {/* 1. Zalo Card (Most Prominent) */}
-          <div className="p-8 rounded-card bg-surface border-2 border-zalo/40 shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col justify-between text-center relative overflow-hidden group">
-            <div className="absolute top-0 right-0 bg-zalo text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">
-              Nhanh nhất
-            </div>
+          {/* 1. Zalo Card */}
+          <div className="p-8 rounded-card bg-surface border border-border shadow-card hover:shadow-xl transition-all duration-300 flex flex-col justify-between text-center group">
             <div>
-              <div className="w-14 h-14 rounded-full bg-zalo/10 text-zalo flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <MessageCircle className="w-7 h-7 fill-zalo text-transparent" />
+              <div className="w-14 h-14 rounded-full bg-accent-soft text-primary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <MessageCircle className="w-7 h-7" />
               </div>
               <h3 className="font-serif text-lg font-bold text-text mb-2">
                 Zalo Nghệ Nhân
@@ -72,9 +69,9 @@ export default function ContactPage() {
               href={zaloLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-3 px-4 rounded-btn bg-zalo hover:brightness-105 text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 rounded-btn bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2"
             >
-              <MessageCircle className="w-4 h-4 fill-white" />
+              <MessageCircle className="w-4 h-4" />
               <span>Nhắn Tin Zalo ({phone})</span>
             </a>
           </div>
@@ -82,7 +79,7 @@ export default function ContactPage() {
           {/* 2. Hotline Card */}
           <div className="p-8 rounded-card bg-surface border border-border shadow-card hover:shadow-xl transition-all duration-300 flex flex-col justify-between text-center group">
             <div>
-              <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 rounded-full bg-accent-soft text-primary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <Phone className="w-7 h-7" />
               </div>
               <h3 className="font-serif text-lg font-bold text-text mb-2">
@@ -104,20 +101,29 @@ export default function ContactPage() {
           {/* 3. Workshop Address Card */}
           <div className="p-8 rounded-card bg-surface border border-border shadow-card hover:shadow-xl transition-all duration-300 flex flex-col justify-between text-center group">
             <div>
-              <div className="w-14 h-14 rounded-full bg-accent-soft text-secondary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 rounded-full bg-accent-soft text-primary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                 <MapPin className="w-7 h-7" />
               </div>
               <h3 className="font-serif text-lg font-bold text-text mb-2">
                 Địa Chỉ Xưởng Mộc
               </h3>
-              <p className="text-xs text-text-muted mb-6 leading-relaxed">
+              <p className="text-xs text-text-muted mb-2 leading-relaxed">
                 {settingsData.brand.address}
               </p>
+              <div className="text-xs text-text-muted flex items-center justify-center gap-1.5 mb-6">
+                <Clock className="w-3.5 h-3.5 text-secondary" />
+                <span>{settingsData.brand.businessHours}</span>
+              </div>
             </div>
-            <div className="pt-2 text-xs text-text-muted flex items-center justify-center gap-1.5 border-t border-border/50">
-              <Clock className="w-3.5 h-3.5 text-secondary" />
-              <span>{settingsData.brand.businessHours}</span>
-            </div>
+            <a
+              href={`https://maps.google.com/?q=${encodeURIComponent(settingsData.brand.address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3 px-4 rounded-btn bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2"
+            >
+              <MapPin className="w-4 h-4" />
+              <span>Chỉ Đường</span>
+            </a>
           </div>
         </div>
 
@@ -131,20 +137,17 @@ export default function ContactPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Shopee Card */}
-            <div className="p-6 md:p-7 rounded-card bg-surface border border-[#EE4D2D]/30 shadow-card hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
-              <div className="absolute top-0 right-0 bg-[#EE4D2D] text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
-                <span>Gian Hàng Shopee</span>
-              </div>
+            <div className="p-6 md:p-7 rounded-card bg-surface border border-border shadow-card hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
               <div>
                 <div className="flex items-center gap-3.5 mb-3.5">
-                  <div className="w-12 h-12 rounded-xl bg-[#EE4D2D]/10 text-[#EE4D2D] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-accent-soft text-primary flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
                     <ShoppingBag className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-serif text-lg font-bold text-text">
                       Gian Hàng Shopee Chính Hãng
                     </h3>
-                    <span className="text-[11px] text-[#EE4D2D] font-medium block">
+                    <span className="text-[11px] text-text-muted font-medium block">
                       Đảm bảo chính hãng • Miễn phí vận chuyển
                     </span>
                   </div>
@@ -157,28 +160,25 @@ export default function ContactPage() {
                 href={shopeeLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 px-4 rounded-btn bg-[#EE4D2D] hover:bg-[#d73f20] text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 rounded-btn bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2"
               >
-                <span>Ghé Thăm Gian Hàng Shopee</span>
-                <ExternalLink className="w-4 h-4" />
+                <ShoppingBag className="w-4 h-4" />
+                <span>Ghé Thăm Shopee</span>
               </a>
             </div>
 
             {/* Facebook Card */}
-            <div className="p-6 md:p-7 rounded-card bg-surface border border-[#1877F2]/30 shadow-card hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
-              <div className="absolute top-0 right-0 bg-[#1877F2] text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
-                <span>Facebook Kết Nối</span>
-              </div>
+            <div className="p-6 md:p-7 rounded-card bg-surface border border-border shadow-card hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
               <div>
                 <div className="flex items-center gap-3.5 mb-3.5">
-                  <div className="w-12 h-12 rounded-xl bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-accent-soft text-primary flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
                     <Facebook className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-serif text-lg font-bold text-text">
                       Trang Facebook Xưởng Mộc
                     </h3>
-                    <span className="text-[11px] text-[#1877F2] font-medium block">
+                    <span className="text-[11px] text-text-muted font-medium block">
                       Cập nhật phôi gỗ & Video chế tác mỗi ngày
                     </span>
                   </div>
@@ -191,10 +191,10 @@ export default function ContactPage() {
                 href={facebookLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 px-4 rounded-btn bg-[#1877F2] hover:bg-[#1464c9] text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 rounded-btn bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2"
               >
-                <span>Kết Nối Qua Facebook</span>
-                <ExternalLink className="w-4 h-4" />
+                <Facebook className="w-4 h-4" />
+                <span>Kết Nối Facebook</span>
               </a>
             </div>
           </div>

@@ -252,9 +252,9 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 href={zaloLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 bg-zalo hover:brightness-105 text-white py-2.5 rounded-btn text-sm font-bold shadow-sm transition-all"
+                className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white py-2.5 rounded-btn text-sm font-bold shadow-sm transition-all"
               >
-                <MessageCircle className="w-4 h-4 fill-white text-zalo" />
+                <MessageCircle className="w-4 h-4" />
                 <span>Nhắn Zalo Tư Vấn ({phone})</span>
               </a>
 

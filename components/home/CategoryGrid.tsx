@@ -86,12 +86,14 @@ export function CategoryGrid({ products }: CategoryGridProps) {
       <section id="danh-muc" className="hidden md:block w-full max-w-[1320px] mx-auto px-4 md:px-8 py-16 md:py-24 select-none overflow-hidden">
         {/* Section Header with Scroll Reveal */}
         <ScrollReveal direction="up" delay={0}>
-          <div className="text-center max-w-xl mx-auto mb-12 md:mb-16">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary">
+          <div className="mb-10 pb-2">
+            <h3 className="text-[10px] md:text-[11px] font-bold tracking-widest text-[#B32025] uppercase mb-3">
+              MỸ NGHỆ ĐÔNG PHONG
+            </h3>
+            <h2 className="font-serif text-3xl md:text-4xl text-primary font-normal mb-4">
               Danh Mục Sản Phẩm
             </h2>
-            <div className="w-16 h-0.5 mx-auto mt-2.5 mb-3 bg-secondary" />
-            <p className="text-sm md:text-base text-text-muted leading-relaxed">
+            <p className="text-sm text-text-muted">
               Khám phá các tuyệt tác đồ gỗ mỹ nghệ phong thủy và chế tác gia dụng cao cấp từ gỗ tự nhiên lâu năm.
             </p>
           </div>
@@ -101,7 +103,7 @@ export function CategoryGrid({ products }: CategoryGridProps) {
         <ScrollRevealGroup
           staggerDelay={60}
           direction="up"
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-6 gap-y-12"
         >
           {categoriesData.map((cat) => {
             const count = getCount(cat.id);
@@ -110,66 +112,56 @@ export function CategoryGrid({ products }: CategoryGridProps) {
               <div key={cat.id} className="h-full">
                 <Link
                   href={`/san-pham?category=${cat.id}`}
-                  className="group flex flex-col relative rounded-xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 h-full w-full"
+                  className="group flex flex-col h-full w-full"
                 >
-                  {/* Image Background */}
-                  <div className="absolute inset-0 z-0 bg-[#2C1A0E]">
+                  {/* Image */}
+                  <div className="relative w-full aspect-[3/4] overflow-hidden mb-4 bg-[#f5efe6]">
                     <Image
                       src={cat.image}
                       alt={cat.name}
                       fill
                       sizes="(max-width: 1024px) 50vw, 25vw"
-                      className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-transform duration-700 ease-out"
+                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
                   </div>
                   
-                  {/* Gradient Overlay for Text */}
-                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
-                  
-                  {/* Content Overlay */}
-                  <div className="relative z-20 flex flex-col justify-end p-5 md:p-6 h-full aspect-[4/5]">
-                    <h3 className="font-serif text-xl md:text-2xl text-white font-medium tracking-wide drop-shadow-md group-hover:text-[#E8BF87] transition-colors duration-300">
+                  {/* Content */}
+                  <div className="flex flex-col">
+                    <h3 className="font-serif text-lg md:text-xl text-primary group-hover:text-[#B32025] transition-colors">
                       {cat.name}
                     </h3>
                     
-                    {/* The description and link are hidden by default, and reveal on hover using max-height or opacity */}
-                    <div className="overflow-hidden max-h-0 opacity-0 group-hover:max-h-[100px] group-hover:opacity-100 group-hover:mt-2 transition-all duration-500 ease-in-out">
-                      <p className="text-sm text-white/90 line-clamp-2">
-                        {cat.description}
-                      </p>
-                      <span className="inline-flex items-center gap-1.5 text-xs text-[#E8BF87] font-semibold mt-3">
-                        <span>Khám phá {count} tác phẩm</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    <div className="mt-2.5 mb-1.5 flex items-center">
+                      <span className="inline-block bg-[#B32025] text-white text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[1px] uppercase">
+                        {count > 0 ? "CÓ SẴN" : "LIÊN HỆ"}
                       </span>
                     </div>
+                    
+                    <p className="text-[12px] text-primary mt-1 font-medium">
+                      Mỹ Nghệ Đông Phong
+                    </p>
+                    <p className="text-[11px] text-text-muted mt-0.5 line-clamp-1">
+                      {count} sản phẩm &middot; {cat.description}
+                    </p>
                   </div>
                 </Link>
               </div>
             );
           })}
+        </ScrollRevealGroup>
 
-          {/* 8th Card: View All */}
-          <div className="h-full">
+        {/* View all link */}
+        <ScrollReveal direction="up" delay={200}>
+          <div className="mt-14 border-t border-border/40 pt-6">
             <Link
               href="/san-pham"
-              className="group flex flex-col items-center justify-center p-6 rounded-xl text-center border border-[#C5A059]/30 bg-gradient-to-br from-[#2C1A0E] to-[#3D2314] hover:from-[#3D2314] hover:to-[#4E2D12] hover:-translate-y-1 transition-all duration-500 h-full aspect-[4/5] shadow-sm hover:shadow-xl"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[#B32025] hover:text-[#8a181c] transition-colors"
             >
-              <span className="w-16 h-16 rounded-full bg-[#C5A059]/15 flex items-center justify-center text-[#C5A059] shadow-sm group-hover:scale-110 group-hover:bg-[#C5A059]/25 transition-all duration-500 mb-4">
-                <LayoutGrid className="w-7 h-7" />
-              </span>
-              <h3 className="font-serif text-xl text-white font-medium tracking-wide">
-                Xem Tất Cả<br />Danh Mục
-              </h3>
-              <p className="text-xs text-white/60 mt-2 max-w-[200px]">
-                Hơn {productsData.length} tác phẩm và mẫu quà tặng
-              </p>
-              <span className="inline-flex items-center gap-1.5 text-xs text-[#C5A059] group-hover:text-[#E8BF87] font-semibold mt-5 transition-colors">
-                <span>Khám phá ngay</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </span>
+              <span>Xem tất cả danh mục</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-        </ScrollRevealGroup>
+        </ScrollReveal>
       </section>
     </>
   );

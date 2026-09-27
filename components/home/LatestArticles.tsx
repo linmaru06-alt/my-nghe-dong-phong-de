@@ -22,7 +22,7 @@ export function LatestArticles({ posts }: LatestArticlesProps) {
               KIẾN THỨC TỪ NGHỆ NHÂN
             </h3>
             <h2 className="font-serif text-3xl md:text-4xl text-primary font-normal mb-4">
-              Tin Tức & Khám Phá
+              Bài Viết
             </h2>
             <p className="text-sm text-text-muted max-w-3xl">
               Khám phá nghệ thuật mộc truyền thống, bí quyết nhận biết gỗ quý và kiến thức phong thủy ứng dụng thực tế.

@@ -219,161 +219,158 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           Nội Dung Bài Viết
         </h2>
 
-        <div>
-          <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
-            Tiêu đề bài viết *
-          </label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={handleTitleChange}
-            required
-            placeholder="VD: Cẩm nang phân biệt gỗ Tử Đàn Ấn Độ và Tử Đàn Nam Phi"
-            className="w-full bg-bg border border-border rounded-btn px-3.5 py-2.5 text-text focus:outline-none focus:border-primary font-serif font-bold text-base"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
-              Đường dẫn (Slug) *
-            </label>
-            <input
-              type="text"
-              value={formData.slug}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, slug: e.target.value }))
-              }
-              className="w-full font-mono text-xs bg-bg border border-border rounded-btn px-3.5 py-2.5 text-text focus:outline-none focus:border-primary"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
-              Nhóm chủ đề *
-            </label>
-            <select
-              value={formData.category}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, category: e.target.value }))
-              }
-              className="w-full bg-bg border border-border rounded-btn px-3.5 py-2.5 text-sm text-text focus:outline-none focus:border-primary cursor-pointer"
-            >
-              <option value="kien-thuc-ve-go">Kiến thức về gỗ</option>
-              <option value="huong-dan-lua-chon">Hướng dẫn lựa chọn</option>
-              <option value="bao-quan-san-pham">Bảo quản sản phẩm</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
-              Thời gian đọc (ước tính)
-            </label>
-            <input
-              type="number"
-              value={formData.readingTime}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  readingTime: Number(e.target.value),
-                }))
-              }
-              className="w-full bg-bg border border-border rounded-btn px-3.5 py-2.5 text-sm text-text focus:outline-none focus:border-primary"
-            />
-          </div>
-        </div>
-
-        {/* Thumbnail Image Picker & Uploader */}
-        <div className="space-y-2">
-          <label className="text-xs font-semibold text-text uppercase tracking-wider block">
-            Ảnh đại diện bài viết (Thumbnail)
-          </label>
-
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start">
-            {/* Image Preview Box */}
-            <div className="sm:col-span-4 relative aspect-16/10 rounded-lg overflow-hidden bg-bg border-2 border-dashed border-border flex flex-col items-center justify-center group">
-              {formData.thumbnail ? (
-                <>
-                  <Image
-                    src={formData.thumbnail}
-                    alt="Thumbnail preview"
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setFormData((prev) => ({ ...prev, thumbnail: "" }))}
-                      className="p-1.5 rounded-full bg-white/90 text-red-600 hover:bg-white transition-colors"
-                      title="Xóa ảnh này"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center p-4 text-text-muted">
-                  <ImageIcon className="w-8 h-8 mx-auto mb-1.5 opacity-50" />
-                  <span className="text-xs">Chưa có ảnh đại diện</span>
-                </div>
-              )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Cột trái: Tiêu đề, Đường dẫn, Chủ đề, Tóm tắt ngắn */}
+          <div className="lg:col-span-8 space-y-4">
+            <div>
+              <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
+                Tiêu đề bài viết *
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={handleTitleChange}
+                required
+                placeholder="VD: Cẩm nang phân biệt gỗ Tử Đàn Ấn Độ và Tử Đàn Nam Phi"
+                className="w-full bg-bg border border-border rounded-btn px-3.5 py-2.5 text-text focus:outline-none focus:border-primary font-serif font-bold text-base"
+              />
             </div>
 
-            {/* Upload Controls */}
-            <div className="sm:col-span-8 space-y-3">
-              <div className="flex flex-wrap items-center gap-3">
-                <label className={`inline-flex items-center gap-2 px-4 py-2 rounded-btn bg-primary hover:bg-primary-hover text-white text-xs font-semibold cursor-pointer shadow-xs transition-colors ${isUploadingThumb ? 'opacity-60 pointer-events-none' : ''}`}>
-                  {isUploadingThumb ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Đang tải ảnh lên...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-4 h-4" />
-                      <span>Tải ảnh từ máy tính / điện thoại</span>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    disabled={isUploadingThumb}
-                    onChange={handleThumbnailUpload}
-                    className="hidden"
-                  />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
+                  Đường dẫn (Slug) *
                 </label>
-                <span className="text-[11px] text-text-muted">Chấp nhận JPG, PNG, WebP tối đa 10MB</span>
+                <input
+                  type="text"
+                  value={formData.slug}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, slug: e.target.value }))
+                  }
+                  className="w-full font-mono text-xs bg-bg border border-border rounded-btn px-3 py-2 text-text focus:outline-none focus:border-primary"
+                />
               </div>
 
               <div>
-                <span className="text-[11px] text-text-muted block mb-1">Hoặc dán URL ảnh trực tuyến:</span>
-                <input
-                  type="text"
-                  value={formData.thumbnail}
+                <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
+                  Nhóm chủ đề *
+                </label>
+                <select
+                  value={formData.category}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, thumbnail: e.target.value }))
+                    setFormData((prev) => ({ ...prev, category: e.target.value }))
                   }
-                  placeholder="https://... hoặc /images/blog/..."
-                  className="w-full bg-bg border border-border rounded-btn px-3 py-1.5 text-xs text-text focus:outline-none focus:border-primary font-mono"
+                  className="w-full bg-bg border border-border rounded-btn px-3 py-2 text-xs text-text focus:outline-none focus:border-primary cursor-pointer"
+                >
+                  <option value="kien-thuc-ve-go">Kiến thức về gỗ</option>
+                  <option value="huong-dan-lua-chon">Hướng dẫn lựa chọn</option>
+                  <option value="bao-quan-san-pham">Bảo quản sản phẩm</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
+                  Thời gian đọc (phút)
+                </label>
+                <input
+                  type="number"
+                  value={formData.readingTime}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      readingTime: Number(e.target.value),
+                    }))
+                  }
+                  className="w-full bg-bg border border-border rounded-btn px-3 py-2 text-xs text-text focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
-          </div>
-        </div>
 
-        <div>
-          <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
-            Tóm tắt ngắn (Excerpt)
-          </label>
-          <textarea
-            rows={2}
-            value={formData.excerpt}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, excerpt: e.target.value }))
-            }
-            placeholder="Tóm tắt ngắn 1-2 câu hiển thị ngoài trang danh sách..."
-            className="w-full bg-bg border border-border rounded-btn p-3 text-sm text-text focus:outline-none focus:border-primary"
-          />
+            <div>
+              <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-1.5">
+                Tóm tắt ngắn (Excerpt)
+              </label>
+              <textarea
+                rows={2}
+                value={formData.excerpt}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, excerpt: e.target.value }))
+                }
+                placeholder="Tóm tắt ngắn 1-2 câu hiển thị ngoài trang danh sách..."
+                className="w-full bg-bg border border-border rounded-btn p-2.5 text-xs text-text focus:outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          {/* Cột phải: Ảnh đại diện Thumbnail */}
+          <div className="lg:col-span-4 flex flex-col justify-between p-4 rounded-btn border border-border bg-bg/40 space-y-3">
+            <div>
+              <label className="text-xs font-semibold text-text uppercase tracking-wider block mb-2">
+                Ảnh đại diện (Thumbnail)
+              </label>
+
+              <div className="relative aspect-16/10 rounded-lg overflow-hidden bg-bg border-2 border-dashed border-border flex flex-col items-center justify-center group">
+                {formData.thumbnail ? (
+                  <>
+                    <Image
+                      src={formData.thumbnail}
+                      alt="Thumbnail preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, thumbnail: "" }))}
+                        className="p-1.5 rounded-full bg-white/90 text-red-600 hover:bg-white transition-colors"
+                        title="Xóa ảnh này"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center p-3 text-text-muted">
+                    <ImageIcon className="w-7 h-7 mx-auto mb-1 opacity-50" />
+                    <span className="text-[11px]">Chưa có ảnh đại diện</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className={`w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-btn bg-primary hover:bg-primary-hover text-white text-xs font-semibold cursor-pointer shadow-xs transition-colors ${isUploadingThumb ? 'opacity-60 pointer-events-none' : ''}`}>
+                {isUploadingThumb ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Đang tải lên...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Tải ảnh đại diện</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  disabled={isUploadingThumb}
+                  onChange={handleThumbnailUpload}
+                  className="hidden"
+                />
+              </label>
+
+              <input
+                type="text"
+                value={formData.thumbnail}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, thumbnail: e.target.value }))
+                }
+                placeholder="Hoặc dán URL ảnh..."
+                className="w-full bg-bg border border-border rounded-btn px-2.5 py-1.5 text-[11px] text-text focus:outline-none focus:border-primary font-mono"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Visual Block Editor / Markdown / Preview Modes */}

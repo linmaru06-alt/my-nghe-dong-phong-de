@@ -8,20 +8,12 @@ import {
   Loader2,
   X,
   Plus,
-  MoreVertical,
   GripVertical,
   Heading as HeadingIcon,
   AlignLeft,
   ImageIcon,
-  Columns,
-  Box,
   Quote as QuoteIcon,
   List as ListIcon,
-  Table as TableIcon,
-  MousePointerClick,
-  Minus,
-  Sparkles,
-  BookOpen,
 } from "lucide-react";
 import { EditorBlock, BlockType } from "@/lib/blockEditor";
 import { toast } from "@/components/ui/Toast";

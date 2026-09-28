@@ -18,15 +18,12 @@ export interface ProductCardProps {
 }
 
 export const ProductCard = React.memo(function ProductCard({
-  id,
   slug,
   name,
   code,
-  category,
   woodType,
   images,
   sizes,
-  featured,
 }: ProductCardProps) {
   const firstPrice = sizes && sizes.length > 0 ? sizes[0].price : null;
   // TODO: replace with clean product photo — current asset looks like a UI screenshot

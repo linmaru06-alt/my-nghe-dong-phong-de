@@ -13,7 +13,7 @@ import {
   Plus,
   Heading as HeadingIcon,
   AlignLeft,
-  ImageIcon,
+  Image as ImageIcon,
   Columns,
   Box,
   Quote as QuoteIcon,

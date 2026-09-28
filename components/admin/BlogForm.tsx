@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { 
   Send, 
-  ImageIcon, 
+  Image as ImageIcon, 
   X, 
   Loader2,
   Settings,

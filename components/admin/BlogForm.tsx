@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { 
   Send, 
-  Eye, 
   ImageIcon, 
   X, 
   Loader2,
   Settings,
-  ChevronRight,
-  Code
+  Code,
+  ArrowLeft
 } from "lucide-react";
 import { usePostsStore } from "@/lib/usePosts";
 import { slugify } from "@/lib/slugify";
@@ -20,6 +19,7 @@ import { VisualBlockEditor } from "./block-editor/VisualBlockEditor";
 import { markdownToBlocks, blocksToMarkdown, EditorBlock } from "@/lib/blockEditor";
 import { ArticleContentRenderer } from "@/components/blog/ArticleContentRenderer";
 import { AutoResizeTextarea } from "@/components/ui/AutoResizeTextarea";
+import Link from "next/link";
 
 export interface BlogFormData {
   id?: string;
@@ -62,9 +62,10 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   const [showSettings, setShowSettings] = useState(true);
   const [isUploadingThumb, setIsUploadingThumb] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
   
   // Status string for top bar
-  const [saveStatus, setSaveStatus] = useState<"Chưa lưu" | "Đang lưu..." | "Đã lưu nháp">("Chưa lưu");
+  const [saveStatus, setSaveStatus] = useState<"Chưa lưu" | "Đang lưu..." | "Bản nháp">("Chưa lưu");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
   // Debounced Auto Save & Calculations
@@ -112,13 +113,12 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       if (isEdit && formData.id) {
         await updatePost(formData.id, payload);
       } else {
-        // If not edit yet, we might want to just store it locally or create a draft
         if (!formData.id) {
             setFormData(prev => ({...prev, id: payload.id}));
         }
       }
       setLastSaved(new Date());
-      setSaveStatus("Đã lưu nháp");
+      setSaveStatus("Bản nháp");
     } catch (e) {
       setSaveStatus("Chưa lưu");
     }
@@ -167,7 +167,6 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     if (!formData.title.trim()) errors.push("Tiêu đề bài viết");
     if (!formData.slug.trim()) errors.push("Đường dẫn (Slug)");
     if (!formData.thumbnail) errors.push("Ảnh đại diện");
-    if (!formData.excerpt.trim()) errors.push("Tóm tắt ngắn");
     
     if (errors.length > 0) {
       toast.error("Vui lòng hoàn thiện các trường sau trước khi đăng:", errors.join(", "));
@@ -202,34 +201,48 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   return (
     <div className="flex flex-col min-h-screen bg-[#FDFBF7] -m-6 md:-m-8">
       {/* Sticky Top Bar */}
-      <div className="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-border px-4 md:px-8 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-border px-4 md:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="text-xs text-text-muted flex items-center gap-1.5 hidden sm:flex">
+          <Link href="/admin/bai-viet" className="flex items-center gap-1.5 text-[13px] font-medium text-text-muted hover:text-text transition-colors">
+             <ArrowLeft className="w-4 h-4" />
+             <span className="hidden sm:inline">Quay lại danh sách</span>
+          </Link>
+          
+          <div className="w-px h-4 bg-border hidden sm:block" />
+          
+          <div className="text-[13px] text-text-muted flex items-center gap-1.5 hidden sm:flex">
              <span className="w-2 h-2 rounded-full bg-primary/40 inline-block" />
-             {saveStatus} {lastSaved ? `lúc ${lastSaved.toLocaleTimeString("vi-VN", {hour: "2-digit", minute:"2-digit"})}` : ""}
+             {saveStatus} {lastSaved ? `· Đã lưu lúc ${lastSaved.toLocaleTimeString("vi-VN", {hour: "2-digit", minute:"2-digit"})}` : ""}
           </div>
         </div>
 
         <div className="flex items-center gap-2 md:gap-3">
-          <button
-            onClick={() => setEditorMode(m => m === "visual" ? "markdown" : "visual")}
-            className="p-2 text-text-muted hover:text-text hover:bg-surface rounded-md transition-colors"
-            title="Chuyển chế độ Markdown"
-          >
-            <Code className="w-4 h-4" />
-          </button>
+          <div className="flex items-center bg-surface border border-border rounded-md overflow-hidden mr-2">
+             <button
+                onClick={() => setEditorMode("visual")}
+                className={`px-3 py-1.5 text-[13px] font-medium transition-colors ${editorMode === "visual" ? "bg-white text-primary shadow-sm" : "text-text-muted hover:text-text"}`}
+             >
+                Trực quan
+             </button>
+             <button
+                onClick={() => setEditorMode("markdown")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium transition-colors ${editorMode === "markdown" ? "bg-white text-primary shadow-sm" : "text-text-muted hover:text-text"}`}
+             >
+                <Code className="w-3.5 h-3.5" />
+                Markdown
+             </button>
+          </div>
           
           <button
-            onClick={() => setShowPreview(!showPreview)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors ${showPreview ? "bg-surface border-border text-text" : "border-transparent text-text-muted hover:text-text"}`}
+            onClick={() => setShowPreview(true)}
+            className="px-3 py-1.5 text-[13px] font-medium rounded-md border border-transparent text-primary hover:bg-surface transition-colors hidden sm:block"
           >
-            <Eye className="w-4 h-4" />
-            <span className="hidden sm:inline">Xem trước</span>
+            Xem trước
           </button>
           
           <button
             onClick={() => handleAutoSave(editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content)}
-            className="px-4 py-1.5 text-xs font-semibold rounded-md border border-border text-text hover:border-primary transition-colors hidden sm:block"
+            className="px-3 py-1.5 text-[13px] font-medium rounded-md border border-primary text-primary hover:bg-surface transition-colors hidden sm:block"
           >
             Lưu nháp
           </button>
@@ -237,7 +250,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           <button
             disabled={isSaving}
             onClick={validateAndPublish}
-            className="flex items-center gap-1.5 px-5 py-1.5 bg-[var(--wood-deep)] hover:bg-[var(--wood-warm)] text-white text-xs font-bold rounded-md transition-colors shadow-sm disabled:opacity-70"
+            className="flex items-center gap-1.5 px-5 py-1.5 bg-[#3D2314] hover:bg-[#5C3A21] text-white text-[13px] font-semibold rounded-md transition-colors shadow-sm disabled:opacity-70 focus:ring-2 focus:ring-offset-2 focus:ring-[#3D2314]"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             <span>Đăng bài</span>
@@ -247,8 +260,9 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className={`p-1.5 rounded-md transition-colors ${showSettings ? "bg-surface text-primary border border-border" : "text-text-muted hover:bg-surface border border-transparent"}`}
+            className={`p-1.5 rounded-md transition-colors focus:ring-2 focus:ring-offset-1 focus:ring-primary ${showSettings ? "bg-surface text-primary border border-border" : "text-text-muted hover:bg-surface border border-transparent"}`}
             title="Cài đặt bài viết"
+            aria-label="Cài đặt bài viết"
           >
             <Settings className="w-4 h-4" />
           </button>
@@ -257,13 +271,13 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
       <div className="flex flex-1 overflow-hidden relative">
         {/* Main Editor Area */}
-        <div className={`flex-1 overflow-y-auto ${showPreview ? "hidden lg:block lg:w-1/2 border-r border-border" : ""}`}>
-          <div className="max-w-[720px] mx-auto px-6 md:px-12 py-10 md:py-16 pb-32">
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-[720px] mx-auto px-6 py-10 md:py-16 pb-32">
             <AutoResizeTextarea
               value={formData.title}
               onChange={handleTitleChange}
-              placeholder="Nhập tiêu đề bài viết..."
-              className="w-full bg-transparent text-4xl md:text-5xl font-serif font-bold text-primary focus:outline-none placeholder:text-text-muted/30 resize-none overflow-hidden block leading-[1.2] mb-10"
+              placeholder="Tiêu đề bài viết..."
+              className="w-full bg-transparent text-[40px] font-serif font-bold text-primary focus:outline-none placeholder:text-text-muted/30 resize-none overflow-hidden block leading-[1.2] mb-10"
             />
             
             {editorMode === "visual" ? (
@@ -278,76 +292,77 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   setFormData(p => ({...p, content: e.target.value}));
                   setSaveStatus("Chưa lưu");
                 }}
-                className="w-full min-h-[500px] bg-transparent font-mono text-sm leading-relaxed focus:outline-none resize-none"
+                className="w-full min-h-[500px] bg-transparent font-mono text-[13px] leading-relaxed focus:outline-none resize-none"
                 placeholder="Nội dung markdown..."
               />
             )}
           </div>
         </div>
 
-        {/* Preview Panel */}
-        {showPreview && (
-          <div className="flex-1 overflow-y-auto bg-white">
-            <div className="max-w-[720px] mx-auto px-6 py-10">
-               <div className="mb-8 pb-4 border-b border-border border-dashed text-xs text-text-muted uppercase font-bold tracking-wider text-center">Chế độ xem trước</div>
-               <ArticleContentRenderer content={editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content} />
-            </div>
-          </div>
-        )}
-
         {/* Settings Panel */}
-        {showSettings && !showPreview && (
-          <div className="w-full md:w-80 border-l border-border bg-white overflow-y-auto p-6 md:block absolute md:relative right-0 inset-y-0 z-30 shadow-xl md:shadow-none">
+        {showSettings && (
+          <div className="w-full md:w-80 border-l border-border bg-white overflow-y-auto p-6 absolute md:relative right-0 inset-y-0 z-30 shadow-xl md:shadow-none bottom-0 top-auto md:top-0 h-[80vh] md:h-auto rounded-t-2xl md:rounded-none">
             <div className="flex items-center justify-between mb-6">
-               <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Cài đặt bài viết</h3>
+               <h3 className="text-[13px] font-bold text-primary uppercase tracking-wider">Cài đặt bài viết</h3>
                <button onClick={() => setShowSettings(false)} className="md:hidden p-1">
-                 <ChevronRight className="w-5 h-5" />
+                 <X className="w-5 h-5" />
                </button>
             </div>
             
             <div className="space-y-6">
               {/* Thumbnail */}
               <div>
-                <label className="text-xs text-text-muted mb-2 block font-medium">Ảnh đại diện (16:9)</label>
-                <div className="relative aspect-[16/9] rounded-md overflow-hidden bg-surface border border-dashed border-border flex items-center justify-center group">
+                <label className="text-[13px] text-text-muted mb-2 block">Ảnh đại diện <span className="text-red-500">*</span></label>
+                <div className="relative aspect-[16/9] rounded-md overflow-hidden bg-surface border border-border flex items-center justify-center group focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent">
                   {formData.thumbnail ? (
                     <>
                       <Image src={formData.thumbnail} alt="Thumbnail" fill className="object-cover" />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                         <button onClick={() => setFormData(p => ({...p, thumbnail: ""}))} className="p-1.5 bg-white rounded-full text-red-600"><X className="w-4 h-4"/></button>
+                         <button onClick={() => setFormData(p => ({...p, thumbnail: ""}))} className="p-1.5 bg-white rounded-full text-red-600 focus:outline-none focus:ring-2 focus:ring-red-600"><X className="w-4 h-4"/></button>
                       </div>
                     </>
                   ) : (
                     <label className="cursor-pointer text-center w-full h-full flex flex-col items-center justify-center hover:bg-surface/80">
                       {isUploadingThumb ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <ImageIcon className="w-6 h-6 text-border mb-1" />}
-                      <span className="text-[10px] text-text-muted mt-1">Kéo thả hoặc click</span>
+                      <span className="text-[11px] text-text-muted mt-1">Click để chọn file</span>
                       <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailUpload} disabled={isUploadingThumb}/>
                     </label>
                   )}
                 </div>
+                {!showUrlInput ? (
+                   <button onClick={() => setShowUrlInput(true)} className="text-[11px] text-primary hover:underline mt-2 block">Dùng URL ảnh</button>
+                ) : (
+                   <input
+                     type="text"
+                     value={formData.thumbnail}
+                     onChange={(e) => setFormData((prev) => ({ ...prev, thumbnail: e.target.value }))}
+                     placeholder="Dán URL ảnh..."
+                     className="w-full bg-surface border border-border rounded-md px-3 py-2 text-[13px] focus:outline-none focus:border-primary mt-2 transition-colors"
+                   />
+                )}
               </div>
 
               {/* URL & Slug */}
               <div>
-                <label className="text-xs text-text-muted mb-1 block font-medium flex justify-between">
+                <label className="text-[13px] text-text-muted mb-1 flex justify-between">
                   <span>Đường dẫn (Slug)</span>
-                  <button type="button" onClick={() => setFormData(p => ({...p, slug: slugify(p.title)}))} className="text-[10px] text-primary hover:underline">Tạo lại</button>
+                  <button type="button" onClick={() => setFormData(p => ({...p, slug: slugify(p.title)}))} className="text-[11px] text-primary hover:underline">Tạo lại</button>
                 </label>
                 <input
                   type="text"
                   value={formData.slug}
                   onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
-                  className="w-full bg-surface border border-border rounded-md px-3 py-2 text-xs font-mono focus:outline-none focus:border-primary"
+                  className="w-full bg-surface border border-border rounded-md px-3 py-2 text-[13px] font-mono focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
 
               {/* Category */}
               <div>
-                <label className="text-xs text-text-muted mb-1 block font-medium">Nhóm chủ đề</label>
+                <label className="text-[13px] text-text-muted mb-1 block">Nhóm chủ đề</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
-                  className="w-full bg-surface border border-border rounded-md px-3 py-2 text-xs focus:outline-none focus:border-primary"
+                  className="w-full bg-surface border border-border rounded-md px-3 py-2 text-[13px] focus:outline-none focus:border-primary transition-colors"
                 >
                   <option value="kien-thuc-ve-go">Kiến thức về gỗ</option>
                   <option value="huong-dan-lua-chon">Hướng dẫn lựa chọn</option>
@@ -357,7 +372,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
               {/* Excerpt */}
               <div>
-                <label className="text-xs text-text-muted mb-1 block font-medium flex justify-between">
+                <label className="text-[13px] text-text-muted mb-1 flex justify-between">
                   <span>Tóm tắt ({formData.excerpt.length}/160)</span>
                 </label>
                 <textarea
@@ -365,13 +380,13 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   value={formData.excerpt}
                   onChange={(e) => setFormData((prev) => ({ ...prev, excerpt: e.target.value }))}
                   placeholder="Gợi ý tự động từ đoạn đầu..."
-                  className="w-full bg-surface border border-border rounded-md p-2.5 text-xs focus:outline-none focus:border-primary resize-none"
+                  className="w-full bg-surface border border-border rounded-md p-2.5 text-[13px] focus:outline-none focus:border-primary resize-none transition-colors"
                 />
               </div>
               
               {/* Read Time */}
               <div>
-                 <span className="text-[11px] bg-surface border border-border px-2 py-1 rounded-full text-text-muted font-medium">
+                 <span className="text-[11px] bg-surface border border-border px-2.5 py-1.5 rounded-full text-text-muted font-medium inline-block">
                    ~{formData.readingTime} phút đọc
                  </span>
               </div>
@@ -379,6 +394,21 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           </div>
         )}
       </div>
+
+      {/* Fullscreen Preview */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 bg-[#FDFBF7] flex flex-col">
+           <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-white shadow-sm">
+             <div className="text-[13px] font-bold text-primary">Chế độ xem trước</div>
+             <button onClick={() => setShowPreview(false)} className="px-4 py-1.5 bg-surface text-text-muted hover:text-text rounded-md border border-border text-[13px] font-medium transition-colors focus:ring-2 focus:ring-offset-1 focus:ring-primary">Đóng xem trước</button>
+           </div>
+           <div className="flex-1 overflow-y-auto">
+             <div className="max-w-[720px] mx-auto px-6 py-12">
+               <ArticleContentRenderer content={editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content} />
+             </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

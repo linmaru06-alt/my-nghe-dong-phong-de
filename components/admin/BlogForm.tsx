@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -8,7 +7,6 @@ import {
   Save, 
   Send, 
   Eye, 
-  Upload, 
   ImageIcon, 
   X, 
   Loader2,
@@ -67,7 +65,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   
   // Status string for top bar
-  const [saveStatus, setSaveStatus] = useState<"Chua luu" | "�ang luu..." | "�� luu nh�p">("Chua luu");
+  const [saveStatus, setSaveStatus] = useState<"Chưa lưu" | "Đang lưu..." | "Đã lưu nháp">("Chưa lưu");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
   // Debounced Auto Save & Calculations
@@ -105,7 +103,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
   const handleAutoSave = async (currentContent: string) => {
     if (!formData.title) return;
-    setSaveStatus("�ang luu...");
+    setSaveStatus("Đang lưu...");
     try {
       const payload = {
         ...formData,
@@ -121,9 +119,9 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         }
       }
       setLastSaved(new Date());
-      setSaveStatus("�� luu nh�p");
+      setSaveStatus("Đã lưu nháp");
     } catch (e) {
-      setSaveStatus("Chua luu");
+      setSaveStatus("Chưa lưu");
     }
   };
 
@@ -134,7 +132,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       updates.slug = slugify(title);
     }
     setFormData((prev) => ({ ...prev, ...updates }));
-    setSaveStatus("Chua luu");
+    setSaveStatus("Chưa lưu");
   };
 
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,10 +153,10 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       const json = await res.json();
       if (res.ok && json.success && json.url) {
         setFormData((prev) => ({ ...prev, thumbnail: json.url }));
-        toast.success("T?i ?nh d?i di?n th�nh c�ng");
+        toast.success("Tải ảnh đại diện thành công");
       }
     } catch (err: any) {
-      toast.error("L?i t?i ?nh", err.message);
+      toast.error("Lỗi tải ảnh", err.message);
     } finally {
       setIsUploadingThumb(false);
       e.target.value = "";
@@ -167,13 +165,13 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
   const validateAndPublish = async () => {
     const errors = [];
-    if (!formData.title.trim()) errors.push("Ti�u d? b�i vi?t");
-    if (!formData.slug.trim()) errors.push("�u?ng d?n (Slug)");
-    if (!formData.thumbnail) errors.push("?nh d?i di?n");
-    if (!formData.excerpt.trim()) errors.push("T�m t?t ng?n");
+    if (!formData.title.trim()) errors.push("Tiêu đề bài viết");
+    if (!formData.slug.trim()) errors.push("Đường dẫn (Slug)");
+    if (!formData.thumbnail) errors.push("Ảnh đại diện");
+    if (!formData.excerpt.trim()) errors.push("Tóm tắt ngắn");
     
     if (errors.length > 0) {
-      toast.error("Vui l�ng ho�n thi?n c�c tru?ng sau tru?c khi dang:", errors.join(", "));
+      toast.error("Vui lòng hoàn thiện các trường sau trước khi đăng:", errors.join(", "));
       setShowSettings(true);
       return;
     }
@@ -194,10 +192,10 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       } else {
         await addPost(postPayload as any);
       }
-      toast.success("�� xu?t b?n b�i vi?t th�nh c�ng!");
+      toast.success("Đã xuất bản bài viết thành công!");
       router.push("/admin/bai-viet");
     } catch (error: any) {
-      toast.error("L?i khi dang b�i", error.message);
+      toast.error("Lỗi khi đăng bài", error.message);
       setIsSaving(false);
     }
   };
@@ -209,7 +207,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         <div className="flex items-center gap-4">
           <div className="text-xs text-text-muted flex items-center gap-1.5 hidden sm:flex">
              <span className="w-2 h-2 rounded-full bg-primary/40 inline-block" />
-             {saveStatus} {lastSaved ? `l�c ${lastSaved.toLocaleTimeString("vi-VN", {hour: "2-digit", minute:"2-digit"})}` : ""}
+             {saveStatus} {lastSaved ? `lúc ${lastSaved.toLocaleTimeString("vi-VN", {hour: "2-digit", minute:"2-digit"})}` : ""}
           </div>
         </div>
 
@@ -217,7 +215,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           <button
             onClick={() => setEditorMode(m => m === "visual" ? "markdown" : "visual")}
             className="p-2 text-text-muted hover:text-text hover:bg-surface rounded-md transition-colors"
-            title="Chuy?n ch? d? Markdown"
+            title="Chuyển chế độ Markdown"
           >
             <Code className="w-4 h-4" />
           </button>
@@ -227,14 +225,14 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors ${showPreview ? "bg-surface border-border text-text" : "border-transparent text-text-muted hover:text-text"}`}
           >
             <Eye className="w-4 h-4" />
-            <span className="hidden sm:inline">Xem tru?c</span>
+            <span className="hidden sm:inline">Xem trước</span>
           </button>
           
           <button
             onClick={() => handleAutoSave(editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content)}
             className="px-4 py-1.5 text-xs font-semibold rounded-md border border-border text-text hover:border-primary transition-colors hidden sm:block"
           >
-            Luu nh�p
+            Lưu nháp
           </button>
 
           <button
@@ -243,7 +241,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
             className="flex items-center gap-1.5 px-5 py-1.5 bg-[var(--wood-deep)] hover:bg-[var(--wood-warm)] text-white text-xs font-bold rounded-md transition-colors shadow-sm disabled:opacity-70"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            <span>�ang b�i</span>
+            <span>Đăng bài</span>
           </button>
           
           <div className="w-px h-5 bg-border mx-1" />
@@ -251,7 +249,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           <button
             onClick={() => setShowSettings(!showSettings)}
             className={`p-1.5 rounded-md transition-colors ${showSettings ? "bg-surface text-primary border border-border" : "text-text-muted hover:bg-surface border border-transparent"}`}
-            title="C�i d?t b�i vi?t"
+            title="Cài đặt bài viết"
           >
             <Settings className="w-4 h-4" />
           </button>
@@ -265,24 +263,24 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
             <AutoResizeTextarea
               value={formData.title}
               onChange={handleTitleChange}
-              placeholder="Nh?p ti�u d? b�i vi?t..."
+              placeholder="Nhập tiêu đề bài viết..."
               className="w-full bg-transparent text-4xl md:text-5xl font-serif font-bold text-primary focus:outline-none placeholder:text-text-muted/30 resize-none overflow-hidden block leading-[1.2] mb-10"
             />
             
             {editorMode === "visual" ? (
               <VisualBlockEditor blocks={blocks} onChange={(newBlocks) => {
                  setBlocks(newBlocks);
-                 setSaveStatus("Chua luu");
+                 setSaveStatus("Chưa lưu");
               }} />
             ) : (
               <textarea
                 value={formData.content}
                 onChange={(e) => {
                   setFormData(p => ({...p, content: e.target.value}));
-                  setSaveStatus("Chua luu");
+                  setSaveStatus("Chưa lưu");
                 }}
                 className="w-full min-h-[500px] bg-transparent font-mono text-sm leading-relaxed focus:outline-none resize-none"
-                placeholder="N?i dung markdown..."
+                placeholder="Nội dung markdown..."
               />
             )}
           </div>
@@ -292,7 +290,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         {showPreview && (
           <div className="flex-1 overflow-y-auto bg-white">
             <div className="max-w-[720px] mx-auto px-6 py-10">
-               <div className="mb-8 pb-4 border-b border-border border-dashed text-xs text-text-muted uppercase font-bold tracking-wider text-center">Ch? d? xem tru?c</div>
+               <div className="mb-8 pb-4 border-b border-border border-dashed text-xs text-text-muted uppercase font-bold tracking-wider text-center">Chế độ xem trước</div>
                <ArticleContentRenderer content={editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content} />
             </div>
           </div>
@@ -302,7 +300,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         {showSettings && !showPreview && (
           <div className="w-full md:w-80 border-l border-border bg-white overflow-y-auto p-6 md:block absolute md:relative right-0 inset-y-0 z-30 shadow-xl md:shadow-none">
             <div className="flex items-center justify-between mb-6">
-               <h3 className="text-sm font-bold text-primary uppercase tracking-wider">C�i d?t b�i vi?t</h3>
+               <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Cài đặt bài viết</h3>
                <button onClick={() => setShowSettings(false)} className="md:hidden p-1">
                  <ChevronRight className="w-5 h-5" />
                </button>
@@ -311,7 +309,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
             <div className="space-y-6">
               {/* Thumbnail */}
               <div>
-                <label className="text-xs text-text-muted mb-2 block font-medium">?nh d?i di?n (16:9)</label>
+                <label className="text-xs text-text-muted mb-2 block font-medium">Ảnh đại diện (16:9)</label>
                 <div className="relative aspect-[16/9] rounded-md overflow-hidden bg-surface border border-dashed border-border flex items-center justify-center group">
                   {formData.thumbnail ? (
                     <>
@@ -323,7 +321,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   ) : (
                     <label className="cursor-pointer text-center w-full h-full flex flex-col items-center justify-center hover:bg-surface/80">
                       {isUploadingThumb ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <ImageIcon className="w-6 h-6 text-border mb-1" />}
-                      <span className="text-[10px] text-text-muted mt-1">K�o th? ho?c click</span>
+                      <span className="text-[10px] text-text-muted mt-1">Kéo thả hoặc click</span>
                       <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailUpload} disabled={isUploadingThumb}/>
                     </label>
                   )}
@@ -333,8 +331,8 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
               {/* URL & Slug */}
               <div>
                 <label className="text-xs text-text-muted mb-1 block font-medium flex justify-between">
-                  <span>�u?ng d?n (Slug)</span>
-                  <button type="button" onClick={() => setFormData(p => ({...p, slug: slugify(p.title)}))} className="text-[10px] text-primary hover:underline">T?o l?i</button>
+                  <span>Đường dẫn (Slug)</span>
+                  <button type="button" onClick={() => setFormData(p => ({...p, slug: slugify(p.title)}))} className="text-[10px] text-primary hover:underline">Tạo lại</button>
                 </label>
                 <input
                   type="text"
@@ -346,28 +344,28 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
               {/* Category */}
               <div>
-                <label className="text-xs text-text-muted mb-1 block font-medium">Nh�m ch? d?</label>
+                <label className="text-xs text-text-muted mb-1 block font-medium">Nhóm chủ đề</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
                   className="w-full bg-surface border border-border rounded-md px-3 py-2 text-xs focus:outline-none focus:border-primary"
                 >
-                  <option value="kien-thuc-ve-go">Ki?n th?c v? g?</option>
-                  <option value="huong-dan-lua-chon">Hu?ng d?n l?a ch?n</option>
-                  <option value="bao-quan-san-pham">B?o qu?n s?n ph?m</option>
+                  <option value="kien-thuc-ve-go">Kiến thức về gỗ</option>
+                  <option value="huong-dan-lua-chon">Hướng dẫn lựa chọn</option>
+                  <option value="bao-quan-san-pham">Bảo quản sản phẩm</option>
                 </select>
               </div>
 
               {/* Excerpt */}
               <div>
                 <label className="text-xs text-text-muted mb-1 block font-medium flex justify-between">
-                  <span>T�m t?t ({formData.excerpt.length}/160)</span>
+                  <span>Tóm tắt ({formData.excerpt.length}/160)</span>
                 </label>
                 <textarea
                   rows={4}
                   value={formData.excerpt}
                   onChange={(e) => setFormData((prev) => ({ ...prev, excerpt: e.target.value }))}
-                  placeholder="G?i � t? d?ng t? do?n d?u..."
+                  placeholder="Gợi ý tự động từ đoạn đầu..."
                   className="w-full bg-surface border border-border rounded-md p-2.5 text-xs focus:outline-none focus:border-primary resize-none"
                 />
               </div>
@@ -375,7 +373,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
               {/* Read Time */}
               <div>
                  <span className="text-[11px] bg-surface border border-border px-2 py-1 rounded-full text-text-muted font-medium">
-                   ~{formData.readingTime} ph�t d?c
+                   ~{formData.readingTime} phút đọc
                  </span>
               </div>
             </div>
@@ -387,4 +385,3 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 }
 
 export default BlogForm;
-

@@ -1,8 +1,6 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import {
   Copy,
   Trash2,
@@ -64,7 +62,7 @@ export function BlockCard({
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   
-  // X? l� upload ?nh tr?c ti?p l�n Supabase Storage
+  // Xử lý upload ảnh trực tiếp lên Supabase Storage
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -83,12 +81,12 @@ export function BlockCard({
       const json = await res.json();
       if (res.ok && json.success && json.url) {
         onUpdate({ ...block.data, url: json.url });
-        toast.success("T?i ?nh th�nh c�ng", "?nh d� du?c luu tr? vinh vi?n.");
+        toast.success("Tải ảnh thành công", "Ảnh đã được lưu trữ vĩnh viễn.");
       } else {
-        throw new Error(json.error || "Kh�ng th? t?i ?nh");
+        throw new Error(json.error || "Không thể tải ảnh");
       }
     } catch (err: any) {
-      toast.error("L?i t?i ?nh", err.message || "Vui l�ng th? l?i");
+      toast.error("Lỗi tải ảnh", err.message || "Vui lòng thử lại");
     } finally {
       setIsUploading(false);
       e.target.value = "";
@@ -159,7 +157,7 @@ export function BlockCard({
           type="button"
           onClick={onInsertBelow}
           className="p-1 rounded text-text-muted hover:text-text hover:bg-surface"
-          title="Th�m kh?i (Enter)"
+          title="Thêm khối (Enter)"
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -168,22 +166,22 @@ export function BlockCard({
             type="button"
             onClick={() => setShowMenu(!showMenu)}
             className="p-1 rounded text-text-muted hover:text-text hover:bg-surface cursor-grab active:cursor-grabbing"
-            title="T�y ch?n kh?i (K�o d? di chuy?n)"
+            title="Tùy chọn khối (Kéo để di chuyển)"
           >
             <GripVertical className="w-4 h-4" />
           </button>
           
           {showMenu && (
             <div className="absolute left-0 top-full mt-1 w-48 bg-white border border-border shadow-lg rounded-md py-1 z-20">
-              <div className="px-3 py-1.5 text-[11px] font-semibold text-text-muted uppercase tracking-wider">�?i th�nh</div>
-              <button type="button" onClick={() => {onChangeType("text"); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><AlignLeft className="w-3.5 h-3.5"/> �o?n van</button>
-              <button type="button" onClick={() => {onChangeType("heading"); onUpdate({level: 2, text: block.data.text || ""}); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><HeadingIcon className="w-3.5 h-3.5"/> Ti�u d? (H2)</button>
-              <button type="button" onClick={() => {onChangeType("image"); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><ImageIcon className="w-3.5 h-3.5"/> ?nh</button>
-              <button type="button" onClick={() => {onChangeType("quote"); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><QuoteIcon className="w-3.5 h-3.5"/> Tr�ch d?n</button>
-              <button type="button" onClick={() => {onChangeType("list"); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><ListIcon className="w-3.5 h-3.5"/> Danh s�ch</button>
+              <div className="px-3 py-1.5 text-[11px] font-semibold text-text-muted uppercase tracking-wider">Đổi thành</div>
+              <button type="button" onClick={() => {onChangeType("text"); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><AlignLeft className="w-3.5 h-3.5"/> Đoạn văn</button>
+              <button type="button" onClick={() => {onChangeType("heading"); onUpdate({level: 2, text: block.data.text || ""}); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><HeadingIcon className="w-3.5 h-3.5"/> Tiêu đề (H2)</button>
+              <button type="button" onClick={() => {onChangeType("image"); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><ImageIcon className="w-3.5 h-3.5"/> Ảnh</button>
+              <button type="button" onClick={() => {onChangeType("quote"); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><QuoteIcon className="w-3.5 h-3.5"/> Trích dẫn</button>
+              <button type="button" onClick={() => {onChangeType("list"); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><ListIcon className="w-3.5 h-3.5"/> Danh sách</button>
               <div className="h-px bg-border my-1" />
-              <button type="button" onClick={() => {onDuplicate(); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><Copy className="w-3.5 h-3.5"/> Nh�n d�i</button>
-              <button type="button" onClick={() => {onDelete(); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"><Trash2 className="w-3.5 h-3.5"/> X�a</button>
+              <button type="button" onClick={() => {onDuplicate(); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-surface flex items-center gap-2"><Copy className="w-3.5 h-3.5"/> Nhân đôi</button>
+              <button type="button" onClick={() => {onDelete(); setShowMenu(false)}} className="w-full text-left px-3 py-1.5 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"><Trash2 className="w-3.5 h-3.5"/> Xóa</button>
             </div>
           )}
         </div>
@@ -198,14 +196,14 @@ export function BlockCard({
               value={block.data.title || ""}
               onChange={(e) => onUpdate({ ...block.data, title: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="Ti�u d? ph?n l?n (H2)..."
+              placeholder="Tiêu đề phần lớn (H2)..."
               className="w-full bg-transparent text-2xl md:text-3xl font-serif font-bold text-primary focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
             />
             <AutoResizeTextarea
               value={block.data.subtitle || ""}
               onChange={(e) => onUpdate({ ...block.data, subtitle: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="Ph? d? m� t? ng?n trang nh�..."
+              placeholder="Phụ đề mô tả ngắn trang nhã..."
               className="w-full bg-transparent text-base md:text-lg text-text-muted italic focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
             />
           </div>
@@ -214,12 +212,12 @@ export function BlockCard({
         {/* 2. Heading Block */}
         {block.type === "heading" && (
           <div className="relative my-4">
-             {/* Ch? hi?n dropdown khi focus ho?c qua menu - T?m th?i l�m don gi?n l� hidden v� hi?n khi active/hover nh? */}
+             {/* Chỉ hiện dropdown khi focus hoặc qua menu - Tạm thời làm đơn giản là hidden và hiện khi active/hover nhẹ */}
             <AutoResizeTextarea
               value={block.data.text || ""}
               onChange={(e) => onUpdate({ ...block.data, text: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="Ti�u d? (H2, H3, H4)..."
+              placeholder="Tiêu đề (H2, H3, H4)..."
               className={`w-full bg-transparent font-serif font-bold focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block ${block.data.level === 3 ? "text-xl md:text-2xl text-wood-deep" : block.data.level === 4 ? "text-lg md:text-xl text-wood-deep" : "text-2xl md:text-3xl text-primary"}`}
             />
           </div>
@@ -231,7 +229,7 @@ export function BlockCard({
             value={block.data.text || ""}
             onChange={(e) => onUpdate({ ...block.data, text: e.target.value })}
             onKeyDown={handleKeyDown}
-            placeholder="G� \"/\" d? xem l?nh ho?c b?t d?u vi?t..."
+            placeholder='Gõ "/" để xem lệnh hoặc bắt đầu viết...'
             className="w-full bg-transparent text-base md:text-[17px] text-[#1F1610] leading-[1.7] focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block min-h-[30px]"
           />
         )}
@@ -242,7 +240,7 @@ export function BlockCard({
             {!block.data.url ? (
               <div className="relative w-full aspect-[16/9] rounded-lg bg-surface border-2 border-dashed border-border flex flex-col items-center justify-center hover:bg-surface/80 transition-colors">
                 <ImageIcon className="w-8 h-8 text-text-muted mb-2 opacity-50" />
-                <span className="text-sm font-medium text-text-muted">Nh?n ho?c k�o th? ?nh v�o d�y</span>
+                <span className="text-sm font-medium text-text-muted">Nhấn hoặc kéo thả ảnh vào đây</span>
                 <label className="absolute inset-0 w-full h-full cursor-pointer">
                   <input
                     type="file"
@@ -260,14 +258,15 @@ export function BlockCard({
               </div>
             ) : (
               <div className="relative w-full rounded-lg overflow-hidden group/img">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={block.data.url}
-                  alt={block.data.alt || "?nh"}
+                  alt={block.data.alt || "Ảnh"}
                   className="w-full h-auto object-cover rounded-lg"
                 />
                 {/* Image Overlay Controls */}
                 <div className="absolute top-2 right-2 flex items-center gap-2 opacity-0 group-hover/img:opacity-100 transition-opacity">
-                  <label className="p-1.5 rounded-full bg-white/90 shadow-sm text-text hover:bg-white cursor-pointer transition-colors" title="�?i ?nh">
+                  <label className="p-1.5 rounded-full bg-white/90 shadow-sm text-text hover:bg-white cursor-pointer transition-colors" title="Đổi ảnh">
                     <Upload className="w-4 h-4" />
                     <input
                       type="file"
@@ -281,7 +280,7 @@ export function BlockCard({
                     type="button"
                     onClick={() => onUpdate({ ...block.data, url: "" })}
                     className="p-1.5 rounded-full bg-white/90 shadow-sm text-red-600 hover:bg-white cursor-pointer transition-colors" 
-                    title="X�a ?nh"
+                    title="Xóa ảnh"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -294,7 +293,7 @@ export function BlockCard({
                 value={block.data.caption || ""}
                 onChange={(e) => onUpdate({ ...block.data, caption: e.target.value })}
                 onKeyDown={handleKeyDown}
-                placeholder="Ch� th�ch ?nh (caption)..."
+                placeholder="Chú thích ảnh (caption)..."
                 className="w-full bg-transparent text-sm italic text-center text-text-muted focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
               />
             </div>
@@ -309,14 +308,14 @@ export function BlockCard({
                 value={block.data.leftTitle || ""}
                 onChange={(e) => onUpdate({ ...block.data, leftTitle: e.target.value })}
                 onKeyDown={handleKeyDown}
-                placeholder="Ti�u d? c?t tr�i..."
+                placeholder="Tiêu đề cột trái..."
                 className="w-full bg-transparent text-lg font-bold text-primary focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
               />
               <AutoResizeTextarea
                 value={block.data.leftContent || ""}
                 onChange={(e) => onUpdate({ ...block.data, leftContent: e.target.value })}
                 onKeyDown={handleKeyDown}
-                placeholder="N?i dung c?t tr�i..."
+                placeholder="Nội dung cột trái..."
                 className="w-full bg-transparent text-base leading-[1.7] text-[#1F1610] focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
               />
             </div>
@@ -325,14 +324,14 @@ export function BlockCard({
                 value={block.data.rightTitle || ""}
                 onChange={(e) => onUpdate({ ...block.data, rightTitle: e.target.value })}
                 onKeyDown={handleKeyDown}
-                placeholder="Ti�u d? c?t ph?i..."
+                placeholder="Tiêu đề cột phải..."
                 className="w-full bg-transparent text-lg font-bold text-primary focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
               />
               <AutoResizeTextarea
                 value={block.data.rightContent || ""}
                 onChange={(e) => onUpdate({ ...block.data, rightContent: e.target.value })}
                 onKeyDown={handleKeyDown}
-                placeholder="N?i dung c?t ph?i..."
+                placeholder="Nội dung cột phải..."
                 className="w-full bg-transparent text-base leading-[1.7] text-[#1F1610] focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
               />
             </div>
@@ -346,14 +345,14 @@ export function BlockCard({
               value={block.data.title || ""}
               onChange={(e) => onUpdate({ ...block.data, title: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="Ti�u d? n?i b?t..."
+              placeholder="Tiêu đề nổi bật..."
               className="w-full bg-transparent text-lg font-serif font-bold text-primary focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block mb-2"
             />
             <AutoResizeTextarea
               value={block.data.content || ""}
               onChange={(e) => onUpdate({ ...block.data, content: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="N?i dung h?p n?i b?t..."
+              placeholder="Nội dung hộp nổi bật..."
               className="w-full bg-transparent text-base leading-[1.7] text-[#1F1610] focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
             />
           </div>
@@ -366,14 +365,14 @@ export function BlockCard({
               value={block.data.quote || ""}
               onChange={(e) => onUpdate({ ...block.data, quote: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="Tr�ch d?n (Quote)..."
+              placeholder="Trích dẫn (Quote)..."
               className="w-full bg-transparent text-lg italic text-[#1F1610] leading-[1.7] focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
             />
             <AutoResizeTextarea
               value={block.data.author || ""}
               onChange={(e) => onUpdate({ ...block.data, author: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="T�c gi? (V� d?: � Ngh? nh�n ��ng Phong)"
+              placeholder="Tác giả (Ví dụ: — Nghệ nhân Đông Phong)"
               className="w-full bg-transparent text-sm font-semibold text-text-muted focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
             />
           </div>
@@ -385,7 +384,7 @@ export function BlockCard({
             {(block.data.items || [""]).map((item: string, i: number) => (
               <div key={i} className="flex items-start gap-2 group/item">
                 <span className="text-base text-text-muted pt-1 select-none">
-                  {block.data.listType === "numbered" ? `${i + 1}.` : "�"}
+                  {block.data.listType === "numbered" ? `${i + 1}.` : "•"}
                 </span>
                 <AutoResizeTextarea
                   value={item}
@@ -410,7 +409,7 @@ export function BlockCard({
                       }
                     }
                   }}
-                  placeholder="M?c danh s�ch..."
+                  placeholder="Mục danh sách..."
                   className="flex-1 bg-transparent text-base md:text-[17px] leading-[1.7] text-[#1F1610] focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block pt-[2px]"
                 />
               </div>
@@ -424,7 +423,7 @@ export function BlockCard({
             <table className="w-full text-base border-collapse">
               <thead>
                 <tr className="bg-surface/50 border-b border-border">
-                  {(block.data.headers || ["C?t 1", "C?t 2"]).map((h: string, hi: number) => (
+                  {(block.data.headers || ["Cột 1", "Cột 2"]).map((h: string, hi: number) => (
                     <th key={hi} className="p-3 border-r border-border last:border-r-0 text-left font-semibold">
                       <input
                         type="text"
@@ -434,7 +433,7 @@ export function BlockCard({
                           nextH[hi] = e.target.value;
                           onUpdate({ ...block.data, headers: nextH });
                         }}
-                        placeholder="Ti�u d? c?t..."
+                        placeholder="Tiêu đề cột..."
                         className="w-full bg-transparent focus:outline-none"
                       />
                     </th>
@@ -484,7 +483,7 @@ export function BlockCard({
               type="text"
               value={block.data.label || ""}
               onChange={(e) => onUpdate({ ...block.data, label: e.target.value })}
-              placeholder="N�t h�nh d?ng (V� d?: Nh?n d? xem ngay)..."
+              placeholder="Nút hành động (Ví dụ: Nhấn để xem ngay)..."
               className="inline-block px-6 py-3 rounded-full text-center font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 transition-all min-w-[200px]"
               style={{
                 backgroundColor: block.data.buttonStyle === "zalo" ? "#0068FF" : block.data.buttonStyle === "hotline" ? "var(--wood-deep)" : "var(--gold-dark)"
@@ -495,7 +494,7 @@ export function BlockCard({
                  type="text"
                  value={block.data.url || ""}
                  onChange={(e) => onUpdate({ ...block.data, url: e.target.value })}
-                 placeholder="URL d�ch: https://zalo.me/..."
+                 placeholder="URL đích: https://zalo.me/..."
                  className="bg-transparent text-sm text-text-muted text-center border-b border-border/50 focus:border-primary focus:outline-none"
               />
             </div>
@@ -505,9 +504,9 @@ export function BlockCard({
                   onChange={(e) => onUpdate({ ...block.data, buttonStyle: e.target.value })}
                   className="bg-transparent text-text-muted focus:outline-none"
                 >
-                  <option value="primary">M�u V�ng �?ng</option>
-                  <option value="zalo">M�u Zalo (Xanh)</option>
-                  <option value="hotline">M�u N�u G?</option>
+                  <option value="primary">Màu Vàng Đồng</option>
+                  <option value="zalo">Màu Zalo (Xanh)</option>
+                  <option value="hotline">Màu Nâu Gỗ</option>
                 </select>
             </div>
           </div>
@@ -517,7 +516,7 @@ export function BlockCard({
         {block.type === "divider" && (
           <div className="py-6 flex items-center justify-center">
             <div className="w-1/3 h-px bg-border/60"></div>
-            <div className="px-3 text-border/60 text-lg">?</div>
+            <div className="px-3 text-border/60 text-lg">✻</div>
             <div className="w-1/3 h-px bg-border/60"></div>
           </div>
         )}
@@ -529,14 +528,14 @@ export function BlockCard({
               value={block.data.title || ""}
               onChange={(e) => onUpdate({ ...block.data, title: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="L?i k?t..."
+              placeholder="Lời kết..."
               className="w-full bg-transparent text-lg font-serif font-bold text-primary focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block mb-2"
             />
             <AutoResizeTextarea
               value={block.data.content || ""}
               onChange={(e) => onUpdate({ ...block.data, content: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="Cam k?t v� k?t lu?n b�i vi?t..."
+              placeholder="Cam kết và kết luận bài viết..."
               className="w-full bg-transparent text-base leading-[1.7] text-[#1F1610] focus:outline-none placeholder:text-text-muted/40 resize-none overflow-hidden block"
             />
           </div>
@@ -545,4 +544,3 @@ export function BlockCard({
     </div>
   );
 }
-

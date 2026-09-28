@@ -1,10 +1,8 @@
-
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import { EditorBlock, BlockType, createDefaultBlock } from "@/lib/blockEditor";
 import { BlockCard } from "./BlockCard";
-import { BlockPickerModal } from "./BlockPickerModal";
 import { Search } from "lucide-react";
 
 export interface VisualBlockEditorProps {
@@ -138,7 +136,7 @@ export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) 
     <div className="space-y-1 relative" ref={editorRef}>
       {blocks.length === 0 && (
         <div className="py-10 text-center opacity-50 cursor-pointer" onClick={() => handleInsertBelow(-1)}>
-          Nh?p v�o d�y d? b?t d?u vi?t...
+          Nhấp vào đây để bắt đầu viết...
         </div>
       )}
       
@@ -171,28 +169,27 @@ export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) 
            <div className="p-2 border-b border-border bg-bg/50">
              <div className="flex items-center gap-2 bg-surface border border-border px-2 py-1.5 rounded-lg">
                <Search className="w-4 h-4 text-text-muted" />
-               <input type="text" placeholder="T�m kh?i..." className="bg-transparent text-sm w-full focus:outline-none" autoFocus />
+               <input type="text" placeholder="Tìm khối..." className="bg-transparent text-sm w-full focus:outline-none" autoFocus />
              </div>
            </div>
            <div className="max-h-64 overflow-y-auto p-1 py-2">
-             <div className="px-3 pb-1 text-xs font-semibold text-text-muted uppercase">Kh?i co b?n</div>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "text"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Ch? (Text)</button>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "heading"); handleUpdate(slashMenuOpen.index, {level: 2, text: ""}); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Ti�u d? (H2)</button>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "heading"); handleUpdate(slashMenuOpen.index, {level: 3, text: ""}); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Ti�u d? ph? (H3)</button>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "image"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">H�nh ?nh</button>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "list"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Danh s�ch</button>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "quote"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Tr�ch d?n</button>
+             <div className="px-3 pb-1 text-xs font-semibold text-text-muted uppercase">Khối cơ bản</div>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "text"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Chữ (Text)</button>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "heading"); handleUpdate(slashMenuOpen.index, {level: 2, text: ""}); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Tiêu đề (H2)</button>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "heading"); handleUpdate(slashMenuOpen.index, {level: 3, text: ""}); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Tiêu đề phụ (H3)</button>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "image"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Hình ảnh</button>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "list"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Danh sách</button>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "quote"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Trích dẫn</button>
              
-             <div className="px-3 pt-3 pb-1 text-xs font-semibold text-text-muted uppercase">Giao di?n (N�ng cao)</div>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "layout"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">2 C?t song song</button>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "section"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">H?p n?i b?t</button>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "button"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">N�t h�nh d?ng (CTA)</button>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "table"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">B?ng so s�nh</button>
-             <button onClick={() => { handleChangeType(slashMenuOpen.index, "divider"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">�u?ng ph�n c�ch</button>
+             <div className="px-3 pt-3 pb-1 text-xs font-semibold text-text-muted uppercase">Giao diện (Nâng cao)</div>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "layout"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">2 Cột song song</button>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "section"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Hộp nổi bật</button>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "button"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Nút hành động (CTA)</button>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "table"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Bảng so sánh</button>
+             <button onClick={() => { handleChangeType(slashMenuOpen.index, "divider"); setSlashMenuOpen(null); }} className="w-full text-left px-3 py-2 hover:bg-surface rounded-md text-sm text-text flex items-center gap-2">Đường phân cách</button>
            </div>
         </div>
       )}
     </div>
   );
 }
-

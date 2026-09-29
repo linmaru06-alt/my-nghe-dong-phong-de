@@ -427,14 +427,8 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
               {/* URL & Slug */}
               <div>
-                <label className="text-[13px] text-text-muted mb-1 flex justify-between">
+                <label className="text-[13px] text-text-muted mb-1 block">
                   <span>Đường dẫn (Slug)</span>
-                  <button type="button" onClick={() => {
-                     setFormData(p => ({...p, slug: slugify(p.title)}));
-                     setIsSlugManual(false);
-                  }} className="text-[11px] text-primary hover:underline flex items-center gap-1">
-                     <Wand2 className="w-3 h-3" /> Tạo lại
-                  </button>
                 </label>
                 <input
                   id="input-slug"

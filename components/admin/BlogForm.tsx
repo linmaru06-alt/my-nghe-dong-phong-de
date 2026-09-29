@@ -8,11 +8,14 @@ import {
   Image as ImageIcon, 
   X, 
   Loader2,
+  Loader2,
   Settings,
   Code,
   ArrowLeft,
   Wand2,
-  AlertCircle
+  AlertCircle,
+  Monitor,
+  Smartphone
 } from "lucide-react";
 import { usePostsStore } from "@/lib/usePosts";
 import { slugify } from "@/lib/slugify";
@@ -61,7 +64,14 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   const [blocks, setBlocks] = useState<EditorBlock[]>(() => markdownToBlocks(formData.content || ""));
   const [editorMode, setEditorMode] = useState<"visual" | "markdown">("visual");
   const [showPreview, setShowPreview] = useState(false);
-  const [showSettings, setShowSettings] = useState(true);
+  const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+  const [showSettings, setShowSettings] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 1280) {
+      setShowSettings(true);
+    }
+  }, []);
   const [isUploadingThumb, setIsUploadingThumb] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
@@ -305,14 +315,14 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           
           <button
             onClick={() => setShowPreview(true)}
-            className="px-3 py-1.5 text-[13px] font-medium rounded-md border border-transparent text-primary hover:bg-surface transition-colors hidden sm:block"
+            className="px-3 py-1.5 text-[13px] font-medium rounded-md border border-border bg-white text-text hover:bg-surface transition-colors hidden sm:block"
           >
             Xem trước
           </button>
           
           <button
             onClick={() => handleAutoSave(editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content)}
-            className="px-3 py-1.5 text-[13px] font-medium rounded-md border border-primary text-primary hover:bg-surface transition-colors hidden sm:block"
+            className="px-3 py-1.5 text-[13px] font-medium rounded-md border border-border bg-white text-text hover:bg-surface transition-colors hidden sm:block"
           >
             Lưu nháp
           </button>
@@ -370,15 +380,18 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           </div>
         </div>
 
-        {/* Settings Panel */}
         {showSettings && (
-          <div className="w-full md:w-80 border-l border-border bg-white overflow-y-auto p-6 absolute md:relative right-0 inset-y-0 z-30 shadow-xl md:shadow-none bottom-0 top-auto md:top-0 h-[80vh] md:h-auto rounded-t-2xl md:rounded-none transition-all">
-            <div className="flex items-center justify-between mb-6">
-               <h3 className="text-[13px] font-bold text-primary uppercase tracking-wider">Cài đặt bài viết</h3>
-               <button onClick={() => setShowSettings(false)} className="md:hidden p-1">
-                 <X className="w-5 h-5" />
-               </button>
-            </div>
+          <>
+            {/* Mobile backdrop */}
+            <div className="xl:hidden fixed inset-0 bg-black/20 z-40 transition-opacity" onClick={() => setShowSettings(false)} />
+            
+            <div className="fixed xl:relative z-50 xl:z-30 bottom-0 xl:bottom-auto inset-x-0 xl:inset-x-auto xl:right-0 w-full xl:w-80 border-t xl:border-t-0 xl:border-l border-border bg-white overflow-y-auto p-6 shadow-2xl xl:shadow-none h-[85vh] xl:h-auto rounded-t-2xl xl:rounded-none flex flex-col transition-transform">
+              <div className="flex items-center justify-between mb-6">
+                 <h3 className="text-base font-bold text-primary font-serif">Cài đặt bài viết</h3>
+                 <button onClick={() => setShowSettings(false)} className="xl:hidden p-1.5 rounded-md text-text-muted hover:bg-surface transition-colors">
+                   <X className="w-5 h-5" />
+                 </button>
+              </div>
             
             <div className="space-y-6">
               {/* Thumbnail */}
@@ -495,18 +508,42 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
               </div>
             </div>
           </div>
+            </div>
+          </>
         )}
       </div>
 
       {/* Fullscreen Preview */}
       {showPreview && (
         <div className="fixed inset-0 z-50 bg-[#FDFBF7] flex flex-col">
-           <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-white shadow-sm">
-             <div className="text-[13px] font-bold text-primary">Chế độ xem trước</div>
-             <button onClick={() => setShowPreview(false)} className="px-4 py-1.5 bg-surface text-text-muted hover:text-text rounded-md border border-border text-[13px] font-medium transition-colors focus:ring-2 focus:ring-offset-1 focus:ring-primary">Đóng xem trước</button>
+           <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-border bg-white shadow-sm">
+             <div className="text-[13px] font-bold text-primary hidden sm:block">Chế độ xem trước</div>
+             
+             <div className="flex items-center bg-surface border border-border rounded-md overflow-hidden mx-auto sm:mx-0">
+               <button
+                  onClick={() => setPreviewMode("desktop")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium transition-colors ${previewMode === "desktop" ? "bg-white text-primary shadow-sm" : "text-text-muted hover:text-text"}`}
+                  title="Desktop"
+               >
+                  <Monitor className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Desktop</span>
+               </button>
+               <button
+                  onClick={() => setPreviewMode("mobile")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium transition-colors ${previewMode === "mobile" ? "bg-white text-primary shadow-sm" : "text-text-muted hover:text-text"}`}
+                  title="Mobile"
+               >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Mobile</span>
+               </button>
+             </div>
+
+             <button onClick={() => setShowPreview(false)} className="px-3 md:px-4 py-1.5 bg-surface text-text-muted hover:text-text rounded-md border border-border text-[13px] font-medium transition-colors focus:ring-2 focus:ring-offset-1 focus:ring-primary">
+               Đóng
+             </button>
            </div>
-           <div className="flex-1 overflow-y-auto">
-             <div className="max-w-[720px] mx-auto px-6 py-12">
+           <div className="flex-1 overflow-y-auto bg-bg flex justify-center">
+             <div className={`transition-all duration-300 ${previewMode === "desktop" ? "w-full max-w-[720px] px-6 py-12" : "w-full max-w-[375px] bg-white min-h-full px-4 py-6 shadow-2xl"}`}>
                <ArticleContentRenderer content={editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content} />
              </div>
            </div>

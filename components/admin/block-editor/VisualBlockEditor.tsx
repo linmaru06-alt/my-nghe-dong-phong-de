@@ -45,10 +45,19 @@ export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) 
 
   const handleInsertBelow = (index: number, type: BlockType = "text") => {
     const newBlock = createDefaultBlock(type);
-    const updated = [...blocks];
-    updated.splice(index + 1, 0, newBlock);
-    onChange(updated);
-    setFocusedIndex(index + 1);
+    let updated = [...blocks];
+    
+    if (index === -1) {
+      // Chèn lên đầu tiên (Top)
+      updated = [newBlock, ...blocks];
+      onChange(updated);
+      setFocusedIndex(0);
+    } else {
+      // Chèn vào vị trí được chỉ định
+      updated.splice(index + 1, 0, newBlock);
+      onChange(updated);
+      setFocusedIndex(index + 1);
+    }
   };
 
   const handleDuplicate = (index: number) => {

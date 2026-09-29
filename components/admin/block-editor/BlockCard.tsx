@@ -3,8 +3,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
-  Plus,
-  GripVertical,
   Heading as HeadingIcon,
   AlignLeft,
   Image as ImageIcon,
@@ -15,8 +13,6 @@ import {
   Table as TableIcon,
   MousePointerClick,
   Minus,
-  Sparkles,
-  BookOpen,
   Copy,
   Trash2,
   Loader2,

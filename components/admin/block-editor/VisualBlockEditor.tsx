@@ -3,8 +3,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { EditorBlock, BlockType, createDefaultBlock } from "@/lib/blockEditor";
 import { BlockCard } from "./BlockCard";
-import { HoverDropzone } from "./HoverDropzone";
-import { Plus } from "lucide-react";
 
 export interface VisualBlockEditorProps {
   blocks: EditorBlock[];

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { 
@@ -8,12 +8,10 @@ import {
   Image as ImageIcon, 
   X, 
   Loader2,
-  Loader2,
   Settings,
   Code,
   ArrowLeft,
   Wand2,
-  AlertCircle,
   Monitor,
   Smartphone
 } from "lucide-react";

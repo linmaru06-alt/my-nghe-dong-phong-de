@@ -99,6 +99,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     }, 3000);
     
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks, formData.title, editorMode]);
 
   const handleAutoSave = async (currentContent: string) => {
@@ -163,7 +164,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   };
 
   const validateAndPublish = async () => {
-    const errors = [];
+    const errors: string[] = [];
     if (!formData.title.trim()) errors.push("Tiêu đề bài viết");
     if (!formData.slug.trim()) errors.push("Đường dẫn (Slug)");
     if (!formData.thumbnail) errors.push("Ảnh đại diện");

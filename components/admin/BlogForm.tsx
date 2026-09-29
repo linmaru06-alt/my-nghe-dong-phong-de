@@ -506,7 +506,6 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
               </div>
             </div>
           </div>
-            </div>
           </>
         )}
       </div>

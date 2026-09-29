@@ -1,16 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
-  ChevronUp,
-  ChevronDown,
-  Copy,
-  Trash2,
-  Upload,
-  Loader2,
-  X,
   Plus,
+  GripVertical,
   Heading as HeadingIcon,
   AlignLeft,
   Image as ImageIcon,
@@ -23,55 +17,75 @@ import {
   Minus,
   Sparkles,
   BookOpen,
+  Copy,
+  Trash2,
+  Loader2,
+  X,
 } from "lucide-react";
 import { EditorBlock, BlockType } from "@/lib/blockEditor";
 import { toast } from "@/components/ui/Toast";
 import { AutoResizeTextarea } from "@/components/ui/AutoResizeTextarea";
 
 export interface BlockCardProps {
+  id: string;
   block: EditorBlock;
   index: number;
   total: number;
   onUpdate: (data: Record<string, any>) => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  onDuplicate: () => void;
+  onChangeType: (type: BlockType, data?: any) => void;
+  onInsertBelow: () => void;
   onDelete: () => void;
+  onDuplicate: () => void;
+  onFocusPrevious: () => void;
+  
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnter?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  isDragOver?: boolean;
 }
 
-const TYPE_CONFIG: Record<
-  BlockType,
-  { label: string; icon: React.ComponentType<{ className?: string }>; color: string }
-> = {
-  header: { label: "Header (Đầu mục)", icon: Sparkles, color: "text-amber-600 bg-amber-50" },
-  heading: { label: "Heading (Tiêu đề)", icon: HeadingIcon, color: "text-blue-600 bg-blue-50" },
-  text: { label: "Text (Đoạn văn)", icon: AlignLeft, color: "text-slate-600 bg-slate-50" },
-  image: { label: "Image (Hình ảnh)", icon: ImageIcon, color: "text-emerald-600 bg-emerald-50" },
-  layout: { label: "Layout (2 Cột)", icon: Columns, color: "text-indigo-600 bg-indigo-50" },
-  section: { label: "Section (Hộp nổi bật)", icon: Box, color: "text-orange-600 bg-orange-50" },
-  quote: { label: "Quote (Trích dẫn)", icon: QuoteIcon, color: "text-rose-600 bg-rose-50" },
-  list: { label: "List (Danh sách)", icon: ListIcon, color: "text-cyan-600 bg-cyan-50" },
-  table: { label: "Table (Bảng dữ liệu)", icon: TableIcon, color: "text-violet-600 bg-violet-50" },
-  button: { label: "Button (Nút bấm CTA)", icon: MousePointerClick, color: "text-yellow-600 bg-yellow-50" },
-  divider: { label: "Divider (Kẻ ngang)", icon: Minus, color: "text-gray-600 bg-gray-50" },
-  footer: { label: "Footer (Đúc kết)", icon: BookOpen, color: "text-teal-600 bg-teal-50" },
-};
+const SLASH_MENU_ITEMS: { type: BlockType; label: string; icon: any }[] = [
+  { type: "text", label: "Đoạn văn", icon: AlignLeft },
+  { type: "heading", label: "Tiêu đề", icon: HeadingIcon },
+  { type: "image", label: "Hình ảnh", icon: ImageIcon },
+  { type: "list", label: "Danh sách", icon: ListIcon },
+  { type: "quote", label: "Trích dẫn", icon: QuoteIcon },
+  { type: "section", label: "Khối nổi bật", icon: Box },
+  { type: "layout", label: "Bố cục 2 cột", icon: Columns },
+  { type: "table", label: "Bảng biểu", icon: TableIcon },
+  { type: "button", label: "Nút bấm", icon: MousePointerClick },
+  { type: "divider", label: "Kẻ ngang", icon: Minus },
+];
 
 export function BlockCard({
+  id,
   block,
   index,
   total,
   onUpdate,
-  onMoveUp,
-  onMoveDown,
-  onDuplicate,
+  onChangeType,
+  onInsertBelow,
   onDelete,
+  onDuplicate,
+  onFocusPrevious,
+  draggable,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+  isDragOver
 }: BlockCardProps) {
   const [isUploading, setIsUploading] = useState(false);
-  const config = TYPE_CONFIG[block.type] || TYPE_CONFIG.text;
-  const Icon = config.icon;
+  const [showOptions, setShowOptions] = useState(false);
+  const [showSlashMenu, setShowSlashMenu] = useState(false);
+  const [slashQuery, setSlashQuery] = useState("");
+  const [slashIndex, setSlashIndex] = useState(0);
 
-  // Xử lý upload ảnh trực tiếp lên Supabase Storage
+  const filteredMenuItems = SLASH_MENU_ITEMS.filter(m => 
+     m.label.toLowerCase().includes(slashQuery.toLowerCase()) || 
+     m.type.toLowerCase().includes(slashQuery.toLowerCase())
+  );
+
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -82,532 +96,352 @@ export function BlockCard({
       data.append("file", file);
       data.append("folder", "blog");
 
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: data,
-      });
-
+      const res = await fetch("/api/admin/upload", { method: "POST", body: data });
       const json = await res.json();
       if (res.ok && json.success && json.url) {
         onUpdate({ ...block.data, url: json.url });
-        toast.success("Tải ảnh thành công", "Ảnh đã được lưu trữ vĩnh viễn trên Supabase Storage.");
+        toast.success("Tải ảnh thành công");
       } else {
         throw new Error(json.error || "Không thể tải ảnh");
       }
     } catch (err: any) {
-      toast.error("Lỗi tải ảnh", err.message || "Vui lòng thử lại");
+      toast.error("Lỗi tải ảnh", err.message);
     } finally {
       setIsUploading(false);
       e.target.value = "";
     }
   };
 
-  return (
-    <div className="group relative rounded-card border border-border bg-surface shadow-xs hover:border-primary/50 transition-all duration-200">
-      {/* Block Top Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-bg/40 rounded-t-card">
-        <div className="flex items-center gap-2">
-          <div className={`p-1.5 rounded ${config.color}`}>
-            <Icon className="w-4 h-4" />
-          </div>
-          <span className="text-xs font-semibold text-text uppercase tracking-wider">
-            {config.label}
-          </span>
-          <span className="text-[11px] text-text-muted">#{index + 1}</span>
-        </div>
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (showSlashMenu) {
+      if (e.key === "ArrowDown") {
+         e.preventDefault();
+         setSlashIndex(prev => (prev + 1) % filteredMenuItems.length);
+         return;
+      }
+      if (e.key === "ArrowUp") {
+         e.preventDefault();
+         setSlashIndex(prev => (prev - 1 + filteredMenuItems.length) % filteredMenuItems.length);
+         return;
+      }
+      if (e.key === "Enter") {
+         e.preventDefault();
+         const selected = filteredMenuItems[slashIndex];
+         if (selected) {
+            onChangeType(selected.type, { text: "" });
+            setShowSlashMenu(false);
+         }
+         return;
+      }
+      if (e.key === "Escape") {
+         setShowSlashMenu(false);
+         return;
+      }
+    }
+    
+    // Markdown formatting shortcuts
+    if (e.metaKey || e.ctrlKey) {
+       if (e.key === 'b' || e.key === 'i' || e.key === 'k') {
+          e.preventDefault();
+          const el = e.currentTarget;
+          const start = el.selectionStart;
+          const end = el.selectionEnd;
+          const text = el.value;
+          const selected = text.substring(start, end);
+          let wrapped = "";
+          
+          if (e.key === 'b') wrapped = `**${selected}**`;
+          if (e.key === 'i') wrapped = `*${selected}*`;
+          if (e.key === 'k') wrapped = `[${selected || "text"}](url)`;
+          
+          const newText = text.substring(0, start) + wrapped + text.substring(end);
+          onUpdate({ ...block.data, text: newText });
+          
+          // Restore cursor position inside the wrapper
+          setTimeout(() => {
+             el.focus();
+             if (e.key === 'k') el.setSelectionRange(start + wrapped.length - 4, start + wrapped.length - 1);
+             else el.setSelectionRange(start + wrapped.length, start + wrapped.length);
+          }, 0);
+          return;
+       }
+    }
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-          <button
-            type="button"
-            disabled={index === 0}
-            onClick={onMoveUp}
-            title="Di chuyển lên trên"
-            className="p-1 rounded hover:bg-border/60 text-text-muted hover:text-text disabled:opacity-30 disabled:pointer-events-none transition-colors"
-          >
-            <ChevronUp className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            disabled={index === total - 1}
-            onClick={onMoveDown}
-            title="Di chuyển xuống dưới"
-            className="p-1 rounded hover:bg-border/60 text-text-muted hover:text-text disabled:opacity-30 disabled:pointer-events-none transition-colors"
-          >
-            <ChevronDown className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={onDuplicate}
-            title="Nhân bản khối này"
-            className="p-1 rounded hover:bg-border/60 text-text-muted hover:text-text transition-colors"
-          >
-            <Copy className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={onDelete}
-            title="Xóa khối này"
-            className="p-1 rounded hover:bg-red-50 text-text-muted hover:text-red-600 transition-colors ml-1"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+    if (e.key === "Enter" && !e.shiftKey) {
+       // Insert block below if at the end of text
+       const el = e.currentTarget;
+       if (el.selectionStart === el.value.length) {
+          e.preventDefault();
+          onInsertBelow();
+       }
+    } else if (e.key === "Backspace") {
+       if ((block.data.text || "") === "") {
+          e.preventDefault();
+          onDelete();
+          onFocusPrevious();
+       }
+    }
+  };
+
+  const handleTextChange = (val: string) => {
+     // Check for slash menu
+     if (val.startsWith("/")) {
+        setShowSlashMenu(true);
+        setSlashQuery(val.substring(1));
+        setSlashIndex(0);
+        onUpdate({ ...block.data, text: val });
+        return;
+     } else {
+        setShowSlashMenu(false);
+     }
+
+     // Markdown shortcuts
+     if (val === "## ") {
+        onChangeType("heading", { level: 2 });
+        return;
+     }
+     if (val === "### ") {
+        onChangeType("heading", { level: 3 });
+        return;
+     }
+     if (val === "> ") {
+        onChangeType("quote", { quote: "" });
+        return;
+     }
+     if (val === "- ") {
+        onChangeType("list", { listType: "bullet", items: [""] });
+        return;
+     }
+
+     onUpdate({ ...block.data, text: val });
+  };
+
+  // Close options menu when clicking outside
+  useEffect(() => {
+     if (!showOptions) return;
+     const handleClick = () => setShowOptions(false);
+     document.addEventListener("click", handleClick);
+     return () => document.removeEventListener("click", handleClick);
+  }, [showOptions]);
+
+  return (
+    <div 
+       id={id}
+       className={`group flex items-start gap-2 w-full transition-all ${isDragOver ? "border-t-2 border-primary pt-2" : ""}`}
+       onDragEnter={onDragEnter}
+    >
+      {/* Left Gutter: Handles */}
+      <div className="w-12 flex-shrink-0 flex items-center justify-end opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity gap-0.5 pt-1 select-none">
+        <button 
+           type="button" 
+           onClick={onInsertBelow}
+           className="p-1 rounded text-text-muted hover:bg-border/60 hover:text-text transition-colors"
+           title="Thêm khối bên dưới"
+        >
+           <Plus className="w-4 h-4" />
+        </button>
+        
+        <div className="relative">
+           <div 
+              draggable={draggable}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              onClick={(e) => { e.stopPropagation(); setShowOptions(!showOptions); }}
+              className="p-1 rounded text-text-muted hover:bg-border/60 hover:text-text transition-colors cursor-grab active:cursor-grabbing"
+              title="Kéo thả để di chuyển, click để xem tùy chọn"
+           >
+              <GripVertical className="w-4 h-4" />
+           </div>
+
+           {/* Dropdown Options */}
+           {showOptions && (
+              <div className="absolute top-full left-0 mt-1 w-48 bg-surface border border-border rounded-md shadow-lg z-50 py-1" onClick={e => e.stopPropagation()}>
+                 <div className="px-3 py-1.5 text-xs font-semibold text-text-muted uppercase">Tùy chọn khối</div>
+                 <button type="button" onClick={() => { onDuplicate(); setShowOptions(false); }} className="w-full text-left px-3 py-1.5 text-sm hover:bg-bg flex items-center gap-2">
+                    <Copy className="w-3.5 h-3.5" /> Nhân đôi khối
+                 </button>
+                 <button type="button" onClick={() => { onChangeType("text"); setShowOptions(false); }} className="w-full text-left px-3 py-1.5 text-sm hover:bg-bg flex items-center gap-2">
+                    <AlignLeft className="w-3.5 h-3.5" /> Chuyển thành Văn bản
+                 </button>
+                 <button type="button" onClick={() => { onDelete(); setShowOptions(false); }} className="w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                    <Trash2 className="w-3.5 h-3.5" /> Xóa khối này
+                 </button>
+              </div>
+           )}
         </div>
       </div>
 
-      {/* Block Content Editor Body */}
-      <div className="p-4 sm:p-5">
-        {/* 1. Header Block */}
-        {block.type === "header" && (
-          <div className="space-y-3">
-            <div>
-              <label className="text-[11px] font-semibold text-text-muted uppercase block mb-1">
-                Tiêu đề phần lớn (H2)
-              </label>
-              <input
-                type="text"
-                value={block.data.title || ""}
-                onChange={(e) => onUpdate({ ...block.data, title: e.target.value })}
-                placeholder="Nhập tiêu đề lớn..."
-                className="w-full bg-bg border border-border rounded-btn px-3 py-2 text-base font-serif font-bold text-primary focus:outline-none focus:border-primary"
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-semibold text-text-muted uppercase block mb-1">
-                Phụ đề mô tả ngắn
-              </label>
-              <input
-                type="text"
-                value={block.data.subtitle || ""}
-                onChange={(e) => onUpdate({ ...block.data, subtitle: e.target.value })}
-                placeholder="Dòng chữ tóm tắt in nghiêng trang nhã..."
-                className="w-full bg-bg border border-border rounded-btn px-3 py-1.5 text-xs text-text-muted italic focus:outline-none focus:border-primary"
-              />
-            </div>
-          </div>
+      {/* Main Content Area */}
+      <div className={`flex-1 relative rounded-md transition-colors ${block.type !== "text" && block.type !== "heading" ? "group-focus-within:bg-bg/40 group-focus-within:ring-1 ring-border p-2" : "py-1"}`}>
+        
+        {/* 1. TEXT BLOCK */}
+        {block.type === "text" && (
+           <div className="relative">
+             <AutoResizeTextarea
+               value={block.data.text || ""}
+               onChange={(e) => handleTextChange(e.target.value)}
+               onKeyDown={handleKeyDown}
+               placeholder="Gõ / để chèn block..."
+               className="w-full bg-transparent border-none rounded-none p-0 text-[17px] text-text focus:outline-none focus:ring-0 leading-[1.7] resize-none overflow-hidden placeholder:text-text-muted/40"
+             />
+             
+             {/* Slash Menu */}
+             {showSlashMenu && (
+                <div className="absolute top-full left-0 mt-1 w-64 bg-surface border border-border rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
+                   <div className="px-3 py-2 text-[11px] font-semibold text-text-muted uppercase bg-bg/50 border-b border-border">Chèn khối cơ bản</div>
+                   {filteredMenuItems.map((item, i) => {
+                      const Icon = item.icon;
+                      return (
+                         <button
+                            key={item.type}
+                            type="button"
+                            onClick={() => { onChangeType(item.type, { text: "" }); setShowSlashMenu(false); }}
+                            className={`w-full text-left px-3 py-2.5 flex items-center gap-3 transition-colors ${i === slashIndex ? "bg-primary/5 text-primary" : "hover:bg-bg text-text"}`}
+                         >
+                            <div className={`p-1.5 rounded-md ${i === slashIndex ? "bg-primary text-white" : "bg-bg text-text-muted"}`}>
+                               <Icon className="w-4 h-4" />
+                            </div>
+                            <span className="text-[13px] font-medium">{item.label}</span>
+                         </button>
+                      )
+                   })}
+                   {filteredMenuItems.length === 0 && (
+                      <div className="px-3 py-4 text-center text-sm text-text-muted">Không tìm thấy khối nào</div>
+                   )}
+                </div>
+             )}
+           </div>
         )}
 
-        {/* 2. Heading Block */}
+        {/* 2. HEADING BLOCK */}
         {block.type === "heading" && (
-          <div className="flex items-center gap-3 group/heading">
+          <div className="flex items-center gap-3 relative group/heading">
             <select
               value={block.data.level || 2}
               onChange={(e) => onUpdate({ ...block.data, level: Number(e.target.value) })}
-              className="bg-bg border border-border rounded-btn px-2.5 py-2 text-xs font-semibold text-text focus:outline-none focus:border-primary opacity-0 group-hover/heading:opacity-100 focus-within:opacity-100 transition-opacity absolute -left-28 sm:-left-32 w-24"
+              className="absolute -left-16 bg-surface border border-border rounded px-1 py-1 text-xs font-semibold text-text focus:outline-none focus:border-primary opacity-0 group-hover/heading:opacity-100 focus-within:opacity-100 transition-opacity w-14"
             >
-              <option value={2}>H2 (Mục lớn)</option>
-              <option value={3}>H3 (Mục phụ)</option>
-              <option value={4}>H4 (Mục nhỏ)</option>
+              <option value={2}>H2</option>
+              <option value={3}>H3</option>
+              <option value={4}>H4</option>
             </select>
-            <input
-              type="text"
-              value={block.data.text || ""}
-              onChange={(e) => onUpdate({ ...block.data, text: e.target.value })}
-              placeholder="Nhập tiêu đề phân đoạn..."
-              className="flex-1 bg-transparent border-none rounded-none px-0 py-2 text-xl font-serif font-bold text-primary focus:outline-none focus:ring-0 placeholder:text-text-muted/40"
-            />
-          </div>
-        )}
-
-        {/* 3. Text Block */}
-        {block.type === "text" && (
-          <div>
             <AutoResizeTextarea
-              rows={2}
-              value={block.data.text || ""}
-              onChange={(e) => onUpdate({ ...block.data, text: e.target.value })}
-              placeholder="Nhập đoạn văn bản ở đây..."
-              className="w-full bg-transparent border-none rounded-none p-0 text-[17px] text-text focus:outline-none focus:ring-0 leading-[1.7] resize-none overflow-hidden placeholder:text-text-muted/40"
-            />
+               value={block.data.text || ""}
+               onChange={(e) => onUpdate({ ...block.data, text: e.target.value })}
+               onKeyDown={handleKeyDown}
+               placeholder="Nhập tiêu đề..."
+               className={`w-full bg-transparent border-none rounded-none p-0 font-serif font-bold text-primary focus:outline-none focus:ring-0 resize-none overflow-hidden placeholder:text-text-muted/40 ${block.data.level === 3 ? "text-xl" : block.data.level === 4 ? "text-lg" : "text-2xl"}`}
+             />
           </div>
         )}
 
-        {/* 4. Image Block */}
+        {/* 3. IMAGE BLOCK */}
         {block.type === "image" && (
           <div className="space-y-3">
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="relative w-full sm:w-48 aspect-16/10 rounded-lg overflow-hidden bg-bg border border-border flex items-center justify-center flex-shrink-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="relative w-full sm:w-64 aspect-[16/10] rounded-lg overflow-hidden bg-bg border border-border flex items-center justify-center flex-shrink-0 group/img">
                 {block.data.url ? (
-                  <Image
-                    src={block.data.url}
-                    alt={block.data.alt || "Ảnh"}
-                    fill
-                    className="object-cover"
-                  />
+                  <>
+                    <Image src={block.data.url} alt={block.data.alt || "Ảnh"} fill className="object-cover" />
+                    <label className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 flex items-center justify-center cursor-pointer transition-opacity text-white text-xs font-medium">
+                       Đổi ảnh
+                       <input type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isUploading}/>
+                    </label>
+                  </>
                 ) : (
-                  <div className="text-center p-2 text-text-muted">
-                    <ImageIcon className="w-8 h-8 mx-auto mb-1 opacity-40" />
-                    <span className="text-[11px]">Chưa chọn ảnh</span>
-                  </div>
+                  <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center hover:bg-surface/80">
+                    {isUploading ? <Loader2 className="w-6 h-6 animate-spin text-primary" /> : <ImageIcon className="w-8 h-8 text-border mb-2" />}
+                    <span className="text-[11px] text-text-muted">Click hoặc kéo thả ảnh vào đây</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleUploadImage} disabled={isUploading}/>
+                  </label>
                 )}
               </div>
-
               <div className="flex-1 w-full space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <label
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn bg-primary hover:bg-primary-hover text-white text-xs font-semibold cursor-pointer transition-colors ${
-                      isUploading ? "opacity-60 pointer-events-none" : ""
-                    }`}
-                  >
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Đang tải lên Supabase...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>Tải ảnh từ máy</span>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      disabled={isUploading}
-                      onChange={handleUploadImage}
-                      className="hidden"
-                    />
-                  </label>
-                  <span className="text-[11px] text-text-muted">Lưu tự động vào Supabase Storage</span>
-                </div>
-
                 <input
                   type="text"
                   value={block.data.url || ""}
                   onChange={(e) => onUpdate({ ...block.data, url: e.target.value })}
-                  placeholder="Hoặc dán URL ảnh trực tiếp: https://..."
-                  className="w-full bg-bg border border-border rounded-btn px-3 py-1.5 text-xs text-text focus:outline-none focus:border-primary font-mono"
+                  placeholder="Hoặc dán URL ảnh trực tiếp..."
+                  className="w-full bg-transparent border-b border-border/50 px-0 py-1.5 text-xs text-text focus:outline-none focus:border-primary font-mono"
                 />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div>
-                <label className="text-[11px] font-semibold text-text-muted uppercase block mb-1">
-                  Chú thích hiển thị dưới ảnh (Caption)
-                </label>
                 <input
                   type="text"
                   value={block.data.caption || ""}
                   onChange={(e) => onUpdate({ ...block.data, caption: e.target.value })}
-                  placeholder="VD: Cận cảnh thớ gỗ mịn tít và ánh kim sa tự nhiên..."
-                  className="w-full bg-bg border border-border rounded-btn px-3 py-1.5 text-xs text-text italic focus:outline-none focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-semibold text-text-muted uppercase block mb-1">
-                  Thẻ mô tả SEO (Alt Text)
-                </label>
-                <input
-                  type="text"
-                  value={block.data.alt || ""}
-                  onChange={(e) => onUpdate({ ...block.data, alt: e.target.value })}
-                  placeholder="Mô tả cho Google hiểu bức ảnh..."
-                  className="w-full bg-bg border border-border rounded-btn px-3 py-1.5 text-xs text-text focus:outline-none focus:border-primary"
+                  placeholder="Chú thích ảnh (Caption)..."
+                  className="w-full bg-transparent border-b border-border/50 px-0 py-1.5 text-sm text-text italic focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
           </div>
         )}
 
-        {/* 5. Layout (2 Columns) */}
-        {block.type === "layout" && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs text-text-muted border-b border-border/40 pb-2">
-              <span>Bố cục 2 Cột song song</span>
-              <div className="flex items-center gap-1 font-mono text-[11px]">
-                <button
-                  type="button"
-                  onClick={() => onUpdate({ ...block.data, ratio: "50-50" })}
-                  className={`px-2 py-0.5 rounded ${
-                    block.data.ratio === "50-50" ? "bg-primary text-white" : "hover:bg-border/60"
-                  }`}
-                >
-                  50 / 50
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onUpdate({ ...block.data, ratio: "60-40" })}
-                  className={`px-2 py-0.5 rounded ${
-                    block.data.ratio === "60-40" ? "bg-primary text-white" : "hover:bg-border/60"
-                  }`}
-                >
-                  60 / 40
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Left Column */}
-              <div className="p-3 rounded-lg border border-border bg-bg/30 space-y-2">
-                <span className="text-[11px] font-semibold text-primary uppercase block">
-                  Cột Trái
-                </span>
-                <input
-                  type="text"
-                  value={block.data.leftTitle || ""}
-                  onChange={(e) => onUpdate({ ...block.data, leftTitle: e.target.value })}
-                  placeholder="Tiêu đề cột trái..."
-                  className="w-full bg-bg border border-border rounded-btn px-2.5 py-1.5 text-xs font-bold text-text focus:outline-none focus:border-primary"
-                />
-                <textarea
-                  rows={3}
-                  value={block.data.leftContent || ""}
-                  onChange={(e) => onUpdate({ ...block.data, leftContent: e.target.value })}
-                  placeholder="Nội dung cột trái..."
-                  className="w-full bg-bg border border-border rounded-btn p-2 text-xs text-text focus:outline-none focus:border-primary leading-relaxed"
-                />
-              </div>
-
-              {/* Right Column */}
-              <div className="p-3 rounded-lg border border-border bg-bg/30 space-y-2">
-                <span className="text-[11px] font-semibold text-secondary uppercase block">
-                  Cột Phải
-                </span>
-                <input
-                  type="text"
-                  value={block.data.rightTitle || ""}
-                  onChange={(e) => onUpdate({ ...block.data, rightTitle: e.target.value })}
-                  placeholder="Tiêu đề cột phải..."
-                  className="w-full bg-bg border border-border rounded-btn px-2.5 py-1.5 text-xs font-bold text-text focus:outline-none focus:border-primary"
-                />
-                <textarea
-                  rows={3}
-                  value={block.data.rightContent || ""}
-                  onChange={(e) => onUpdate({ ...block.data, rightContent: e.target.value })}
-                  placeholder="Nội dung cột phải..."
-                  className="w-full bg-bg border border-border rounded-btn p-2 text-xs text-text focus:outline-none focus:border-primary leading-relaxed"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 6. Section Box */}
-        {block.type === "section" && (
-          <div className="p-4 rounded-lg border-2 border-primary/30 bg-accent-soft/30 space-y-2">
-            <input
-              type="text"
-              value={block.data.title || ""}
-              onChange={(e) => onUpdate({ ...block.data, title: e.target.value })}
-              placeholder="Tiêu đề khối nổi bật..."
-              className="w-full bg-surface border border-border rounded-btn px-3 py-1.5 text-sm font-serif font-bold text-primary focus:outline-none focus:border-primary"
-            />
-            <textarea
-              rows={3}
-              value={block.data.content || ""}
-              onChange={(e) => onUpdate({ ...block.data, content: e.target.value })}
-              placeholder="Nội dung hộp nổi bật..."
-              className="w-full bg-surface border border-border rounded-btn p-2.5 text-xs text-text focus:outline-none focus:border-primary leading-relaxed"
-            />
-          </div>
-        )}
-
-        {/* 7. Quote Block */}
+        {/* 4. QUOTE BLOCK */}
         {block.type === "quote" && (
           <div className="border-l-4 border-primary pl-4 py-1 space-y-2">
-            <textarea
-              rows={2}
-              value={block.data.quote || ""}
-              onChange={(e) => onUpdate({ ...block.data, quote: e.target.value })}
-              placeholder="Nhập câu trích dẫn hoặc lời dặn của nghệ nhân..."
-              className="w-full bg-bg border border-border rounded-btn p-2 text-sm italic font-serif text-text focus:outline-none focus:border-primary"
-            />
-            <input
-              type="text"
-              value={block.data.author || ""}
-              onChange={(e) => onUpdate({ ...block.data, author: e.target.value })}
-              placeholder="Tên người nói (VD: Nghệ nhân Đông Phong)"
-              className="w-full sm:w-64 bg-bg border border-border rounded-btn px-2.5 py-1 text-xs font-semibold text-primary focus:outline-none focus:border-primary"
-            />
+             <AutoResizeTextarea
+               value={block.data.quote || ""}
+               onChange={(e) => onUpdate({ ...block.data, quote: e.target.value })}
+               onKeyDown={handleKeyDown}
+               placeholder="Nhập câu trích dẫn..."
+               className="w-full bg-transparent border-none p-0 text-[17px] italic font-serif text-text focus:outline-none focus:ring-0 resize-none overflow-hidden placeholder:text-text-muted/40"
+             />
+             <input
+               type="text"
+               value={block.data.author || ""}
+               onChange={(e) => onUpdate({ ...block.data, author: e.target.value })}
+               placeholder="Tên người nói..."
+               className="w-full sm:w-64 bg-transparent border-b border-border/50 px-0 py-1 text-xs font-semibold text-primary focus:outline-none focus:border-primary"
+             />
           </div>
         )}
 
-        {/* 8. List Block */}
+        {/* 5. LIST BLOCK */}
         {block.type === "list" && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 mb-2">
-              <button
-                type="button"
-                onClick={() => onUpdate({ ...block.data, listType: "bullet" })}
-                className={`px-2.5 py-1 text-xs rounded font-medium ${
-                  block.data.listType === "bullet" ? "bg-primary text-white" : "border border-border"
-                }`}
-              >
-                Chấm tròn (•)
-              </button>
-              <button
-                type="button"
-                onClick={() => onUpdate({ ...block.data, listType: "numbered" })}
-                className={`px-2.5 py-1 text-xs rounded font-medium ${
-                  block.data.listType === "numbered" ? "bg-primary text-white" : "border border-border"
-                }`}
-              >
-                Đánh số (1, 2, 3)
-              </button>
-            </div>
-
+          <div className="space-y-1">
             {(block.data.items || []).map((item: string, i: number) => (
-              <div key={i} className="flex items-center gap-2">
-                <span className="text-xs text-text-muted w-5 text-center font-mono">
+              <div key={i} className="flex items-start gap-2">
+                <span className="text-base text-text mt-1 select-none">
                   {block.data.listType === "numbered" ? `${i + 1}.` : "•"}
                 </span>
-                <input
-                  type="text"
+                <AutoResizeTextarea
                   value={item}
                   onChange={(e) => {
                     const next = [...block.data.items];
                     next[i] = e.target.value;
                     onUpdate({ ...block.data, items: next });
                   }}
-                  className="flex-1 bg-bg border border-border rounded-btn px-2.5 py-1.5 text-xs text-text focus:outline-none focus:border-primary"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = block.data.items.filter((_: any, idx: number) => idx !== i);
-                    onUpdate({ ...block.data, items: next });
+                  onKeyDown={(e) => {
+                     if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        const next = [...block.data.items];
+                        next.splice(i + 1, 0, "");
+                        onUpdate({ ...block.data, items: next });
+                     } else if (e.key === "Backspace" && item === "") {
+                        e.preventDefault();
+                        if (block.data.items.length === 1) {
+                           onDelete();
+                           onFocusPrevious();
+                        } else {
+                           const next = block.data.items.filter((_: any, idx: number) => idx !== i);
+                           onUpdate({ ...block.data, items: next });
+                        }
+                     }
                   }}
-                  className="p-1 text-text-muted hover:text-red-500"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+                  placeholder="Mục danh sách..."
+                  className="flex-1 bg-transparent border-none p-0 text-[17px] text-text focus:outline-none focus:ring-0 resize-none overflow-hidden placeholder:text-text-muted/40 pt-1"
+                />
               </div>
             ))}
-
-            <button
-              type="button"
-              onClick={() => {
-                const next = [...(block.data.items || []), "Ý tiếp theo..."];
-                onUpdate({ ...block.data, items: next });
-              }}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline mt-1"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Thêm dòng mới</span>
-            </button>
           </div>
         )}
 
-        {/* 9. Table Block */}
-        {block.type === "table" && (
-          <div className="space-y-2 overflow-x-auto">
-            <span className="text-[11px] text-text-muted block">Bảng dữ liệu và so sánh</span>
-            <table className="w-full text-xs border border-border">
-              <thead>
-                <tr className="bg-bg">
-                  {(block.data.headers || []).map((h: string, hi: number) => (
-                    <th key={hi} className="p-1.5 border border-border">
-                      <input
-                        type="text"
-                        value={h}
-                        onChange={(e) => {
-                          const nextH = [...block.data.headers];
-                          nextH[hi] = e.target.value;
-                          onUpdate({ ...block.data, headers: nextH });
-                        }}
-                        className="w-full font-bold bg-transparent border-0 focus:outline-none text-center"
-                      />
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(block.data.rows || []).map((row: string[], ri: number) => (
-                  <tr key={ri}>
-                    {row.map((cell: string, ci: number) => (
-                      <td key={ci} className="p-1.5 border border-border">
-                        <input
-                          type="text"
-                          value={cell}
-                          onChange={(e) => {
-                            const nextRows = [...block.data.rows];
-                            nextRows[ri][ci] = e.target.value;
-                            onUpdate({ ...block.data, rows: nextRows });
-                          }}
-                          className="w-full bg-transparent border-0 focus:outline-none"
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* 10. Button Block */}
-        {block.type === "button" && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="text-[11px] font-semibold text-text-muted uppercase block mb-1">
-                Chữ trên nút (Label)
-              </label>
-              <input
-                type="text"
-                value={block.data.label || ""}
-                onChange={(e) => onUpdate({ ...block.data, label: e.target.value })}
-                placeholder="Nhắn Zalo Tư Vấn..."
-                className="w-full bg-bg border border-border rounded-btn px-2.5 py-1.5 text-xs font-bold text-text focus:outline-none focus:border-primary"
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-semibold text-text-muted uppercase block mb-1">
-                Đường dẫn liên kết (URL)
-              </label>
-              <input
-                type="text"
-                value={block.data.url || ""}
-                onChange={(e) => onUpdate({ ...block.data, url: e.target.value })}
-                placeholder="https://zalo.me/... hoặc /san-pham/..."
-                className="w-full bg-bg border border-border rounded-btn px-2.5 py-1.5 text-xs text-text focus:outline-none focus:border-primary font-mono"
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-semibold text-text-muted uppercase block mb-1">
-                Kiểu dáng nút
-              </label>
-              <select
-                value={block.data.buttonStyle || "zalo"}
-                onChange={(e) => onUpdate({ ...block.data, buttonStyle: e.target.value })}
-                className="w-full bg-bg border border-border rounded-btn px-2.5 py-1.5 text-xs text-text focus:outline-none focus:border-primary"
-              >
-                <option value="zalo">Xanh Zalo (Nhắn Zalo)</option>
-                <option value="hotline">Nâu Gỗ (Hotline Xưởng)</option>
-                <option value="primary">Vàng Đồng Hoàng Gia</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* 11. Divider Block */}
-        {block.type === "divider" && (
-          <div className="py-2 text-center">
-            <div className="h-px bg-border/80 w-full" />
-            <span className="text-[10px] text-text-muted uppercase tracking-widest mt-1 block">
-              Đường kẻ phân cách
-            </span>
-          </div>
-        )}
-
-        {/* 12. Footer Block */}
-        {block.type === "footer" && (
-          <div className="p-4 rounded-lg bg-surface border border-border space-y-2">
-            <input
-              type="text"
-              value={block.data.title || ""}
-              onChange={(e) => onUpdate({ ...block.data, title: e.target.value })}
-              placeholder="Tiêu đề đúc kết..."
-              className="w-full bg-bg border border-border rounded-btn px-3 py-1.5 text-sm font-serif font-bold text-primary focus:outline-none focus:border-primary"
-            />
-            <textarea
-              rows={2}
-              value={block.data.content || ""}
-              onChange={(e) => onUpdate({ ...block.data, content: e.target.value })}
-              placeholder="Lời kết và cam kết thương hiệu..."
-              className="w-full bg-bg border border-border rounded-btn p-2.5 text-xs text-text focus:outline-none focus:border-primary leading-relaxed"
-            />
-          </div>
+        {/* FALLBACK FOR OTHERS (Section, Table, Button, Layout, Header, Footer) */}
+        {["section", "table", "button", "layout", "header", "footer", "divider"].includes(block.type) && (
+           <div className="p-3 bg-surface border border-border border-dashed rounded flex flex-col items-center justify-center text-center opacity-60 hover:opacity-100 transition-opacity">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted mb-2">KHỐI ĐẶC BIỆT: {block.type}</span>
+              <span className="text-[13px] text-text">Dữ liệu khối này vẫn được bảo toàn. Đang hiển thị ở chế độ thu gọn.</span>
+           </div>
         )}
       </div>
     </div>

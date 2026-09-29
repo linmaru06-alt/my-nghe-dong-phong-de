@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { EditorBlock, BlockType, createDefaultBlock } from "@/lib/blockEditor";
 import { BlockCard } from "./BlockCard";
 import { HoverDropzone } from "./HoverDropzone";
-import { BlockPickerModal } from "./BlockPickerModal";
-import { Plus } from "lucide-react";
 
 export interface VisualBlockEditorProps {
   blocks: EditorBlock[];
@@ -13,25 +11,21 @@ export interface VisualBlockEditorProps {
 }
 
 export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) {
-  const [pickerIndex, setPickerIndex] = useState<number | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleOpenPicker = (index: number) => {
-    setPickerIndex(index);
-  };
-
-  const handleClosePicker = () => {
-    setPickerIndex(null);
-  };
-
-  const handleSelectBlock = (type: BlockType) => {
-    if (pickerIndex === null) return;
-
-    const newBlock = createDefaultBlock(type);
-    const updated = [...blocks];
-    updated.splice(pickerIndex, 0, newBlock);
-    onChange(updated);
-    setPickerIndex(null);
-  };
+  // Focus management
+  useEffect(() => {
+    if (focusedIndex !== null) {
+      const el = document.getElementById(`block-${focusedIndex}`);
+      if (el) {
+        const input = el.querySelector("textarea, input") as HTMLElement;
+        if (input) input.focus();
+      }
+    }
+  }, [focusedIndex]);
 
   const handleUpdate = (index: number, data: Record<string, any>) => {
     const updated = [...blocks];
@@ -39,22 +33,23 @@ export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) 
     onChange(updated);
   };
 
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
+  const handleChangeType = (index: number, type: BlockType, data?: any) => {
     const updated = [...blocks];
-    const temp = updated[index];
-    updated[index] = updated[index - 1];
-    updated[index - 1] = temp;
+    const defaultBlock = createDefaultBlock(type);
+    updated[index] = { 
+       ...updated[index], 
+       type, 
+       data: { ...defaultBlock.data, ...data } 
+    };
     onChange(updated);
   };
 
-  const handleMoveDown = (index: number) => {
-    if (index === blocks.length - 1) return;
+  const handleInsertBelow = (index: number, type: BlockType = "text") => {
+    const newBlock = createDefaultBlock(type);
     const updated = [...blocks];
-    const temp = updated[index];
-    updated[index] = updated[index + 1];
-    updated[index + 1] = temp;
+    updated.splice(index + 1, 0, newBlock);
     onChange(updated);
+    setFocusedIndex(index + 1);
   };
 
   const handleDuplicate = (index: number) => {
@@ -71,66 +66,76 @@ export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) 
 
   const handleDelete = (index: number) => {
     if (blocks.length <= 1) {
-      // Giữ lại ít nhất 1 khối
       onChange([createDefaultBlock("text")]);
       return;
     }
     const updated = blocks.filter((_, i) => i !== index);
     onChange(updated);
+    if (index > 0) {
+       setFocusedIndex(index - 1);
+    }
+  };
+
+  // Drag and Drop Handlers
+  const handleDragStart = (e: React.DragEvent, position: number) => {
+    dragItem.current = position;
+    setIsDragging(true);
+    // Needed for Firefox
+    if (e.dataTransfer) {
+       e.dataTransfer.effectAllowed = "move";
+       e.dataTransfer.setData("text/html", e.currentTarget.innerHTML);
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent, position: number) => {
+    dragOverItem.current = position;
+    // We could force a re-render here to show the drop indicator, 
+    // but Native HTML5 DND handles visual feedback okay enough.
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    if (dragItem.current !== null && dragOverItem.current !== null && dragItem.current !== dragOverItem.current) {
+      const newBlocks = [...blocks];
+      const draggedItemContent = newBlocks[dragItem.current];
+      newBlocks.splice(dragItem.current, 1);
+      newBlocks.splice(dragOverItem.current, 0, draggedItemContent);
+      onChange(newBlocks);
+    }
+    dragItem.current = null;
+    dragOverItem.current = null;
+    setIsDragging(false);
   };
 
   return (
-    <div className="space-y-1">
-      {/* 1. Điểm chèn ở đầu bài viết */}
-      <HoverDropzone
-        isFirst={true}
-        label="+ Thêm khối ở đầu bài viết"
-        onOpenPicker={() => handleOpenPicker(0)}
-      />
-
-      {/* 2. Danh sách các khối */}
+    <div className="space-y-3 pb-20">
       {blocks.map((block, idx) => (
-        <React.Fragment key={block.id || idx}>
-          <BlockCard
-            block={block}
-            index={idx}
-            total={blocks.length}
-            onUpdate={(data) => handleUpdate(idx, data)}
-            onMoveUp={() => handleMoveUp(idx)}
-            onMoveDown={() => handleMoveDown(idx)}
-            onDuplicate={() => handleDuplicate(idx)}
-            onDelete={() => handleDelete(idx)}
-          />
-
-          {/* Điểm chèn di chuột giữa các khối */}
-          <HoverDropzone
-            label="+ Thêm khối tại đây"
-            onOpenPicker={() => handleOpenPicker(idx + 1)}
-          />
-        </React.Fragment>
+        <BlockCard
+          key={block.id}
+          id={`block-${idx}`}
+          block={block}
+          index={idx}
+          total={blocks.length}
+          onUpdate={(data) => handleUpdate(idx, data)}
+          onChangeType={(type, data) => handleChangeType(idx, type, data)}
+          onInsertBelow={() => handleInsertBelow(idx)}
+          onDelete={() => handleDelete(idx)}
+          onDuplicate={() => handleDuplicate(idx)}
+          onFocusPrevious={() => setFocusedIndex(Math.max(0, idx - 1))}
+          // DND
+          draggable
+          onDragStart={(e) => handleDragStart(e, idx)}
+          onDragEnter={(e) => handleDragEnter(e, idx)}
+          onDragEnd={handleDragEnd}
+          isDragOver={dragOverItem.current === idx}
+        />
       ))}
 
-      {/* Empty State nếu không có khối */}
-      {blocks.length === 0 && (
-        <div className="p-8 border-2 border-dashed border-border rounded-card text-center bg-bg/40">
-          <p className="text-sm text-text-muted mb-3">Bài viết hiện chưa có khối nào.</p>
-          <button
-            type="button"
-            onClick={() => handleOpenPicker(0)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-btn bg-primary text-white text-xs font-semibold hover:bg-primary-hover shadow-sm transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Thêm khối đầu tiên</span>
-          </button>
-        </div>
-      )}
-
-      {/* 3. Modal chọn 12 khối khi bấm dấu (+) */}
-      <BlockPickerModal
-        isOpen={pickerIndex !== null}
-        onClose={handleClosePicker}
-        onSelectBlock={handleSelectBlock}
-      />
+      {/* Empty State / Bottom Area to add new blocks easily */}
+      <div 
+         className="h-20 w-full cursor-text"
+         onClick={() => handleInsertBelow(blocks.length - 1)}
+      >
+      </div>
     </div>
   );
 }

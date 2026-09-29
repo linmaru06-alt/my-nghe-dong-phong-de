@@ -66,7 +66,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   
-  const [saveStatus, setSaveStatus] = useState<"Chưa lưu" | "Đang lưu..." | "Bản nháp">("Chưa lưu");
+  const [saveStatus, setSaveStatus] = useState<string>("Chưa lưu");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
   // Sync States
@@ -222,29 +222,20 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     if (!finalContent.trim()) errors.push({ field: "Nội dung bài viết", id: "input-content" });
 
     if (errors.length > 0) {
+      const firstError = errors[0];
       toast.error(
-         <div className="space-y-1">
-            <p className="font-semibold text-red-700">Không thể đăng bài. Vui lòng bổ sung:</p>
-            <ul className="list-disc pl-4 text-sm">
-               {errors.map((err, idx) => (
-                  <li key={idx}>
-                     <button type="button" className="hover:underline text-left" onClick={() => {
-                        setShowSettings(true);
-                        setTimeout(() => {
-                           document.getElementById(err.id)?.focus();
-                           document.getElementById(err.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                           document.getElementById(err.id)?.classList.add("ring-2", "ring-red-500", "ring-offset-2");
-                           setTimeout(() => document.getElementById(err.id)?.classList.remove("ring-2", "ring-red-500", "ring-offset-2"), 2000);
-                        }, 100);
-                     }}>
-                        {err.field}
-                     </button>
-                  </li>
-               ))}
-            </ul>
-         </div>,
-         { duration: 5000 }
+        "Không thể đăng bài",
+        `Vui lòng bổ sung: ${errors.map((e) => e.field).join(", ")}`,
+        5000
       );
+      setShowSettings(true);
+      setTimeout(() => {
+        const el = document.getElementById(firstError.id);
+        el?.focus();
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        el?.classList.add("ring-2", "ring-red-500", "ring-offset-2");
+        setTimeout(() => el?.classList.remove("ring-2", "ring-red-500", "ring-offset-2"), 2000);
+      }, 100);
       return;
     }
 

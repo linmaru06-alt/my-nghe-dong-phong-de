@@ -9,7 +9,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "check:pre-push": "node scripts/pre-push-check.mjs",
+    "prepare": "husky"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
@@ -31,6 +34,7 @@
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.35",
+    "husky": "^9.1.7",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.4.5"

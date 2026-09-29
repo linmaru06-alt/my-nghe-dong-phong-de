@@ -78,3 +78,27 @@ Toàn bộ giao diện phải toát lên nét đẹp tinh tế, trầm ấm và 
   - Mã hóa UTF-8 đầy đủ cho tiếng Việt có dấu.
 - **Cấu trúc Agent Skills & Rules:**
   - Luôn tham khảo các tài liệu trong `.agents/rules/` và `.agents/skills/` trước khi thực hiện chỉnh sửa cấu trúc dữ liệu hoặc giao diện.
+
+---
+
+## 6. Quy chuẩn Đẩy mã nguồn & Kiểm soát Chất lượng (Git Push & CI/CD Gate)
+
+Để bảo đảm website chạy ổn định, không bao giờ bị gãy build trên Vercel hoặc mất kết nối Supabase, toàn bộ AI Agent và lập trình viên bắt buộc tuân thủ:
+
+1. **Kiểm tra bắt buộc trước khi Git Push (Local Quality Gate):**
+   - **BẮT BUỘC** chạy lệnh kiểm tra chất lượng trước khi commit/push:
+     ```bash
+     npm run check:pre-push
+     ```
+     Lệnh này sẽ tự động chạy:
+     - `npx tsc --noEmit`: Bắt toàn bộ lỗi kiểu dữ liệu TypeScript (chặn lỗi type inference `never`).
+     - `npm run build`: Mô phỏng 100% quá trình Vercel đóng gói 52+ trang static/dynamic.
+     - Kiểm tra kết nối Supabase và biến môi trường.
+2. **Quy tắc xử lý lỗi (Zero-Fault Policy):**
+   - Tuyệt đối **KHÔNG ĐƯỢC PHÉP** `git push` nếu lệnh build hoặc type-check còn báo lỗi (`exit code != 0`).
+   - Phải sửa triệt để tất cả lỗi biên dịch và warning nguy hiểm tại môi trường cục bộ trước khi đẩy lên GitHub.
+   - Không được sử dụng cờ bỏ qua kiểm tra `--no-verify` khi push trừ trường hợp khẩn cấp có chỉ định rõ ràng từ chủ dự án.
+3. **Bảo vệ nhánh chính (Branch Protection & GitHub Actions):**
+   - Hệ thống GitHub Actions CI (`.github/workflows/ci.yml`) sẽ tự động kiểm tra độc lập trên mỗi commit/Pull Request.
+   - Nhánh `main` chỉ nhận các commit vượt qua cả bài kiểm tra cục bộ và bài kiểm tra trên GitHub CI.
+

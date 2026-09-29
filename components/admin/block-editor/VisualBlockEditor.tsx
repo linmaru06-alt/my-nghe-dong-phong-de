@@ -121,9 +121,14 @@ export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) 
 
   return (
     <div className="space-y-6 pb-20">
-
-
-      {blocks.map((block, idx) => (
+      <div className="relative flex items-center justify-center my-6">
+         <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-[#C5A059]/30"></div>
+         </div>
+         <button type="button" onClick={() => handleInsertBelow(-1)} className="relative flex items-center gap-1.5 px-4 py-1.5 bg-[#C5A059] text-white text-[13px] font-semibold rounded-full hover:bg-[#b08d4f] transition-colors shadow-sm">
+            <span className="text-white/80 font-normal">+</span> Thêm khối ở đầu bài viết
+         </button>
+      </div>      {blocks.map((block, idx) => (
         <BlockCard
           key={block.id}
           id={`block-${idx}`}
@@ -147,11 +152,14 @@ export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) 
         />
       ))}
 
-      {/* Empty State / Bottom Area to add new blocks easily */}
-      <div 
-         className="h-20 w-full cursor-text"
-         onClick={() => handleInsertBelow(blocks.length - 1)}
-      >
+      {/* Bottom Area to add new blocks easily */}
+      <div className="relative flex items-center justify-center mt-8 mb-12">
+         <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-[#C5A059]/30"></div>
+         </div>
+         <button type="button" onClick={() => handleInsertBelow(blocks.length - 1)} className="relative flex items-center gap-1.5 px-4 py-1.5 bg-[#C5A059] text-white text-[13px] font-semibold rounded-full hover:bg-[#b08d4f] transition-colors shadow-sm">
+            <span className="text-white/80 font-normal">+</span> Thêm khối tại đây
+         </button>
       </div>
     </div>
   );

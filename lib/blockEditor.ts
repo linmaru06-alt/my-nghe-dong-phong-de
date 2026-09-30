@@ -50,7 +50,7 @@ export function createDefaultBlock(type: BlockType): EditorBlock {
         type,
         data: {
           level: 2, // 2 (H2), 3 (H3), 4 (H4)
-          text: "Tiêu đề phân đoạn bài viết",
+          text: "",
         },
       };
 
@@ -59,7 +59,7 @@ export function createDefaultBlock(type: BlockType): EditorBlock {
         id,
         type,
         data: {
-          text: "Nhập nội dung đoạn văn bản ở đây. Gỗ quý Đông Phong được chế tác hoàn toàn thủ công, giữ trọn vẹn thớ vân mộc tự nhiên và hương thơm thảo mộc đầm chắc.",
+          text: "",
         },
       };
 

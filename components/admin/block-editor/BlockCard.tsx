@@ -238,7 +238,7 @@ export function BlockCard({
 
       if (start === text.length) {
         e.preventDefault();
-        onInsertBelow("text");
+        onInsertBelow("text", { text: "" });
       } else if (start < text.length) {
         e.preventDefault();
         const before = text.substring(0, start);
@@ -400,8 +400,9 @@ export function BlockCard({
                 textAlign: block.data.align || "left",
                 fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
               }}
-              placeholder="Gõ văn bản tự do, bấm phím cách (Space) mượt mà hoặc gõ / để chèn..."
-              className="w-full bg-transparent border-none rounded-none p-0 text-[16px] text-[#1F1610] focus:outline-none focus:ring-0 leading-[1.8] resize-none overflow-hidden placeholder:text-[#5F6368]/40 font-sans tracking-normal whitespace-pre-wrap"
+              placeholder=""
+              rows={1}
+              className="w-full bg-transparent border-none rounded-none p-0 text-[16px] text-[#1F1610] focus:outline-none focus:ring-0 leading-[1.8] min-h-[1.8em] resize-none overflow-hidden font-sans tracking-normal whitespace-pre-wrap"
             />
 
             {/* Slash Menu */}
@@ -454,8 +455,9 @@ export function BlockCard({
                 textAlign: block.data.align || "left",
                 fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
               }}
-              placeholder="Nhập tiêu đề mục..."
-              className={`w-full bg-transparent border-none rounded-none p-0 font-serif font-bold text-[#3D2314] focus:outline-none focus:ring-0 resize-none overflow-hidden placeholder:text-[#5F6368]/30 ${
+              placeholder=""
+              rows={1}
+              className={`w-full bg-transparent border-none rounded-none p-0 font-serif font-bold text-[#3D2314] focus:outline-none focus:ring-0 min-h-[1.4em] resize-none overflow-hidden ${
                 block.data.level === 3 ? "text-xl md:text-2xl mt-4 mb-2" : block.data.level === 4 ? "text-lg md:text-xl mt-3 mb-1" : "text-2xl md:text-3xl mt-6 mb-3 pb-1 border-b border-[#C5A059]/40"
               }`}
             />

@@ -231,9 +231,18 @@ export function blocksToMarkdown(blocks: EditorBlock[]): string {
 
       case "list": {
         const isNum = block.data.listType === "numbered";
-        const items: string[] = Array.isArray(block.data.items) ? block.data.items : [];
+        const isCheck = block.data.listType === "checklist";
+        const items: any[] = Array.isArray(block.data.items) ? block.data.items : [];
         const formatted = items
-          .map((item, idx) => (isNum ? `${idx + 1}. ${item}` : `- ${item}`))
+          .map((item, idx) => {
+            if (isCheck) {
+              const isChecked = typeof item === "object" ? !!item.checked : false;
+              const text = typeof item === "object" ? item.text || "" : String(item);
+              return `- [${isChecked ? "x" : " "}] ${text}`;
+            }
+            const text = typeof item === "object" ? item.text || "" : String(item);
+            return isNum ? `${idx + 1}. ${text}` : `- ${text}`;
+          })
           .join("\n");
         parts.push(formatted);
         break;
@@ -444,9 +453,31 @@ export function markdownToBlocks(markdown: string): EditorBlock[] {
       continue;
     }
 
-    // 10. List (Bullet or Numbered)
+    // 10. Checklist or List (Bullet or Numbered)
+    const isChecklist = raw.startsWith("- [ ] ") || raw.startsWith("- [x] ") || raw.startsWith("- [X] ");
     const isBullet = raw.startsWith("- ") || raw.startsWith("* ");
     const isNum = /^[0-9]+\.\s/.test(raw);
+
+    if (isChecklist) {
+      const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+      const items = lines.map((l) => {
+        const match = l.match(/^-\s*\[([ xX])\]\s*(.*)$/);
+        if (match) {
+          return { checked: match[1].toLowerCase() === "x", text: match[2] };
+        }
+        return { checked: false, text: l.replace(/^-\s*/, "") };
+      });
+      blocks.push({
+        id: generateId(),
+        type: "list",
+        data: {
+          listType: "checklist",
+          items,
+        },
+      });
+      continue;
+    }
+
     if (isBullet || isNum) {
       const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
       const items = lines.map((l) => l.replace(/^([-*]|[0-9]+\.)\s+/, ""));

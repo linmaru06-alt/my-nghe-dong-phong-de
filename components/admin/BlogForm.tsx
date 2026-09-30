@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import {
   Send,
   Image as ImageIcon,
@@ -13,25 +12,25 @@ import {
   Code,
   ArrowLeft,
   Wand2,
-  Monitor,
-  Smartphone,
-  CheckCircle2,
   AlertCircle,
   Clock,
+  Tag,
+  ShieldCheck,
+  MessageCircle,
+  Phone,
   Sparkles,
-  Save,
-  Check,
-  ExternalLink,
-  FileText,
-  Sliders,
-  Globe,
+  BookOpen,
+  Eye,
 } from "lucide-react";
 import { usePostsStore } from "@/lib/usePosts";
 import { slugify } from "@/lib/slugify";
 import { toast } from "@/components/ui/Toast";
 import { VisualBlockEditor } from "./block-editor/VisualBlockEditor";
-import { markdownToBlocks, blocksToMarkdown, EditorBlock } from "@/lib/blockEditor";
+import { markdownToBlocks, blocksToMarkdown, EditorBlock, BlockType, createDefaultBlock } from "@/lib/blockEditor";
+import { ArticleContentRenderer } from "@/components/blog/ArticleContentRenderer";
 import { AutoResizeTextarea } from "@/components/ui/AutoResizeTextarea";
+import { GoogleDocsToolbar } from "./docs-editor/GoogleDocsToolbar";
+import { GoogleDocsRuler } from "./docs-editor/GoogleDocsRuler";
 
 export interface BlogFormData {
   id?: string;
@@ -44,27 +43,12 @@ export interface BlogFormData {
   readingTime: number;
   status: "published" | "draft";
   publishedAt?: string;
+  tags?: string[];
 }
 
 export interface BlogFormProps {
   initialData?: BlogFormData;
   isEdit?: boolean;
-}
-
-// ═══════════════════════════════════════════════════════
-// Tiện ích tính thời gian tương đối
-// ═══════════════════════════════════════════════════════
-function formatRelativeTime(date: Date | null): string {
-  if (!date) return "";
-  const now = new Date();
-  const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
-  if (diffSec < 10) return "vừa xong";
-  if (diffSec < 60) return `${diffSec} giây trước`;
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin} phút trước`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour} giờ trước`;
-  return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
 }
 
 export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
@@ -81,192 +65,119 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       thumbnail: "",
       readingTime: 1,
       status: "draft",
+      tags: ["Đồ gỗ phong thủy", "Gỗ quý tự nhiên", "Mỹ Nghệ Đông Phong"],
     }
   );
 
-  const [blocks, setBlocks] = useState<EditorBlock[]>(() =>
-    markdownToBlocks(formData.content || "")
-  );
+  const [blocks, setBlocks] = useState<EditorBlock[]>(() => markdownToBlocks(formData.content || ""));
   const [editorMode, setEditorMode] = useState<"visual" | "markdown">("visual");
-
-  // Squarespace In-Place Viewport Mode: "desktop" | "mobile"
-  const [viewportMode, setViewportMode] = useState<"desktop" | "mobile">("desktop");
-
-  // Squarespace Tabbed Post Settings Modal
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [activeSettingsTab, setActiveSettingsTab] = useState<"content" | "options" | "seo">("content");
-
+  const [showPreview, setShowPreview] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [isUploadingThumb, setIsUploadingThumb] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
-  const [isEditingReadingTime, setIsEditingReadingTime] = useState(false);
+  const [tagInput, setTagInput] = useState("");
 
-  // Trạng thái lưu
-  const [saveState, setSaveState] = useState<"saved" | "saving" | "unsaved">("unsaved");
+  const [saveStatus, setSaveStatus] = useState<string>("Chưa lưu");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [, setTick] = useState(0);
 
   // Sync States
   const [isSlugManual, setIsSlugManual] = useState(!!initialData?.slug && isEdit);
   const [isReadingTimeManual, setIsReadingTimeManual] = useState(false);
 
-  // Ticker cập nhật relative time
-  useEffect(() => {
-    const timer = setInterval(() => setTick((t) => t + 1), 20000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Cảnh báo BeforeUnload
+  // BeforeUnload Warning
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (saveState === "unsaved") {
+      if (saveStatus === "Chưa lưu") {
         e.preventDefault();
         e.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [saveState]);
+  }, [saveStatus]);
 
-  // Phím tắt Ctrl+S
+  // Ctrl+S Shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
-        handleSaveDraft();
+        handleAutoSave(editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blocks, formData, editorMode]);
+  }, [blocks, formData.content, editorMode]);
 
-  // Hàm Lưu Nháp
-  const handleSaveDraft = async () => {
-    if (!formData.title.trim()) {
-      toast.error("Chưa có tiêu đề", "Vui lòng nhập tiêu đề bài viết trước khi lưu nháp");
-      return;
-    }
-
-    setSaveState("saving");
-    const currentContent = editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content;
-
-    try {
-      const payload: BlogFormData = {
-        ...formData,
-        content: currentContent,
-        id: formData.id || `post-${Date.now()}`,
-        status: "draft",
-      };
-
-      if (isEdit && formData.id) {
-        await updatePost(formData.id, payload);
-      } else {
-        if (!formData.id) {
-          setFormData((prev) => ({ ...prev, id: payload.id }));
-        }
-        await addPost(payload as any);
-      }
-
-      setLastSaved(new Date());
-      setSaveState("saved");
-      toast.success("Đã lưu bản nháp thành công");
-    } catch (e: any) {
-      setSaveState("unsaved");
-      toast.error("Lưu nháp thất bại", e.message);
-    }
-  };
-
-  // Debounced Auto Calculations
+  // Debounced Auto Calculations & Auto Save
   useEffect(() => {
     const timer = setTimeout(() => {
       const contentStr = editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content;
 
-      // Tính thời gian đọc = Math.ceil(tổng từ / 200)
+      // Auto Read Time
       if (!isReadingTimeManual) {
-        const words = contentStr.trim() ? contentStr.trim().split(/\s+/).length : 0;
+        const words = contentStr.trim().split(/\s+/).filter(Boolean).length;
         const calcReadingTime = Math.max(1, Math.ceil(words / 200));
         if (calcReadingTime !== formData.readingTime) {
           setFormData((prev) => ({ ...prev, readingTime: calcReadingTime }));
         }
       }
 
+      // Sync Content to formData so it's always fresh
       if (contentStr !== formData.content) {
         setFormData((prev) => ({ ...prev, content: contentStr }));
       }
-    }, 1000);
 
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blocks, editorMode, isReadingTimeManual]);
-
-  // Debounce Auto Save (3 giây)
-  useEffect(() => {
-    if (!formData.title.trim() || saveState !== "unsaved") return;
-
-    const timer = setTimeout(() => {
-      const currentContent = editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content;
-      setSaveState("saving");
-      const payload = {
-        ...formData,
-        content: currentContent,
-        id: formData.id || `post-${Date.now()}`,
-        status: "draft" as const,
-      };
-
-      const savePromise = isEdit && formData.id
-        ? updatePost(formData.id, payload)
-        : addPost(payload as any);
-
-      savePromise
-        .then(() => {
-          if (!formData.id) {
-            setFormData((prev) => ({ ...prev, id: payload.id }));
-          }
-          setLastSaved(new Date());
-          setSaveState("saved");
-        })
-        .catch(() => {
-          setSaveState("unsaved");
-        });
+      // Auto Save
+      if (formData.title && (formData.title !== initialData?.title || contentStr !== initialData?.content)) {
+        handleAutoSave(contentStr);
+      }
     }, 3000);
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blocks, formData.title, formData.slug, formData.excerpt, formData.thumbnail, saveState]);
+  }, [blocks, formData.title, editorMode, isReadingTimeManual]);
 
-  // Tiêu đề thay đổi
-  const handleTitleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const title = e.target.value;
-    const updates: Partial<BlogFormData> = { title };
+  const handleAutoSave = async (currentContent: string) => {
+    if (!formData.title) return;
+    setSaveStatus("Đang lưu...");
+    try {
+      const payload = {
+        ...formData,
+        content: currentContent,
+        id: formData.id || `post-${Date.now()}`,
+      };
+      if (isEdit && formData.id) {
+        await updatePost(formData.id, payload);
+      } else {
+        if (!formData.id) {
+          setFormData((prev) => ({ ...prev, id: payload.id }));
+        }
+      }
+      setLastSaved(new Date());
+      setSaveStatus("Bản nháp");
+    } catch (e) {
+      setSaveStatus("Chưa lưu");
+      toast.error("Lưu nháp thất bại, vui lòng thử lại");
+    }
+  };
+
+  const handleTitleChange = (val: string) => {
+    const updates: Partial<BlogFormData> = { title: val };
     if (!isSlugManual && (!isEdit || formData.status === "draft")) {
-      updates.slug = slugify(title);
+      updates.slug = slugify(val);
     }
     setFormData((prev) => ({ ...prev, ...updates }));
-    setSaveState("unsaved");
+    setSaveStatus("Chưa lưu");
   };
 
-  // Gợi ý tóm tắt
-  const generateExcerpt = () => {
-    const firstText = blocks.find((b) => b.type === "text" && b.data.text);
-    if (firstText && firstText.data.text) {
-      const textStr = firstText.data.text as string;
-      const excerpt = textStr.substring(0, 160) + (textStr.length > 160 ? "..." : "");
-      setFormData((prev) => ({ ...prev, excerpt }));
-      setSaveState("unsaved");
-      toast.success("Đã trích xuất tóm tắt tự động");
-    } else {
-      toast.error("Chưa có đoạn văn bản nào để gợi ý");
-    }
-  };
-
-  // Upload thumbnail
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Ảnh quá lớn", "Vui lòng chọn ảnh dưới 5MB");
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Ảnh quá lớn", "Vui lòng chọn ảnh dưới 8MB");
       return;
     }
 
@@ -280,13 +191,12 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       const json = await res.json();
       if (res.ok && json.success && json.url) {
         setFormData((prev) => ({ ...prev, thumbnail: json.url }));
-        setSaveState("unsaved");
-        toast.success("Tải ảnh đại diện thành công");
+        toast.success("Tải ảnh bìa thành công");
       } else {
-        throw new Error(json.error || "Lỗi máy chủ khi tải ảnh");
+        throw new Error(json.error || "Lỗi máy chủ");
       }
     } catch (err: any) {
-      toast.error("Lỗi tải ảnh", err.message);
+      toast.error("Lỗi tải ảnh bìa", err.message);
     } finally {
       setIsUploadingThumb(false);
       e.target.value = "";
@@ -301,69 +211,117 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     }
   };
 
-  const handleThumbPaste = (e: React.ClipboardEvent) => {
-    const files = Array.from(e.clipboardData.files);
-    const img = files.find((f) => f.type.startsWith("image/"));
-    if (img) {
-      e.preventDefault();
-      handleThumbnailUpload({ target: { files: [img] } } as any);
+  // Global Clipboard Paste (`Ctrl + V`) on the whole document
+  const handleDocumentPaste = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (!file) return;
+
+        toast.info("Đang tự động tải ảnh từ Clipboard...");
+        try {
+          const data = new FormData();
+          data.append("file", file);
+          data.append("folder", "blog");
+
+          const res = await fetch("/api/admin/upload", { method: "POST", body: data });
+          const json = await res.json();
+          if (res.ok && json.success && json.url) {
+            const newBlock = createDefaultBlock("image");
+            newBlock.data = {
+              url: json.url,
+              alt: "Ảnh minh họa bài viết",
+              caption: "",
+            };
+            setBlocks((prev) => [...prev, newBlock]);
+            setSaveStatus("Chưa lưu");
+            toast.success("Đã chèn ảnh từ clipboard vào bài viết!");
+          } else {
+            throw new Error(json.error || "Không thể tải ảnh");
+          }
+        } catch (err: any) {
+          toast.error("Lỗi khi dán ảnh", err.message);
+        }
+        return;
+      }
     }
   };
 
-  // Checklist kiểm tra chất lượng bài viết trước khi xuất bản
-  const getPublishChecklist = () => {
-    const finalContent = editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content;
-    return [
-      {
-        id: "input-title",
-        label: "Tiêu đề bài viết",
-        isComplete: !!formData.title.trim(),
-        required: true,
-      },
-      {
-        id: "input-slug",
-        label: "Đường dẫn URL chuẩn SEO",
-        isComplete: !!formData.slug.trim(),
-        required: true,
-      },
-      {
-        id: "input-thumbnail",
-        label: "Ảnh đại diện (16:9)",
-        isComplete: !!formData.thumbnail,
-        required: true,
-      },
-      {
-        id: "input-content",
-        label: "Nội dung bài viết",
-        isComplete: finalContent.trim().length > 20,
-        required: true,
-      },
-      {
-        id: "input-excerpt",
-        label: "Tóm tắt ngắn (SEO snippet)",
-        isComplete: !!formData.excerpt.trim(),
-        required: false,
-      },
-    ];
+  // Insert block via Docs Toolbar
+  const handleInsertBlockFromToolbar = (type: BlockType, data?: any) => {
+    const newBlock = createDefaultBlock(type);
+    if (data) {
+      newBlock.data = { ...newBlock.data, ...data };
+    }
+    setBlocks((prev) => [...prev, newBlock]);
+    setSaveStatus("Chưa lưu");
+    toast.success(`Đã thêm khối ${type}`);
   };
 
-  // Thực thi xuất bản bài viết
-  const executePublish = async () => {
-    const checklist = getPublishChecklist();
-    const missing = checklist.filter((i) => i.required && !i.isComplete);
+  // Insert Table via Toolbar
+  const handleInsertTableFromToolbar = (rows: number = 3, cols: number = 3) => {
+    const headers = Array.from({ length: cols }, (_, i) => `Cột ${i + 1}`);
+    const tableRows = Array.from({ length: rows - 1 }, () => Array.from({ length: cols }, () => ""));
+    const newBlock = createDefaultBlock("table");
+    newBlock.data = { headers, rows: tableRows };
+    setBlocks((prev) => [...prev, newBlock]);
+    setSaveStatus("Chưa lưu");
+    toast.success("Đã chèn bảng biểu 3x3 vào bài viết");
+  };
 
-    if (missing.length > 0) {
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && tagInput.trim()) {
+      e.preventDefault();
+      const currentTags = formData.tags || [];
+      if (!currentTags.includes(tagInput.trim())) {
+        setFormData((prev) => ({ ...prev, tags: [...(prev.tags || []), tagInput.trim()] }));
+        setSaveStatus("Chưa lưu");
+      }
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: (prev.tags || []).filter((t) => t !== tagToRemove),
+    }));
+    setSaveStatus("Chưa lưu");
+  };
+
+  const validateAndPublish = async () => {
+    const errors: { field: string; id: string }[] = [];
+    if (!formData.title.trim()) errors.push({ field: "Tiêu đề bài viết", id: "input-title" });
+    if (!formData.slug.trim()) errors.push({ field: "Đường dẫn (Slug)", id: "input-slug" });
+    if (!formData.thumbnail) errors.push({ field: "Ảnh bìa bài viết", id: "input-thumbnail" });
+
+    const finalContent = editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content;
+    if (!finalContent.trim()) errors.push({ field: "Nội dung bài viết", id: "input-content" });
+
+    if (errors.length > 0) {
+      const firstError = errors[0];
       toast.error(
-        "Chưa thể xuất bản",
-        `Vui lòng bổ sung: ${missing.map((m) => m.label).join(", ")}`
+        "Không thể đăng bài",
+        `Vui lòng bổ sung: ${errors.map((e) => e.field).join(", ")}`,
+        5000
       );
-      setShowSettingsModal(true);
-      setActiveSettingsTab("content");
+      if (firstError.id === "input-slug") {
+        setShowSettings(true);
+      }
+      setTimeout(() => {
+        const el = document.getElementById(firstError.id);
+        el?.focus();
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
       return;
     }
 
     setIsSaving(true);
-    const finalContent = editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content;
     const postPayload = {
       ...formData,
       content: finalContent,
@@ -378,9 +336,8 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       } else {
         await addPost(postPayload as any);
       }
-      setSaveState("saved");
-      setLastSaved(new Date());
-      toast.success("Xuất bản bài viết thành công!");
+      setSaveStatus("Đã lưu lúc " + new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }));
+      toast.success("Đã xuất bản bài viết thành công!");
       router.push("/admin/bai-viet");
     } catch (error: any) {
       toast.error("Lỗi khi đăng bài", error.message);
@@ -388,666 +345,375 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     }
   };
 
-  const checklist = getPublishChecklist();
-  const allRequiredValid = checklist.every((i) => !i.required || i.isComplete);
-
   return (
-    <div className="flex flex-col min-h-screen bg-[#FDFBF7] -m-6 md:-m-8 font-sans selection:bg-[#C5A059]/20 selection:text-[#3D2314]">
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* 1. SQUARESPACE MINIMAL STICKY TOP BAR                  */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      <header className="sticky top-0 z-40 bg-[#FDFBF7]/95 backdrop-blur-md border-b border-border/80 px-4 md:px-8 py-3 flex items-center justify-between transition-all">
-        {/* Lề trái: Quay lại & Lưu nháp */}
-        <div className="flex items-center gap-3 md:gap-4 shrink-0">
-          <Link
-            href="/admin/bai-viet"
-            className="flex items-center gap-1.5 text-[13px] font-medium text-[#5A4A42] hover:text-[#3D2314] transition-colors"
-            title="Quay lại danh sách"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Quay lại danh sách</span>
-          </Link>
+    <div className="flex flex-col min-h-screen bg-[#F0F4F9] -m-6 md:-m-8">
+      {/* 1. GOOGLE DOCS TOPBAR & TOOLBAR */}
+      <GoogleDocsToolbar
+        title={formData.title}
+        onTitleChange={handleTitleChange}
+        saveStatus={saveStatus}
+        lastSaved={lastSaved}
+        isSaving={isSaving}
+        onSaveDraft={() => handleAutoSave(editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content)}
+        onPublish={validateAndPublish}
+        onPreview={() => setShowPreview(true)}
+        showSettings={showSettings}
+        onToggleSettings={() => setShowSettings(!showSettings)}
+        onInsertBlock={handleInsertBlockFromToolbar}
+        onInsertTable={handleInsertTableFromToolbar}
+        onChangeActiveBlockType={(type, level) => {
+          if (type === "heading") {
+            handleInsertBlockFromToolbar("heading", { level: level || 2, text: "" });
+          } else {
+            handleInsertBlockFromToolbar("text");
+          }
+        }}
+      />
 
-          <div className="w-px h-4 bg-border/70 hidden sm:block" />
+      {/* 2. GOOGLE DOCS RULER */}
+      <GoogleDocsRuler />
 
-          {/* Trạng thái lưu thời gian thực */}
-          <div className="text-[12px] md:text-[13px] text-[#5A4A42] flex items-center gap-1.5">
-            {saveState === "saving" && (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C5A059]" />
-                <span className="text-[#3D2314]">Đang lưu...</span>
-              </>
-            )}
-            {saveState === "unsaved" && (
-              <>
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span className="text-amber-800 font-medium">Chưa lưu</span>
-              </>
-            )}
-            {saveState === "saved" && (
-              <>
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-emerald-800">
-                  Đã lưu {formatRelativeTime(lastSaved)}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Giữa: Viewport Switcher phong cách Squarespace (Desktop 🖥 / Mobile 📱) */}
-        <div className="flex items-center bg-[#FAF6F0] border border-border/80 rounded-xl p-0.5 shadow-2xs">
-          <button
-            type="button"
-            onClick={() => setViewportMode("desktop")}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-              viewportMode === "desktop"
-                ? "bg-[#3D2314] text-[#C5A059] shadow-xs"
-                : "text-[#5A4A42] hover:text-[#3D2314]"
-            }`}
-            title="Xem & soạn thảo theo tỉ lệ Desktop"
-          >
-            <Monitor className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Desktop</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewportMode("mobile")}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-              viewportMode === "mobile"
-                ? "bg-[#3D2314] text-[#C5A059] shadow-xs"
-                : "text-[#5A4A42] hover:text-[#3D2314]"
-            }`}
-            title="Xem & soạn thảo theo tỉ lệ Mobile (iPhone)"
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Mobile</span>
-          </button>
-        </div>
-
-        {/* Lề phải: Chế độ Markdown, Cài đặt bài viết ⚙ & Nút Xuất bản */}
-        <div className="flex items-center gap-2 md:gap-3 shrink-0">
-          {/* Segmented control Markdown */}
-          <div className="flex items-center bg-[#FAF6F0] border border-border/80 rounded-lg p-0.5 hidden lg:flex">
-            <button
-              type="button"
-              onClick={() => setEditorMode("visual")}
-              className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
-                editorMode === "visual"
-                  ? "bg-white text-[#3D2314] shadow-2xs font-semibold"
-                  : "text-text-muted hover:text-text"
-              }`}
-            >
-              Trực quan
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditorMode("markdown")}
-              className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded transition-colors ${
-                editorMode === "markdown"
-                  ? "bg-white text-[#3D2314] shadow-2xs font-semibold"
-                  : "text-text-muted hover:text-text"
-              }`}
-            >
-              <Code className="w-3 h-3" />
-              <span>Markdown</span>
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleSaveDraft}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium rounded-xl border border-border/80 bg-white text-[#3D2314] hover:bg-[#FAF6F0] transition-colors shadow-2xs"
-            title="Lưu bản nháp (Ctrl+S)"
-          >
-            <Save className="w-3.5 h-3.5 text-[#5A4A42]" />
-            <span>Lưu nháp</span>
-          </button>
-
-          {/* Nút Cài Đặt Bài Viết (Squarespace Post Settings) */}
-          <button
-            type="button"
-            onClick={() => setShowSettingsModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium rounded-xl border border-[#C5A059]/40 bg-[#FAF6F0] hover:bg-white text-[#3D2314] transition-all shadow-2xs"
-            title="Cài đặt bài viết phong cách Squarespace"
-          >
-            <Settings className="w-3.5 h-3.5 text-[#C5A059]" />
-            <span className="hidden sm:inline">Cài đặt bài</span>
-          </button>
-
-          {/* Nút Chính: Xuất bản (Publish) */}
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={executePublish}
-            className="flex items-center gap-1.5 px-4 md:px-5 py-1.5 bg-[#3D2314] hover:bg-[#2A160C] text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm disabled:opacity-70 focus:ring-2 focus:ring-offset-2 focus:ring-[#3D2314]"
-          >
-            {isSaving ? (
-              <Loader2 className="w-4 h-4 animate-spin text-[#C5A059]" />
-            ) : (
-              <Send className="w-3.5 h-3.5 text-[#C5A059]" />
-            )}
-            <span>Xuất bản</span>
-          </button>
-        </div>
-      </header>
-
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* 2. KHUNG SOẠN THẢO TRỰC TIẾP TRÊN TRANG (CANVAS)       */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      <main className="flex-1 overflow-y-auto py-8 px-4 flex justify-center bg-[#FDFBF7]">
+      {/* 3. WORKSPACE CANVAS (Single Pageless Paper Sheet) */}
+      <div className="flex-1 overflow-y-auto relative flex justify-center py-6 px-3 sm:px-6">
+        {/* THE SINGLE PAGELESS DOCUMENT SHEET (Tờ giấy duy nhất - Co giãn vô tận) */}
         <div
-          className={`transition-all duration-300 w-full ${
-            viewportMode === "desktop"
-              ? "max-w-[760px] px-2 md:px-6"
-              : "max-w-[390px] border-4 border-stone-800 rounded-[38px] p-5 shadow-2xl bg-[#FDFBF7] ring-8 ring-stone-900/10 my-4"
-          }`}
+          onPaste={handleDocumentPaste}
+          className="w-full max-w-[850px] bg-white shadow-[0_1px_3px_rgba(60,64,67,0.15),0_4px_8px_rgba(60,64,67,0.1)] rounded-sm min-h-[1100px] flex flex-col justify-between transition-all px-8 sm:px-14 md:px-18 py-10 md:py-14"
         >
-          {/* Mô phỏng loa & camera iPhone khi ở Mobile view */}
-          {viewportMode === "mobile" && (
-            <div className="flex justify-center mb-6">
-              <div className="w-24 h-4 bg-stone-800 rounded-full" />
+          {/* ============================================================== */}
+          {/* PHẦN 1: HEADER (Đầu trang tài liệu)                           */}
+          {/* ============================================================== */}
+          <header className="space-y-6 pb-8 border-b border-[#E1E5EA]">
+            {/* Ảnh bìa bài viết (Cover Image) */}
+            <div
+              id="input-thumbnail"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleThumbDrop}
+              className="relative w-full aspect-[21/9] sm:aspect-[2.4/1] rounded-lg overflow-hidden bg-[#FAF8F5] border border-[#DADCE0] flex items-center justify-center group/cover shadow-xs"
+            >
+              {formData.thumbnail ? (
+                <>
+                  <Image src={formData.thumbnail} alt="Ảnh bìa bài viết" fill className="object-cover" priority />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/cover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <label className="px-3.5 py-1.5 bg-white/90 hover:bg-white text-[#1F1F1F] rounded-full text-xs font-semibold cursor-pointer shadow transition-all">
+                      Đổi ảnh bìa
+                      <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailUpload} disabled={isUploadingThumb} />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setFormData((p) => ({ ...p, thumbnail: "" }))}
+                      className="px-3.5 py-1.5 bg-red-600/90 hover:bg-red-600 text-white rounded-full text-xs font-semibold shadow transition-all"
+                    >
+                      Xóa bìa
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center hover:bg-[#F1F3F4] transition-colors p-4">
+                  {isUploadingThumb ? (
+                    <Loader2 className="w-6 h-6 animate-spin text-[#1A73E8]" />
+                  ) : (
+                    <ImageIcon className="w-8 h-8 text-[#70757A] mb-1.5" />
+                  )}
+                  <span className="text-xs font-semibold text-[#1F1F1F]">+ Thêm ảnh bìa bài viết (Cover)</span>
+                  <span className="text-[11px] text-[#5F6368] mt-0.5">Kéo thả ảnh hoặc click để tải lên từ máy tính</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailUpload} disabled={isUploadingThumb} />
+                </label>
+              )}
             </div>
-          )}
 
-          {/* Tiêu đề bài viết: Serif ~40px, mượt mà như tạp chí */}
-          <AutoResizeTextarea
-            id="input-title"
-            value={formData.title}
-            onChange={handleTitleChange}
-            placeholder="Tiêu đề bài viết..."
-            className={`w-full bg-transparent font-serif font-bold text-[#3D2314] focus:outline-none placeholder:text-text-muted/30 resize-none overflow-hidden block leading-[1.2] mb-8 transition-shadow rounded ${
-              viewportMode === "mobile"
-                ? "text-[26px]"
-                : "text-[34px] sm:text-[40px] md:text-[44px]"
-            }`}
-          />
+            {/* Tiêu đề H1 lớn (Article Title) */}
+            <div>
+              <AutoResizeTextarea
+                id="input-title"
+                value={formData.title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Tiêu đề bài viết..."
+                className="w-full bg-transparent text-[32px] sm:text-[38px] md:text-[44px] font-serif font-bold text-[#3D2314] focus:outline-none placeholder:text-[#5F6368]/30 resize-none overflow-hidden block leading-[1.25] tracking-tight transition-shadow"
+              />
+            </div>
 
-          {/* Khối soạn thảo Block Editor / Markdown */}
-          {editorMode === "visual" ? (
-            <VisualBlockEditor
-              blocks={blocks}
-              onChange={(newBlocks) => {
-                setBlocks(newBlocks);
-                setSaveState("unsaved");
-              }}
-            />
-          ) : (
-            <textarea
-              value={formData.content}
-              onChange={(e) => {
-                setFormData((p) => ({ ...p, content: e.target.value }));
-                setSaveState("unsaved");
-              }}
-              className="w-full min-h-[550px] bg-transparent font-mono text-[14px] leading-relaxed text-[#1F1610] focus:outline-none resize-none p-3 border border-border/60 rounded-xl"
-              placeholder="Nhập nội dung markdown chuẩn của bài viết..."
-            />
-          )}
-        </div>
-      </main>
-
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* 3. SQUARESPACE TABBED POST SETTINGS MODAL               */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      {showSettingsModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div
-            className="bg-[#FDFBF7] border border-[#C5A059]/40 rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col md:flex-row max-h-[88vh] animate-in zoom-in-95 duration-150"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Cột trái: Tab Menu phong cách Squarespace */}
-            <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-border/80 bg-white p-5 flex flex-col justify-between shrink-0">
-              <div>
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-7 h-7 rounded-lg bg-[#3D2314] text-[#C5A059] flex items-center justify-center font-serif font-bold text-sm">
-                    ĐP
-                  </div>
-                  <div>
-                    <h3 className="font-serif font-bold text-sm text-[#3D2314]">
-                      Cài đặt bài viết
-                    </h3>
-                    <p className="text-[11px] text-[#5A4A42]">Post Settings</p>
-                  </div>
+            {/* Dải Metadata: Chuyên mục, Sapo, Tác giả, Thời gian đọc */}
+            <div className="space-y-4 pt-2">
+              <div className="flex flex-wrap items-center gap-3 text-xs">
+                {/* Category Selector */}
+                <div className="flex items-center gap-1.5 bg-[#EDF2FA] text-[#1A73E8] px-3 py-1 rounded-full font-medium border border-[#D3E3FD]">
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <select
+                    value={formData.category}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, category: e.target.value }));
+                      setSaveStatus("Chưa lưu");
+                    }}
+                    className="bg-transparent font-semibold text-xs outline-none cursor-pointer"
+                  >
+                    <option value="kien-thuc-ve-go">Kiến Thức Về Gỗ</option>
+                    <option value="vat-pham-phong-thuy">Vật Phẩm Phong Thủy</option>
+                    <option value="nghe-thuat-che-tac">Nghệ Thuật Chế Tác</option>
+                    <option value="tin-tuc-su-kien">Tin Tức Xưởng Đông Phong</option>
+                  </select>
                 </div>
 
-                <nav className="space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => setActiveSettingsTab("content")}
-                    className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      activeSettingsTab === "content"
-                        ? "bg-[#3D2314] text-[#C5A059] shadow-xs"
-                        : "text-[#5A4A42] hover:bg-surface hover:text-[#3D2314]"
-                    }`}
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>Nội dung & Ảnh đại diện</span>
-                  </button>
+                <div className="flex items-center gap-1 text-[#5F6368]">
+                  <Clock className="w-3.5 h-3.5 text-[#C5A059]" />
+                  <span>Ước tính: {formData.readingTime} phút đọc</span>
+                </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveSettingsTab("options")}
-                    className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      activeSettingsTab === "options"
-                        ? "bg-[#3D2314] text-[#C5A059] shadow-xs"
-                        : "text-[#5A4A42] hover:bg-surface hover:text-[#3D2314]"
-                    }`}
-                  >
-                    <Sliders className="w-4 h-4" />
-                    <span>Đường dẫn & Danh mục</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveSettingsTab("seo")}
-                    className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      activeSettingsTab === "seo"
-                        ? "bg-[#3D2314] text-[#C5A059] shadow-xs"
-                        : "text-[#5A4A42] hover:bg-surface hover:text-[#3D2314]"
-                    }`}
-                  >
-                    <Globe className="w-4 h-4" />
-                    <span>Tối ưu SEO & Mô phỏng</span>
-                  </button>
-                </nav>
+                <div className="text-[#5F6368]">
+                  <span>Tác giả: <strong>Nghệ nhân Đông Phong</strong></span>
+                </div>
               </div>
 
-              <div className="pt-4 border-t border-border/50 text-[11px] text-[#5A4A42] hidden md:block">
-                <span>Trạng thái: </span>
-                <strong className="text-[#3D2314] capitalize">
-                  {formData.status === "published" ? "Đã đăng" : "Bản nháp"}
-                </strong>
+              {/* Sapo / Tóm tắt mở đầu bài viết */}
+              <div>
+                <AutoResizeTextarea
+                  value={formData.excerpt}
+                  onChange={(e) => {
+                    setFormData((p) => ({ ...p, excerpt: e.target.value }));
+                    setSaveStatus("Chưa lưu");
+                  }}
+                  placeholder="Đoạn văn mở đầu (Sapo) tóm tắt ngắn gọn ý chính của bài viết..."
+                  className="w-full bg-[#FAF8F5] border border-[#E8DFC8]/60 rounded-lg p-3 text-sm md:text-base font-serif italic text-[#5A4A42] focus:outline-none focus:border-[#C5A059] resize-none overflow-hidden leading-relaxed placeholder:text-[#5F6368]/40"
+                />
+              </div>
+            </div>
+          </header>
+
+          {/* ============================================================== */}
+          {/* PHẦN 2: BODY (Nội dung chính — Co giãn vô tận theo số lượng chữ)*/}
+          {/* ============================================================== */}
+          <main className="flex-1 py-8" id="input-content">
+            {editorMode === "visual" ? (
+              <VisualBlockEditor
+                blocks={blocks}
+                onChange={(newBlocks) => {
+                  setBlocks(newBlocks);
+                  setSaveStatus("Chưa lưu");
+                }}
+              />
+            ) : (
+              <textarea
+                value={formData.content}
+                onChange={(e) => {
+                  setFormData((p) => ({ ...p, content: e.target.value }));
+                  setSaveStatus("Chưa lưu");
+                }}
+                className="w-full min-h-[600px] bg-transparent font-mono text-sm leading-relaxed focus:outline-none resize-none p-2 border border-[#DADCE0] rounded-lg"
+                placeholder="Nội dung markdown..."
+              />
+            )}
+          </main>
+
+          {/* ============================================================== */}
+          {/* PHẦN 3: FOOTER (Chân trang bám đáy tài liệu)                   */}
+          {/* ============================================================== */}
+          <footer className="pt-8 mt-10 border-t border-[#E1E5EA] space-y-6">
+            {/* Lời kết & Cam kết chất lượng gỗ Đông Phong */}
+            <div className="p-6 rounded-xl border border-[#E8DFC8] bg-[#FAF8F5] text-center space-y-2.5">
+              <div className="w-8 h-8 mx-auto rounded-full bg-[#C5A059]/20 flex items-center justify-center text-[#C5A059]">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <h4 className="font-serif font-bold text-base md:text-lg text-[#3D2314]">
+                Mỹ Nghệ Đông Phong — Giữ Hồn Gỗ Quý
+              </h4>
+              <p className="text-xs md:text-sm text-[#5A4A42] max-w-xl mx-auto leading-relaxed">
+                100% gỗ tự nhiên nguyên khối tuyển chọn kỹ lưỡng. Chế tác thủ công giữ trọn vẹn hương thảo mộc và sắc nước tự nhiên.
+              </p>
+              <div className="flex items-center justify-center gap-4 pt-2">
+                <a
+                  href="https://zalo.me/0968888972"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0068FF] text-white rounded-full text-xs font-semibold hover:bg-[#0052cc] transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>Tư vấn qua Zalo</span>
+                </a>
+                <a
+                  href="tel:0968888972"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#3D2314] text-white rounded-full text-xs font-semibold hover:bg-[#5C3A21] transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Hotline: 0968.888.972</span>
+                </a>
               </div>
             </div>
 
-            {/* Cột phải: Nội dung từng Tab */}
-            <div className="flex-1 flex flex-col overflow-hidden bg-[#FDFBF7]">
-              {/* Header Tab */}
-              <div className="px-6 py-4 border-b border-border/70 flex items-center justify-between bg-white shrink-0">
-                <h4 className="font-serif font-bold text-base text-[#3D2314]">
-                  {activeSettingsTab === "content" && "Nội dung & Hình ảnh đại diện"}
-                  {activeSettingsTab === "options" && "Đường dẫn & Phân loại bài viết"}
-                  {activeSettingsTab === "seo" && "Tối ưu tìm kiếm Google (SEO Snippet)"}
-                </h4>
+            {/* Thẻ Tags SEO */}
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              <span className="text-xs font-semibold text-[#5F6368] flex items-center gap-1">
+                <Tag className="w-3.5 h-3.5" />
+                Thẻ từ khóa:
+              </span>
+              {(formData.tags || []).map((tag, idx) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1 bg-[#F1F3F4] text-[#1F1F1F] px-2.5 py-1 rounded-full text-xs hover:bg-[#E5E9EC] transition-colors"
+                >
+                  #{tag}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="hover:text-red-600 transition-colors p-0.5"
+                    title="Xóa thẻ này"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleAddTag}
+                placeholder="+ Thêm tag và ấn Enter..."
+                className="bg-transparent border-b border-[#DADCE0] text-xs px-2 py-0.5 focus:outline-none focus:border-[#1A73E8]"
+              />
+            </div>
+          </footer>
+        </div>
+
+        {/* 4. SLIDE-OUT SETTINGS DRAWER (Khi click vào biểu tượng bánh răng) */}
+        {showSettings && (
+          <div className="w-80 border-l border-[#DADCE0] bg-white shadow-2xl fixed right-0 inset-y-0 z-50 overflow-y-auto p-6 transition-all flex flex-col justify-between">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-[#ECEFF3]">
+                <h3 className="text-sm font-bold text-[#1F1F1F] uppercase tracking-wider flex items-center gap-1.5">
+                  <Settings className="w-4 h-4 text-[#C5A059]" />
+                  Cài đặt bài viết
+                </h3>
                 <button
                   type="button"
-                  onClick={() => setShowSettingsModal(false)}
-                  className="p-1 rounded-lg text-text-muted hover:text-[#3D2314] hover:bg-surface transition-colors"
+                  onClick={() => setShowSettings(false)}
+                  className="p-1 rounded-full hover:bg-[#F1F3F4] text-[#5F6368]"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Body Tab */}
-              <div className="p-6 overflow-y-auto flex-1 space-y-6">
-                {/* ────── TAB 1: NỘI DUNG & ẢNH ĐẠI DIỆN ────── */}
-                {activeSettingsTab === "content" && (
-                  <div className="space-y-5">
-                    {/* Ảnh đại diện 16:9 */}
-                    <div>
-                      <label className="text-[13px] text-[#3D2314] font-semibold mb-1.5 block">
-                        Ảnh đại diện bài viết (16:9) <span className="text-red-500">*</span>
-                      </label>
-                      <div
-                        id="input-thumbnail"
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={handleThumbDrop}
-                        onPaste={handleThumbPaste}
-                        className="relative aspect-[16/9] rounded-xl overflow-hidden bg-[#FAF6F0] border border-border flex items-center justify-center group focus-within:ring-2 focus-within:ring-[#C5A059]"
-                      >
-                        {formData.thumbnail ? (
-                          <>
-                            <Image
-                              src={formData.thumbnail}
-                              alt="Thumbnail"
-                              fill
-                              className="object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2.5">
-                              <label className="px-3.5 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg text-white text-xs font-semibold cursor-pointer transition-colors">
-                                Đổi ảnh
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  onChange={handleThumbnailUpload}
-                                  disabled={isUploadingThumb}
-                                />
-                              </label>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setFormData((p) => ({ ...p, thumbnail: "" }));
-                                  setSaveState("unsaved");
-                                }}
-                                className="px-3.5 py-1.5 bg-red-600/80 hover:bg-red-700 backdrop-blur-sm rounded-lg text-white text-xs font-semibold transition-colors"
-                              >
-                                Xóa
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <label className="cursor-pointer text-center w-full h-full flex flex-col items-center justify-center p-4 hover:bg-surface/80 transition-colors">
-                            {isUploadingThumb ? (
-                              <Loader2 className="w-6 h-6 animate-spin text-[#C5A059]" />
-                            ) : (
-                              <ImageIcon className="w-8 h-8 text-border mb-2" />
-                            )}
-                            <span className="text-[13px] text-[#3D2314] font-medium">
-                              Kéo thả, dán ảnh (Ctrl+V) hoặc click chọn file
-                            </span>
-                            <span className="text-[11px] text-text-muted mt-0.5">
-                              Tỉ lệ khuyến nghị 16:9, dung lượng dưới 5MB
-                            </span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={handleThumbnailUpload}
-                              disabled={isUploadingThumb}
-                            />
-                          </label>
-                        )}
-                      </div>
-
-                      {!showUrlInput ? (
-                        <button
-                          type="button"
-                          onClick={() => setShowUrlInput(true)}
-                          className="text-[11px] text-[#C5A059] hover:underline mt-1.5 block font-medium"
-                        >
-                          Dùng URL ảnh ngoài
-                        </button>
-                      ) : (
-                        <div className="flex gap-1.5 mt-2">
-                          <input
-                            type="text"
-                            value={formData.thumbnail}
-                            onChange={(e) => {
-                              setFormData((prev) => ({ ...prev, thumbnail: e.target.value }));
-                              setSaveState("unsaved");
-                            }}
-                            placeholder="https://..."
-                            className="flex-1 bg-white border border-border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#C5A059]"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowUrlInput(false)}
-                            className="p-1.5 text-text-muted hover:text-text"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Tóm tắt ngắn (Excerpt) */}
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-[13px] text-[#3D2314] font-semibold">
-                          Tóm tắt bài viết (Excerpt){" "}
-                          <span
-                            className={`text-xs ${
-                              formData.excerpt.length > 160
-                                ? "text-amber-700 font-bold"
-                                : "text-[#5A4A42]"
-                            }`}
-                          >
-                            ({formData.excerpt.length}/160)
-                          </span>
-                        </label>
-                        <button
-                          type="button"
-                          onClick={generateExcerpt}
-                          className="text-[11px] text-[#C5A059] hover:underline flex items-center gap-1 font-semibold"
-                        >
-                          <Wand2 className="w-3 h-3" />
-                          <span>Dùng gợi ý tự động</span>
-                        </button>
-                      </div>
-                      <textarea
-                        id="input-excerpt"
-                        rows={3}
-                        value={formData.excerpt}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, excerpt: e.target.value }));
-                          setSaveState("unsaved");
-                        }}
-                        placeholder="Mô tả súc tích cho bài viết (khoảng 160 ký tự)..."
-                        className="w-full bg-white border border-border rounded-xl p-3 text-[13px] text-[#1F1610] focus:outline-none focus:border-[#C5A059] resize-none transition-colors"
-                      />
-                    </div>
-
-                    {/* Thời gian đọc & Tác giả */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/50">
-                      <div>
-                        <label className="text-[12px] text-[#5A4A42] block mb-1 font-medium">
-                          Thời gian đọc
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF6F0] border border-border rounded-lg text-xs font-semibold text-[#3D2314]">
-                            <Clock className="w-3.5 h-3.5 text-[#C5A059]" />
-                            <span>~{formData.readingTime} phút đọc</span>
-                          </div>
-                          {!isEditingReadingTime ? (
-                            <button
-                              type="button"
-                              onClick={() => setIsEditingReadingTime(true)}
-                              className="text-[11px] text-[#C5A059] hover:underline"
-                            >
-                              Ghi đè
-                            </button>
-                          ) : (
-                            <input
-                              type="number"
-                              min="1"
-                              value={formData.readingTime}
-                              onChange={(e) => {
-                                const v = Math.max(1, parseInt(e.target.value) || 1);
-                                setFormData((p) => ({ ...p, readingTime: v }));
-                                setIsReadingTimeManual(true);
-                                setSaveState("unsaved");
-                              }}
-                              className="w-14 bg-white border border-border rounded px-2 py-1 text-xs"
-                            />
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-[12px] text-[#5A4A42] block mb-1 font-medium">
-                          Tác giả bài viết
-                        </label>
-                        <div className="text-xs font-semibold text-[#3D2314] px-3 py-1.5 bg-[#FAF6F0] rounded-lg border border-border">
-                          Nghệ nhân Mỹ Nghệ Đông Phong
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ────── TAB 2: ĐƯỜNG DẪN & DANH MỤC ────── */}
-                {activeSettingsTab === "options" && (
-                  <div className="space-y-5">
-                    {/* Slug */}
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-[13px] text-[#3D2314] font-semibold">
-                          Đường dẫn bài viết (URL Slug) <span className="text-red-500">*</span>
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData((p) => ({ ...p, slug: slugify(p.title) }));
-                            setIsSlugManual(false);
-                            setSaveState("unsaved");
-                            toast.success("Đã tạo lại đường dẫn từ tiêu đề");
-                          }}
-                          className="text-[11px] text-[#C5A059] hover:underline flex items-center gap-1 font-semibold"
-                        >
-                          <Wand2 className="w-3 h-3" />
-                          <span>Tạo lại từ tiêu đề</span>
-                        </button>
-                      </div>
-                      <input
-                        id="input-slug"
-                        type="text"
-                        value={formData.slug}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, slug: e.target.value }));
-                          setIsSlugManual(true);
-                          setSaveState("unsaved");
-                        }}
-                        className="w-full bg-white border border-border rounded-xl px-3 py-2 text-[13px] font-mono text-[#3D2314] focus:outline-none focus:border-[#C5A059]"
-                      />
-                      <div className="text-[11px] text-[#5A4A42] mt-1.5 flex items-center gap-1">
-                        <ExternalLink className="w-3 h-3 text-[#C5A059]" />
-                        <span>https://mynghedongphong.com/bai-viet/{formData.slug || "..."}</span>
-                      </div>
-                    </div>
-
-                    {/* Danh mục */}
-                    <div>
-                      <label className="text-[13px] text-[#3D2314] font-semibold mb-1.5 block">
-                        Nhóm chủ đề danh mục <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        value={formData.category}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, category: e.target.value }));
-                          setSaveState("unsaved");
-                        }}
-                        className="w-full bg-white border border-border rounded-xl px-3 py-2.5 text-[13px] text-[#3D2314] focus:outline-none focus:border-[#C5A059]"
-                      >
-                        <option value="kien-thuc-ve-go">Kiến thức về gỗ quý</option>
-                        <option value="huong-dan-lua-chon">Hướng dẫn lựa chọn & thẩm định</option>
-                        <option value="bao-quan-san-pham">Bảo quản & Phong thủy đời sống</option>
-                      </select>
-                    </div>
-
-                    {/* Trạng thái bài viết */}
-                    <div>
-                      <label className="text-[13px] text-[#3D2314] font-semibold mb-1.5 block">
-                        Trạng thái hiển thị
-                      </label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setFormData((p) => ({ ...p, status: "draft" }))}
-                          className={`p-3 rounded-xl border text-left transition-all ${
-                            formData.status === "draft"
-                              ? "border-[#C5A059] bg-[#FAF6F0] text-[#3D2314]"
-                              : "border-border bg-white text-[#5A4A42]"
-                          }`}
-                        >
-                          <div className="font-semibold text-xs">Bản nháp (Draft)</div>
-                          <div className="text-[11px] text-text-muted mt-0.5">Chỉ hiển thị trong admin</div>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setFormData((p) => ({ ...p, status: "published" }))}
-                          className={`p-3 rounded-xl border text-left transition-all ${
-                            formData.status === "published"
-                              ? "border-[#C5A059] bg-[#FAF6F0] text-[#3D2314]"
-                              : "border-border bg-white text-[#5A4A42]"
-                          }`}
-                        >
-                          <div className="font-semibold text-xs">Đã xuất bản (Published)</div>
-                          <div className="text-[11px] text-text-muted mt-0.5">Hiển thị cho độc giả website</div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ────── TAB 3: TỐI ƯU SEO & MÔ PHỎNG GOOGLE ────── */}
-                {activeSettingsTab === "seo" && (
-                  <div className="space-y-6">
-                    {/* Google SERP Snippet Preview */}
-                    <div>
-                      <div className="text-[12px] font-semibold text-[#5A4A42] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <Globe className="w-3.5 h-3.5 text-[#C5A059]" />
-                        <span>Mô phỏng kết quả tìm kiếm Google (Search Snippet Preview)</span>
-                      </div>
-                      <div className="p-4 bg-white border border-border/80 rounded-xl shadow-xs space-y-1">
-                        <div className="text-xs text-[#202124] flex items-center gap-1">
-                          <span className="font-medium">mynghedongphong.com</span>
-                          <span className="text-[#5f6368]">› bai-viet › {formData.slug || "..."}</span>
-                        </div>
-                        <h5 className="text-[17px] text-[#1a0dab] font-normal leading-snug hover:underline cursor-pointer">
-                          {formData.title || "Tiêu đề bài viết Mỹ Nghệ Đông Phong"} | Mỹ Nghệ Đông Phong
-                        </h5>
-                        <p className="text-[13px] text-[#4d5156] leading-relaxed line-clamp-2">
-                          {formData.excerpt ||
-                            "Đồ gỗ phong thủy và kiến thức gỗ quý thủ công tinh hoa từ xưởng chế tác Mỹ Nghệ Đông Phong..."}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Checklist chất lượng trước khi xuất bản */}
-                    <div className="pt-2">
-                      <div className="text-[12px] font-semibold text-[#5A4A42] uppercase tracking-wider mb-2.5">
-                        Kiểm tra các tiêu chuẩn xuất bản
-                      </div>
-                      <div className="space-y-2">
-                        {checklist.map((item) => (
-                          <div
-                            key={item.id}
-                            className={`p-2.5 rounded-lg border text-xs flex items-center justify-between ${
-                              item.isComplete
-                                ? "bg-emerald-50/60 border-emerald-200/80 text-emerald-900"
-                                : item.required
-                                ? "bg-red-50/60 border-red-200/80 text-red-900"
-                                : "bg-amber-50/60 border-amber-200/80 text-amber-900"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              {item.isComplete ? (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                              ) : (
-                                <AlertCircle className="w-4 h-4 text-amber-600" />
-                              )}
-                              <span className="font-medium">{item.label}</span>
-                            </div>
-                            <span className="text-[11px] font-semibold">
-                              {item.isComplete
-                                ? "Đã đạt"
-                                : item.required
-                                ? "Bắt buộc bổ sung"
-                                : "Khuyến khích"}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
+              {/* Chế độ soạn thảo */}
+              <div>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Chế độ soạn thảo</label>
+                <div className="grid grid-cols-2 gap-2 bg-[#F1F3F4] p-1 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => setEditorMode("visual")}
+                    className={`py-1.5 text-xs font-semibold rounded-md transition-all ${
+                      editorMode === "visual" ? "bg-white text-[#1A73E8] shadow-xs" : "text-[#5F6368]"
+                    }`}
+                  >
+                    Trực quan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditorMode("markdown")}
+                    className={`py-1.5 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1 ${
+                      editorMode === "markdown" ? "bg-white text-[#1A73E8] shadow-xs" : "text-[#5F6368]"
+                    }`}
+                  >
+                    <Code className="w-3.5 h-3.5" />
+                    Markdown
+                  </button>
+                </div>
               </div>
 
-              {/* Footer Modal */}
-              <div className="px-6 py-3.5 border-t border-border/70 bg-white flex items-center justify-between shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setShowSettingsModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-[#5A4A42] hover:text-[#3D2314] rounded-lg transition-colors"
-                >
-                  Đóng cài đặt
-                </button>
-
-                <button
-                  type="button"
-                  disabled={!allRequiredValid || isSaving}
-                  onClick={() => {
-                    setShowSettingsModal(false);
-                    executePublish();
+              {/* Slug URL */}
+              <div>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 flex justify-between">
+                  <span>Đường dẫn (Slug URL)</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData((p) => ({ ...p, slug: slugify(p.title) }));
+                      setIsSlugManual(false);
+                      toast.success("Đã tạo lại slug theo tiêu đề");
+                    }}
+                    className="text-[11px] text-[#1A73E8] hover:underline flex items-center gap-0.5"
+                  >
+                    <Wand2 className="w-3 h-3" /> Tự động
+                  </button>
+                </label>
+                <input
+                  id="input-slug"
+                  type="text"
+                  value={formData.slug}
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, slug: e.target.value }));
+                    setIsSlugManual(true);
                   }}
-                  className="flex items-center gap-1.5 px-5 py-2 bg-[#3D2314] hover:bg-[#2A160C] text-white text-xs font-semibold rounded-xl shadow-xs disabled:opacity-50 transition-all"
-                >
-                  <Send className="w-3.5 h-3.5 text-[#C5A059]" />
-                  <span>Lưu & Xuất bản bài viết</span>
-                </button>
+                  className="w-full bg-[#FAF8F5] border border-[#DADCE0] rounded px-3 py-1.5 text-xs font-mono text-[#1F1F1F] focus:border-[#1A73E8] outline-none"
+                />
               </div>
+
+              {/* Ngày xuất bản */}
+              <div>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Ngày hiển thị bài viết</label>
+                <input
+                  type="date"
+                  value={(formData as any).publishedAt || new Date().toISOString().split("T")[0]}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, publishedAt: e.target.value }))}
+                  className="w-full bg-[#FAF8F5] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] focus:border-[#1A73E8] outline-none"
+                />
+              </div>
+
+              {/* Trạng thái bài viết */}
+              <div>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Trạng thái phát hành</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value as any }))}
+                  className="w-full bg-[#FAF8F5] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] focus:border-[#1A73E8] outline-none"
+                >
+                  <option value="draft">Bản nháp (Chưa công khai)</option>
+                  <option value="published">Đã đăng (Công khai trên web)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-[#ECEFF3]">
+              <button
+                type="button"
+                onClick={() => setShowSettings(false)}
+                className="w-full py-2 bg-[#F1F3F4] hover:bg-[#E5E9EC] text-[#1F1F1F] text-xs font-semibold rounded-lg transition-colors"
+              >
+                Đóng cài đặt
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 5. FULLSCREEN PREVIEW MODAL */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 bg-[#FDFBF7] flex flex-col">
+          <div className="flex items-center justify-between px-6 py-3 border-b border-[#DADCE0] bg-white shadow-xs">
+            <div className="text-sm font-bold text-[#3D2314] flex items-center gap-2">
+              <Eye className="w-4 h-4 text-[#C5A059]" />
+              <span>Chế độ xem trước bài viết</span>
+            </div>
+            <button
+              onClick={() => setShowPreview(false)}
+              className="px-4 py-1.5 bg-[#EDF2FA] text-[#1F1F1F] hover:bg-[#DDE3EA] rounded-full text-xs font-semibold transition-colors"
+            >
+              Đóng xem trước
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-[760px] mx-auto px-6 py-12 space-y-6">
+              <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#3D2314] leading-tight">
+                {formData.title || "Chưa có tiêu đề"}
+              </h1>
+              {formData.thumbnail && (
+                <div className="relative w-full aspect-[21/9] rounded-xl overflow-hidden shadow-md">
+                  <Image src={formData.thumbnail} alt={formData.title} fill className="object-cover" />
+                </div>
+              )}
+              {formData.excerpt && (
+                <p className="font-serif italic text-base md:text-lg text-[#5A4A42] p-4 bg-[#FAF8F5] rounded-xl border-l-4 border-[#C5A059]">
+                  {formData.excerpt}
+                </p>
+              )}
+              <ArticleContentRenderer content={editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content} />
             </div>
           </div>
         </div>

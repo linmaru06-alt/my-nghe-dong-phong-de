@@ -213,29 +213,57 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
 
           case "list": {
             const isNumbered = block.data.listType === "numbered";
-            const items: string[] = Array.isArray(block.data.items) ? block.data.items : [];
+            const isChecklist = block.data.listType === "checklist";
+            const items: any[] = Array.isArray(block.data.items) ? block.data.items : [];
+
+            if (isChecklist) {
+              return (
+                <div key={block.id} className="my-6 space-y-2.5 pl-2">
+                  {items.map((it, idx) => {
+                    const isChecked = typeof it === "object" ? !!it.checked : false;
+                    const text = typeof it === "object" ? it.text : String(it);
+                    return (
+                      <div key={idx} className="flex items-start gap-3">
+                        <span className={`shrink-0 w-4 h-4 rounded border mt-1 flex items-center justify-center text-[10px] ${isChecked ? "bg-[#3D2314] border-[#3D2314] text-white" : "border-border bg-white"}`}>
+                          {isChecked ? "✓" : ""}
+                        </span>
+                        <span className={`text-sm md:text-base leading-relaxed flex-1 ${isChecked ? "line-through text-text-muted opacity-70" : "text-[#2A160C]"}`}>
+                          {text}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            }
 
             return (
               <div key={block.id} className="my-6">
                 {isNumbered ? (
                   <ol className="space-y-2.5 text-sm md:text-base text-[#2A160C] pl-2">
-                    {items.map((it, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span className="shrink-0 w-6 h-6 rounded-full bg-[#FAF6F0] border border-[#C5A059] text-[#3D2314] font-serif font-bold text-xs flex items-center justify-center mt-0.5">
-                          {idx + 1}
-                        </span>
-                        <span className="leading-relaxed flex-1">{it}</span>
-                      </li>
-                    ))}
+                    {items.map((it, idx) => {
+                      const text = typeof it === "object" ? it.text : String(it);
+                      return (
+                        <li key={idx} className="flex items-start gap-3">
+                          <span className="shrink-0 w-6 h-6 rounded-full bg-[#FAF6F0] border border-[#C5A059] text-[#3D2314] font-serif font-bold text-xs flex items-center justify-center mt-0.5">
+                            {idx + 1}
+                          </span>
+                          <span className="leading-relaxed flex-1">{text}</span>
+                        </li>
+                      );
+                    })}
                   </ol>
                 ) : (
                   <ul className="space-y-2.5 text-sm md:text-base text-[#2A160C] pl-2">
-                    {items.map((it, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-4 h-4 text-[#C5A059] shrink-0 mt-1" />
-                        <span className="leading-relaxed flex-1">{it}</span>
-                      </li>
-                    ))}
+                    {items.map((it, idx) => {
+                      const text = typeof it === "object" ? it.text : String(it);
+                      return (
+                        <li key={idx} className="flex items-start gap-3">
+                          <CheckCircle2 className="w-4 h-4 text-[#C5A059] shrink-0 mt-1" />
+                          <span className="leading-relaxed flex-1">{text}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>

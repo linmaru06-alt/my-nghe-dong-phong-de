@@ -8,9 +8,11 @@ import { HoverDropzone } from "./HoverDropzone";
 export interface VisualBlockEditorProps {
   blocks: EditorBlock[];
   onChange: (blocks: EditorBlock[]) => void;
+  activeBlockIndex?: number | null;
+  onSelectBlock?: (index: number, start?: number, end?: number) => void;
 }
 
-export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) {
+export function VisualBlockEditor({ blocks, onChange, activeBlockIndex, onSelectBlock }: VisualBlockEditorProps) {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
@@ -124,6 +126,7 @@ export function VisualBlockEditor({ blocks, onChange }: VisualBlockEditorProps) 
           onDelete={() => handleDelete(idx)}
           onDuplicate={() => handleDuplicate(idx)}
           onFocusPrevious={() => setFocusedIndex(Math.max(0, idx - 1))}
+          onSelectBlock={onSelectBlock}
           // DND
           draggable
           onDragStart={(e) => handleDragStart(e, idx)}

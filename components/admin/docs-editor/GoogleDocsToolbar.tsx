@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Cloud,
   CloudUpload,
-  Check,
   Undo2,
   Redo2,
   Printer,
@@ -24,9 +23,6 @@ import {
   List,
   ListOrdered,
   ListChecks,
-  Indent,
-  Outdent,
-  RemoveFormatting,
   ChevronDown,
   Settings,
   Eye,
@@ -36,8 +32,6 @@ import {
   Quote,
   Minus,
   MessageCircle,
-  HelpCircle,
-  Strikethrough,
   Highlighter,
 } from "lucide-react";
 import { BlockType } from "@/lib/blockEditor";
@@ -54,16 +48,23 @@ export interface GoogleDocsToolbarProps {
   showSettings: boolean;
   onToggleSettings: () => void;
 
-  // Editor Actions
-  onUndo?: () => void;
-  onRedo?: () => void;
-  canUndo?: boolean;
-  canRedo?: boolean;
+  // Real Editor Functional Actions
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  onFormatText: (format: "bold" | "italic" | "underline" | "strike" | "link" | "highlight" | "color", value?: string) => void;
+  onChangeActiveBlockType: (type: BlockType, level?: number) => void;
+  onConvertToList: (listType: "checklist" | "bullet" | "numbered") => void;
+  onAlignText: (align: "left" | "center" | "right" | "justify") => void;
+  onInsertTable: (rows?: number, cols?: number) => void;
+  onTriggerImageUpload: () => void;
   onInsertBlock: (type: BlockType, data?: any) => void;
-  onFormatText?: (format: "bold" | "italic" | "underline" | "strike" | "link" | "highlight" | "color", value?: string) => void;
-  onChangeActiveBlockType?: (type: BlockType, level?: number) => void;
-  onInsertTable?: (rows?: number, cols?: number) => void;
-  currentStyle?: string;
+  currentStyle: string;
+  fontSize: number;
+  onFontSizeChange: (delta: number) => void;
+  zoom: string;
+  onZoomChange: (newZoom: string) => void;
 }
 
 export function GoogleDocsToolbar({
@@ -79,37 +80,48 @@ export function GoogleDocsToolbar({
   onToggleSettings,
   onUndo,
   onRedo,
-  canUndo = true,
-  canRedo = false,
-  onInsertBlock,
+  canUndo,
+  canRedo,
   onFormatText,
   onChangeActiveBlockType,
+  onConvertToList,
+  onAlignText,
   onInsertTable,
-  currentStyle = "Văn bản thường",
+  onTriggerImageUpload,
+  onInsertBlock,
+  currentStyle,
+  fontSize,
+  onFontSizeChange,
+  zoom,
+  onZoomChange,
 }: GoogleDocsToolbarProps) {
   const [showStyleMenu, setShowStyleMenu] = useState(false);
   const [showColorMenu, setShowColorMenu] = useState(false);
   const [showHighlightMenu, setShowHighlightMenu] = useState(false);
   const [showInsertMenu, setShowInsertMenu] = useState(false);
-  const [fontSize, setFontSize] = useState<number>(11);
-  const [zoom, setZoom] = useState<string>("100%");
+  const [showZoomMenu, setShowZoomMenu] = useState(false);
+  const [showAlignMenu, setShowAlignMenu] = useState(false);
 
   const textColors = [
-    { name: "Mặc định (Đen mộc)", value: "#1F1610" },
+    { name: "Đen mộc tiêu chuẩn", value: "#1F1610" },
     { name: "Nâu gỗ Đông Phong", value: "#3D2314" },
     { name: "Gỗ Trắc / Tử đàn", value: "#5C3A21" },
     { name: "Vàng đồng hoàng kim", value: "#C5A059" },
     { name: "Đỏ sưa phong thủy", value: "#B91C1C" },
     { name: "Xanh ngọc bách xanh", value: "#047857" },
+    { name: "Xanh lam Google Docs", value: "#1A73E8" },
   ];
 
   const highlightColors = [
-    { name: "Không màu", value: "transparent" },
-    { name: "Vàng nhạt", value: "#FEF08A" },
-    { name: "Cam gỗ", value: "#FED7AA" },
-    { name: "Xanh ngọc", value: "#A7F3D0" },
+    { name: "Bỏ màu highlight", value: "transparent" },
+    { name: "Vàng nhạt kinh điển", value: "#FEF08A" },
+    { name: "Cam gỗ ấm", value: "#FED7AA" },
+    { name: "Xanh ngọc dịu", value: "#A7F3D0" },
     { name: "Hồng hoàng gia", value: "#FBCFE8" },
+    { name: "Xanh dương nhạt", value: "#BAE6FD" },
   ];
+
+  const zoomLevels = ["75%", "90%", "100%", "125%", "150%"];
 
   return (
     <div className="sticky top-0 z-50 bg-[#F9FBFD] border-b border-[#E1E5EA] shadow-xs select-none">
@@ -133,11 +145,11 @@ export function GoogleDocsToolbar({
               placeholder="Tài liệu không có tiêu đề"
               className="text-[17px] font-semibold text-[#1F1F1F] bg-transparent border border-transparent hover:border-[#DADCE0] focus:border-[#1A73E8] focus:bg-white rounded px-2 py-0.5 outline-none transition-all truncate"
             />
-            
+
             {/* Status & Cloud Sync Indicator */}
             <div className="flex items-center gap-2 px-2 text-[11px] text-[#5F6368]">
               {saveStatus === "Đang lưu..." ? (
-                <span className="flex items-center gap-1 text-amber-600">
+                <span className="flex items-center gap-1 text-amber-600 font-medium">
                   <CloudUpload className="w-3.5 h-3.5 animate-pulse" />
                   Đang lưu thay đổi...
                 </span>
@@ -205,6 +217,7 @@ export function GoogleDocsToolbar({
         {/* Undo / Redo */}
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={onUndo}
           disabled={!canUndo}
           className="p-1.5 rounded hover:bg-black/5 disabled:opacity-30 transition-colors"
@@ -215,6 +228,7 @@ export function GoogleDocsToolbar({
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={onRedo}
           disabled={!canRedo}
           className="p-1.5 rounded hover:bg-black/5 disabled:opacity-30 transition-colors"
@@ -225,6 +239,7 @@ export function GoogleDocsToolbar({
 
         <button
           type="button"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => window.print()}
           className="p-1.5 rounded hover:bg-black/5 transition-colors hidden md:block"
           title="In tài liệu (Ctrl+P)"
@@ -234,74 +249,111 @@ export function GoogleDocsToolbar({
 
         <button
           type="button"
-          onClick={() => onFormatText && onFormatText("bold")}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onFormatText("bold")}
           className="p-1.5 rounded hover:bg-black/5 transition-colors hidden md:block"
-          title="Sơn định dạng"
+          title="Sơn định dạng (In đậm)"
         >
           <Paintbrush className="w-4 h-4" />
         </button>
 
-        {/* Zoom Selector */}
-        <div className="flex items-center px-1 py-1 rounded hover:bg-black/5 cursor-pointer text-xs font-medium gap-1 hidden lg:flex">
-          <span>{zoom}</span>
-          <ChevronDown className="w-3 h-3 text-[#70757A]" />
+        {/* Zoom Selector Dropdown */}
+        <div className="relative hidden lg:block">
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setShowZoomMenu(!showZoomMenu)}
+            className="flex items-center px-1.5 py-1 rounded hover:bg-black/5 text-xs font-medium gap-1 text-[#1F1F1F]"
+            title="Thu phóng tài liệu"
+          >
+            <span>{zoom}</span>
+            <ChevronDown className="w-3 h-3 text-[#70757A]" />
+          </button>
+
+          {showZoomMenu && (
+            <div className="absolute top-full left-0 mt-1 w-24 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 py-1 text-xs">
+              {zoomLevels.map((lvl) => (
+                <button
+                  key={lvl}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    onZoomChange(lvl);
+                    setShowZoomMenu(false);
+                  }}
+                  className={`w-full text-left px-3 py-1.5 hover:bg-[#F1F3F4] ${lvl === zoom ? "font-bold text-[#1A73E8]" : "text-[#1F1F1F]"}`}
+                >
+                  {lvl}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="w-px h-4 bg-[#B4B9C2] mx-1" />
 
-        {/* Styles Dropdown (Văn bản thường / Tiêu đề 1 / Tiêu đề 2 / Tiêu đề 3) */}
+        {/* Styles Dropdown (Văn bản thường / Tiêu đề 1 H2 / Tiêu đề 2 H3 / Tiêu đề 3 H4) */}
         <div className="relative">
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowStyleMenu(!showStyleMenu)}
-            className="flex items-center gap-1 px-2 py-1 rounded hover:bg-black/5 text-xs font-medium text-[#1F1F1F] transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded hover:bg-black/5 text-xs font-semibold text-[#1F1F1F] transition-colors"
             title="Định dạng kiểu văn bản"
           >
-            <span className="w-24 text-left truncate">{currentStyle}</span>
+            <span className="w-28 text-left truncate">{currentStyle}</span>
             <ChevronDown className="w-3 h-3 text-[#70757A]" />
           </button>
 
           {showStyleMenu && (
-            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-[#DADCE0] rounded-lg shadow-lg z-50 py-1.5 text-xs">
+            <div className="absolute top-full left-0 mt-1 w-52 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 py-1.5 text-xs">
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
-                  onChangeActiveBlockType?.("text");
+                  onChangeActiveBlockType("text");
                   setShowStyleMenu(false);
                 }}
-                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] text-[#1F1F1F]"
+                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] text-[#1F1F1F] flex items-center justify-between"
               >
-                Văn bản thường
+                <span>Văn bản thường</span>
+                <span className="text-[10px] text-[#70757A]">Normal</span>
               </button>
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
-                  onChangeActiveBlockType?.("heading", 2);
+                  onChangeActiveBlockType("heading", 2);
                   setShowStyleMenu(false);
                 }}
-                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] text-[#1F1F1F] font-serif font-bold text-sm"
+                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] text-[#3D2314] font-serif font-bold text-sm flex items-center justify-between border-t border-[#ECEFF3]"
               >
-                Tiêu đề 1 (H2)
+                <span>Tiêu đề 1 (H2)</span>
+                <span className="text-[10px] text-[#70757A] font-sans font-normal">Mục lớn</span>
               </button>
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
-                  onChangeActiveBlockType?.("heading", 3);
+                  onChangeActiveBlockType("heading", 3);
                   setShowStyleMenu(false);
                 }}
-                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] text-[#1F1F1F] font-serif font-bold text-xs"
+                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] text-[#5C3A21] font-serif font-bold text-xs flex items-center justify-between"
               >
-                Tiêu đề 2 (H3)
+                <span>Tiêu đề 2 (H3)</span>
+                <span className="text-[10px] text-[#70757A] font-sans font-normal">Mục con</span>
               </button>
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
-                  onChangeActiveBlockType?.("heading", 4);
+                  onChangeActiveBlockType("heading", 4);
                   setShowStyleMenu(false);
                 }}
-                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] text-[#1F1F1F] font-serif font-bold text-xs"
+                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] text-[#5C3A21] font-serif font-bold text-xs flex items-center justify-between"
               >
-                Tiêu đề 3 (H4)
+                <span>Tiêu đề 3 (H4)</span>
+                <span className="text-[10px] text-[#70757A] font-sans font-normal">Mục nhỏ</span>
               </button>
             </div>
           )}
@@ -310,16 +362,17 @@ export function GoogleDocsToolbar({
         <div className="w-px h-4 bg-[#B4B9C2] mx-1" />
 
         {/* Font Family Display */}
-        <div className="flex items-center px-2 py-1 rounded hover:bg-black/5 cursor-pointer text-xs font-medium gap-1 hidden xl:flex">
+        <div className="flex items-center px-2 py-1 rounded hover:bg-black/5 cursor-pointer text-xs font-medium gap-1 hidden xl:flex text-[#1F1F1F]">
           <span>Be Vietnam Pro</span>
           <ChevronDown className="w-3 h-3 text-[#70757A]" />
         </div>
 
         {/* Font Size controls */}
-        <div className="flex items-center gap-0.5 bg-white/70 border border-[#DADCE0] rounded px-1 py-0.5 text-xs font-semibold">
+        <div className="flex items-center gap-0.5 bg-white/80 border border-[#DADCE0] rounded px-1 py-0.5 text-xs font-semibold">
           <button
             type="button"
-            onClick={() => setFontSize(Math.max(8, fontSize - 1))}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => onFontSizeChange(-1)}
             className="w-4 h-4 flex items-center justify-center hover:bg-black/5 rounded text-[#444746]"
             title="Giảm cỡ chữ"
           >
@@ -328,7 +381,8 @@ export function GoogleDocsToolbar({
           <span className="w-5 text-center text-[#1F1F1F]">{fontSize}</span>
           <button
             type="button"
-            onClick={() => setFontSize(Math.min(72, fontSize + 1))}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => onFontSizeChange(1)}
             className="w-4 h-4 flex items-center justify-center hover:bg-black/5 rounded text-[#444746]"
             title="Tăng cỡ chữ"
           >
@@ -338,30 +392,33 @@ export function GoogleDocsToolbar({
 
         <div className="w-px h-4 bg-[#B4B9C2] mx-1" />
 
-        {/* Bold, Italic, Underline, Strikethrough */}
+        {/* Bold, Italic, Underline */}
         <button
           type="button"
-          onClick={() => onFormatText?.("bold")}
-          className="p-1.5 rounded hover:bg-black/5 transition-colors"
-          title="In đậm (Ctrl+B)"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onFormatText("bold")}
+          className="p-1.5 rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
+          title="In đậm chữ đang chọn (Ctrl+B)"
         >
           <Bold className="w-4 h-4" />
         </button>
 
         <button
           type="button"
-          onClick={() => onFormatText?.("italic")}
-          className="p-1.5 rounded hover:bg-black/5 transition-colors"
-          title="In nghiêng (Ctrl+I)"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onFormatText("italic")}
+          className="p-1.5 rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
+          title="In nghiêng chữ đang chọn (Ctrl+I)"
         >
           <Italic className="w-4 h-4" />
         </button>
 
         <button
           type="button"
-          onClick={() => onFormatText?.("underline")}
-          className="p-1.5 rounded hover:bg-black/5 transition-colors"
-          title="Gạch chân (Ctrl+U)"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onFormatText("underline")}
+          className="p-1.5 rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
+          title="Gạch chân chữ đang chọn (Ctrl+U)"
         >
           <Underline className="w-4 h-4" />
         </button>
@@ -370,30 +427,32 @@ export function GoogleDocsToolbar({
         <div className="relative">
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowColorMenu(!showColorMenu)}
             className="p-1.5 rounded hover:bg-black/5 transition-colors flex flex-col items-center"
-            title="Màu văn bản"
+            title="Đổi màu chữ đang chọn"
           >
             <span className="font-bold text-xs leading-none">A</span>
             <div className="w-3.5 h-0.5 bg-[#3D2314] mt-0.5 rounded-full" />
           </button>
 
           {showColorMenu && (
-            <div className="absolute top-full left-0 mt-1 w-44 bg-white border border-[#DADCE0] rounded-lg shadow-lg z-50 p-2">
+            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 p-2">
               <div className="text-[10px] font-semibold text-[#5F6368] uppercase mb-1.5">Màu chữ gỗ quý</div>
               <div className="space-y-1">
                 {textColors.map((c) => (
                   <button
                     key={c.value}
                     type="button"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      onFormatText?.("color", c.value);
+                      onFormatText("color", c.value);
                       setShowColorMenu(false);
                     }}
                     className="w-full flex items-center gap-2 px-2 py-1 text-xs hover:bg-[#F1F3F4] rounded text-left"
                   >
-                    <span className="w-3.5 h-3.5 rounded-full border border-black/10" style={{ backgroundColor: c.value }} />
-                    <span className="truncate">{c.name}</span>
+                    <span className="w-3.5 h-3.5 rounded-full border border-black/15 shadow-2xs" style={{ backgroundColor: c.value }} />
+                    <span className="truncate text-[#1F1F1F]">{c.name}</span>
                   </button>
                 ))}
               </div>
@@ -405,30 +464,32 @@ export function GoogleDocsToolbar({
         <div className="relative">
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowHighlightMenu(!showHighlightMenu)}
             className="p-1.5 rounded hover:bg-black/5 transition-colors"
-            title="Màu đánh dấu nổi bật"
+            title="Đánh dấu nền (Highlight) cho chữ đang chọn"
           >
             <Highlighter className="w-4 h-4 text-[#D97706]" />
           </button>
 
           {showHighlightMenu && (
-            <div className="absolute top-full left-0 mt-1 w-36 bg-white border border-[#DADCE0] rounded-lg shadow-lg z-50 p-2">
+            <div className="absolute top-full left-0 mt-1 w-40 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 p-2">
               <div className="text-[10px] font-semibold text-[#5F6368] uppercase mb-1.5">Màu nền highlight</div>
-              <div className="grid grid-cols-5 gap-1.5">
+              <div className="grid grid-cols-6 gap-1.5">
                 {highlightColors.map((h) => (
                   <button
                     key={h.value}
                     type="button"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      onFormatText?.("highlight", h.value);
+                      onFormatText("highlight", h.value);
                       setShowHighlightMenu(false);
                     }}
                     title={h.name}
-                    className="w-6 h-6 rounded border border-black/10 flex items-center justify-center hover:scale-110 transition-transform"
+                    className="w-5 h-5 rounded border border-black/15 flex items-center justify-center hover:scale-110 transition-transform"
                     style={{ backgroundColor: h.value }}
                   >
-                    {h.value === "transparent" && <Minus className="w-3 h-3 text-red-500" />}
+                    {h.value === "transparent" && <Minus className="w-2.5 h-2.5 text-red-500" />}
                   </button>
                 ))}
               </div>
@@ -438,88 +499,137 @@ export function GoogleDocsToolbar({
 
         <div className="w-px h-4 bg-[#B4B9C2] mx-1" />
 
-        {/* Insert Link & Image & Table */}
+        {/* Insert Link */}
         <button
           type="button"
-          onClick={() => onFormatText?.("link")}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onFormatText("link")}
           className="p-1.5 rounded hover:bg-black/5 transition-colors"
-          title="Chèn đường liên kết (Ctrl+K)"
+          title="Chèn liên kết URL (Ctrl+K)"
         >
           <Link2 className="w-4 h-4" />
         </button>
 
+        {/* Insert Image (Triggers File Picker) */}
         <button
           type="button"
-          onClick={() => onInsertBlock("image")}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={onTriggerImageUpload}
           className="p-1.5 rounded hover:bg-black/5 transition-colors"
-          title="Chèn hình ảnh (Hoặc copy ảnh bấm Ctrl+V vào trang)"
+          title="Chọn ảnh từ máy tính (Hoặc dán ảnh Ctrl+V)"
         >
           <ImageIcon className="w-4 h-4" />
         </button>
 
+        {/* Insert Table (3x3 Table) */}
         <button
           type="button"
-          onClick={() => onInsertTable ? onInsertTable(3, 3) : onInsertBlock("table")}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onInsertTable(3, 3)}
           className="p-1.5 rounded hover:bg-black/5 transition-colors"
-          title="Chèn bảng biểu (Table 3x3)"
+          title="Chèn bảng biểu 3x3 vào bài viết"
         >
           <TableIcon className="w-4 h-4" />
         </button>
 
         <div className="w-px h-4 bg-[#B4B9C2] mx-1" />
 
-        {/* Alignment */}
-        <button
-          type="button"
-          onClick={() => onFormatText?.("color")}
-          className="p-1.5 rounded hover:bg-black/5 transition-colors"
-          title="Căn trái"
-        >
-          <AlignLeft className="w-4 h-4" />
-        </button>
+        {/* Alignment Controls (Left, Center, Right, Justify) */}
+        <div className="relative">
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setShowAlignMenu(!showAlignMenu)}
+            className="p-1.5 rounded hover:bg-black/5 transition-colors flex items-center gap-0.5"
+            title="Căn lề khối văn bản"
+          >
+            <AlignLeft className="w-4 h-4" />
+            <ChevronDown className="w-2.5 h-2.5 text-[#70757A]" />
+          </button>
 
-        <button
-          type="button"
-          className="p-1.5 rounded hover:bg-black/5 transition-colors hidden sm:block"
-          title="Căn giữa"
-        >
-          <AlignCenter className="w-4 h-4" />
-        </button>
-
-        <button
-          type="button"
-          className="p-1.5 rounded hover:bg-black/5 transition-colors hidden sm:block"
-          title="Căn phải"
-        >
-          <AlignRight className="w-4 h-4" />
-        </button>
+          {showAlignMenu && (
+            <div className="absolute top-full left-0 mt-1 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 flex items-center p-1 gap-1">
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  onAlignText("left");
+                  setShowAlignMenu(false);
+                }}
+                className="p-1.5 hover:bg-[#F1F3F4] rounded"
+                title="Căn trái"
+              >
+                <AlignLeft className="w-4 h-4 text-[#1F1F1F]" />
+              </button>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  onAlignText("center");
+                  setShowAlignMenu(false);
+                }}
+                className="p-1.5 hover:bg-[#F1F3F4] rounded"
+                title="Căn giữa"
+              >
+                <AlignCenter className="w-4 h-4 text-[#1F1F1F]" />
+              </button>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  onAlignText("right");
+                  setShowAlignMenu(false);
+                }}
+                className="p-1.5 hover:bg-[#F1F3F4] rounded"
+                title="Căn phải"
+              >
+                <AlignRight className="w-4 h-4 text-[#1F1F1F]" />
+              </button>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  onAlignText("justify");
+                  setShowAlignMenu(false);
+                }}
+                className="p-1.5 hover:bg-[#F1F3F4] rounded"
+                title="Căn đều hai bên"
+              >
+                <AlignJustify className="w-4 h-4 text-[#1F1F1F]" />
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="w-px h-4 bg-[#B4B9C2] mx-1" />
 
         {/* Checklist, Bullet List, Numbered List */}
         <button
           type="button"
-          onClick={() => onInsertBlock("list", { listType: "checklist", items: [{ checked: false, text: "Việc cần thực hiện..." }] })}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onConvertToList("checklist")}
           className="p-1.5 rounded hover:bg-black/5 transition-colors text-[#1A73E8]"
-          title="Danh sách kiểm tra (Checklist)"
+          title="Chuyển thành danh sách việc cần làm (Checklist)"
         >
           <ListChecks className="w-4 h-4" />
         </button>
 
         <button
           type="button"
-          onClick={() => onInsertBlock("list", { listType: "bullet" })}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onConvertToList("bullet")}
           className="p-1.5 rounded hover:bg-black/5 transition-colors"
-          title="Danh sách dấu đầu dòng"
+          title="Chuyển thành danh sách dấu đầu dòng (Bullet)"
         >
           <List className="w-4 h-4" />
         </button>
 
         <button
           type="button"
-          onClick={() => onInsertBlock("list", { listType: "numbered" })}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onConvertToList("numbered")}
           className="p-1.5 rounded hover:bg-black/5 transition-colors"
-          title="Danh sách đánh số thứ tự"
+          title="Chuyển thành danh sách đánh số (1, 2, 3)"
         >
           <ListOrdered className="w-4 h-4" />
         </button>
@@ -530,8 +640,9 @@ export function GoogleDocsToolbar({
         <div className="relative">
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowInsertMenu(!showInsertMenu)}
-            className="flex items-center gap-1 px-2 py-1 rounded hover:bg-black/5 text-xs font-semibold text-[#1A73E8] transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded hover:bg-black/5 text-xs font-semibold text-[#1A73E8] transition-colors"
             title="Chèn các khối đặc biệt"
           >
             <span>+ Chèn khối</span>
@@ -539,53 +650,69 @@ export function GoogleDocsToolbar({
           </button>
 
           {showInsertMenu && (
-            <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 py-1 text-xs">
+            <div className="absolute top-full right-0 mt-1 w-56 bg-white border border-[#DADCE0] rounded-xl shadow-2xl z-50 py-1.5 text-xs">
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   onInsertBlock("quote");
                   setShowInsertMenu(false);
                 }}
-                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] flex items-center gap-2.5 text-[#1F1F1F]"
+                className="w-full text-left px-3.5 py-2 hover:bg-[#F1F3F4] flex items-center gap-2.5 text-[#1F1F1F]"
               >
                 <Quote className="w-4 h-4 text-[#C5A059]" />
-                <span>Trích dẫn nghệ nhân</span>
+                <div>
+                  <div className="font-semibold">Trích dẫn nghệ nhân</div>
+                  <div className="text-[10px] text-[#70757A]">Danh ngôn & triết lý gỗ quý</div>
+                </div>
               </button>
 
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   onInsertBlock("section");
                   setShowInsertMenu(false);
                 }}
-                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] flex items-center gap-2.5 text-[#1F1F1F]"
+                className="w-full text-left px-3.5 py-2 hover:bg-[#F1F3F4] flex items-center gap-2.5 text-[#1F1F1F]"
               >
                 <Sparkles className="w-4 h-4 text-amber-600" />
-                <span>Hộp điểm nhấn phong thủy</span>
+                <div>
+                  <div className="font-semibold">Hộp điểm nhấn phong thủy</div>
+                  <div className="text-[10px] text-[#70757A]">Làm nổi bật kiến thức quan trọng</div>
+                </div>
               </button>
 
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   onInsertBlock("divider");
                   setShowInsertMenu(false);
                 }}
-                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] flex items-center gap-2.5 text-[#1F1F1F]"
+                className="w-full text-left px-3.5 py-2 hover:bg-[#F1F3F4] flex items-center gap-2.5 text-[#1F1F1F]"
               >
                 <Minus className="w-4 h-4 text-[#70757A]" />
-                <span>Đường kẻ ngang phân cách</span>
+                <div>
+                  <div className="font-semibold">Đường kẻ ngang phân cách</div>
+                  <div className="text-[10px] text-[#70757A]">Ngắt đoạn thẩm mỹ</div>
+                </div>
               </button>
 
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   onInsertBlock("button", { label: "Nhắn Zalo Nhận Tư Vấn Trực Tiếp", url: "https://zalo.me/0968888972", buttonStyle: "zalo" });
                   setShowInsertMenu(false);
                 }}
-                className="w-full text-left px-3 py-2 hover:bg-[#F1F3F4] flex items-center gap-2.5 text-[#0068FF] font-medium"
+                className="w-full text-left px-3.5 py-2 hover:bg-[#F1F3F4] flex items-center gap-2.5 text-[#0068FF] font-medium border-t border-[#ECEFF3]"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Nút kêu gọi Zalo</span>
+                <div>
+                  <div className="font-semibold">Nút kêu gọi Zalo</div>
+                  <div className="text-[10px] text-[#70757A]">Chuyển đổi khách hàng tư vấn</div>
+                </div>
               </button>
             </div>
           )}

@@ -43,6 +43,7 @@ export interface BlockCardProps {
   onDelete: () => void;
   onDuplicate: () => void;
   onFocusPrevious: () => void;
+  onSelectBlock?: (index: number, start?: number, end?: number) => void;
 
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
@@ -78,6 +79,7 @@ export function BlockCard({
   onDelete,
   onDuplicate,
   onFocusPrevious,
+  onSelectBlock,
   draggable,
   onDragStart,
   onDragEnter,
@@ -384,10 +386,20 @@ export function BlockCard({
         {block.type === "text" && (
           <div className="relative">
             <AutoResizeTextarea
+              id={`block-input-${index}`}
               value={block.data.text || ""}
               onChange={(e) => handleTextChange(e.target.value)}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
+              onFocus={() => onSelectBlock?.(index)}
+              onSelect={(e) => {
+                const el = e.currentTarget;
+                onSelectBlock?.(index, el.selectionStart, el.selectionEnd);
+              }}
+              style={{
+                textAlign: block.data.align || "left",
+                fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
+              }}
               placeholder="Gõ văn bản tự do, bấm phím cách (Space) mượt mà hoặc gõ / để chèn..."
               className="w-full bg-transparent border-none rounded-none p-0 text-[16px] text-[#1F1610] focus:outline-none focus:ring-0 leading-[1.8] resize-none overflow-hidden placeholder:text-[#5F6368]/40 font-sans tracking-normal whitespace-pre-wrap"
             />
@@ -428,10 +440,20 @@ export function BlockCard({
         {block.type === "heading" && (
           <div className="relative group/heading">
             <AutoResizeTextarea
+              id={`block-heading-${index}`}
               value={block.data.text || ""}
               onChange={(e) => onUpdate({ ...block.data, text: e.target.value })}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
+              onFocus={() => onSelectBlock?.(index)}
+              onSelect={(e) => {
+                const el = e.currentTarget;
+                onSelectBlock?.(index, el.selectionStart, el.selectionEnd);
+              }}
+              style={{
+                textAlign: block.data.align || "left",
+                fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
+              }}
               placeholder="Nhập tiêu đề mục..."
               className={`w-full bg-transparent border-none rounded-none p-0 font-serif font-bold text-[#3D2314] focus:outline-none focus:ring-0 resize-none overflow-hidden placeholder:text-[#5F6368]/30 ${
                 block.data.level === 3 ? "text-xl md:text-2xl mt-4 mb-2" : block.data.level === 4 ? "text-lg md:text-xl mt-3 mb-1" : "text-2xl md:text-3xl mt-6 mb-3 pb-1 border-b border-[#C5A059]/40"

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -84,6 +84,44 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   // Sync States
   const [isSlugManual, setIsSlugManual] = useState(!!initialData?.slug && isEdit);
   const [isReadingTimeManual, setIsReadingTimeManual] = useState(false);
+
+  // Active block selection & document zoom
+  const [activeBlockIndex, setActiveBlockIndex] = useState<number | null>(0);
+  const [selectionInfo, setSelectionInfo] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
+  const [zoom, setZoom] = useState<string>("100%");
+  const hiddenImageInputRef = useRef<HTMLInputElement>(null);
+
+  // History stack for Undo/Redo
+  const [history, setHistory] = useState<EditorBlock[][]>(() => [markdownToBlocks(formData.content || "")]);
+  const [historyIndex, setHistoryIndex] = useState<number>(0);
+
+  const pushHistory = (newBlocks: EditorBlock[]) => {
+    setHistory((prev) => {
+      const next = prev.slice(0, historyIndex + 1);
+      return [...next, newBlocks];
+    });
+    setHistoryIndex((prev) => prev + 1);
+  };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const nextIdx = historyIndex - 1;
+      setHistoryIndex(nextIdx);
+      setBlocks(history[nextIdx]);
+      setSaveStatus("Chưa lưu");
+      toast.info("Đã hoàn tác (Undo)");
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const nextIdx = historyIndex + 1;
+      setHistoryIndex(nextIdx);
+      setBlocks(history[nextIdx]);
+      setSaveStatus("Chưa lưu");
+      toast.info("Đã làm lại (Redo)");
+    }
+  };
 
   // BeforeUnload Warning
   useEffect(() => {
@@ -258,7 +296,14 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     if (data) {
       newBlock.data = { ...newBlock.data, ...data };
     }
-    setBlocks((prev) => [...prev, newBlock]);
+    const targetIdx = activeBlockIndex !== null && activeBlockIndex >= 0 && activeBlockIndex < blocks.length
+      ? activeBlockIndex + 1
+      : blocks.length;
+    const newBlocks = [...blocks];
+    newBlocks.splice(targetIdx, 0, newBlock);
+    setBlocks(newBlocks);
+    pushHistory(newBlocks);
+    setActiveBlockIndex(targetIdx);
     setSaveStatus("Chưa lưu");
     toast.success(`Đã thêm khối ${type}`);
   };
@@ -266,13 +311,294 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   // Insert Table via Toolbar
   const handleInsertTableFromToolbar = (rows: number = 3, cols: number = 3) => {
     const headers = Array.from({ length: cols }, (_, i) => `Cột ${i + 1}`);
-    const tableRows = Array.from({ length: rows - 1 }, () => Array.from({ length: cols }, () => ""));
+    const tableRows = Array.from({ length: Math.max(1, rows - 1) }, () => Array.from({ length: cols }, () => ""));
     const newBlock = createDefaultBlock("table");
     newBlock.data = { headers, rows: tableRows };
-    setBlocks((prev) => [...prev, newBlock]);
+    const targetIdx = activeBlockIndex !== null && activeBlockIndex >= 0 && activeBlockIndex < blocks.length
+      ? activeBlockIndex + 1
+      : blocks.length;
+    const newBlocks = [...blocks];
+    newBlocks.splice(targetIdx, 0, newBlock);
+    setBlocks(newBlocks);
+    pushHistory(newBlocks);
+    setActiveBlockIndex(targetIdx);
     setSaveStatus("Chưa lưu");
-    toast.success("Đã chèn bảng biểu 3x3 vào bài viết");
+    toast.success(`Đã chèn bảng biểu ${rows}x${cols} vào bài viết`);
   };
+
+  // Image Upload triggered from Docs Toolbar
+  const handleToolbarImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Ảnh quá lớn", "Vui lòng chọn ảnh dưới 8MB");
+      return;
+    }
+
+    toast.info("Đang tải ảnh lên máy chủ...");
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("folder", "blog");
+
+      const res = await fetch("/api/admin/upload", { method: "POST", body: data });
+      const json = await res.json();
+      if (res.ok && json.success && json.url) {
+        const newBlock = createDefaultBlock("image");
+        newBlock.data = {
+          url: json.url,
+          alt: "Ảnh minh họa bài viết",
+          caption: "",
+        };
+
+        const targetIdx = activeBlockIndex !== null && activeBlockIndex >= 0 && activeBlockIndex < blocks.length
+          ? activeBlockIndex + 1
+          : blocks.length;
+        const newBlocks = [...blocks];
+        newBlocks.splice(targetIdx, 0, newBlock);
+        setBlocks(newBlocks);
+        pushHistory(newBlocks);
+        setActiveBlockIndex(targetIdx);
+        setSaveStatus("Chưa lưu");
+        toast.success("Đã chèn ảnh vào bài viết!");
+      } else {
+        throw new Error(json.error || "Không thể tải ảnh");
+      }
+    } catch (err: any) {
+      toast.error("Lỗi tải ảnh", err.message);
+    } finally {
+      e.target.value = "";
+    }
+  };
+
+  // 1. Text Formatting (Bold, Italic, Underline, Strike, Link, Highlight, Color)
+  const handleFormatText = (
+    format: "bold" | "italic" | "underline" | "strike" | "link" | "highlight" | "color",
+    value?: string
+  ) => {
+    let targetIdx = activeBlockIndex !== null && activeBlockIndex >= 0 && activeBlockIndex < blocks.length
+      ? activeBlockIndex
+      : 0;
+
+    let targetBlocks = [...blocks];
+    if (targetBlocks.length === 0) {
+      targetBlocks = [createDefaultBlock("text")];
+      targetIdx = 0;
+    }
+    const currentBlock = targetBlocks[targetIdx];
+
+    if (currentBlock.type === "text" || currentBlock.type === "heading" || currentBlock.type === "quote") {
+      const textKey = currentBlock.type === "quote" ? "quote" : "text";
+      const elId = currentBlock.type === "heading" ? `block-heading-${targetIdx}` : `block-input-${targetIdx}`;
+      const inputEl = document.getElementById(elId) as HTMLTextAreaElement | HTMLInputElement | null;
+
+      const fullText = (currentBlock.data[textKey] || "");
+      const start = inputEl ? inputEl.selectionStart ?? selectionInfo.start : selectionInfo.start;
+      const end = inputEl ? inputEl.selectionEnd ?? selectionInfo.end : selectionInfo.end;
+      const selected = fullText.substring(start, end);
+
+      let wrapped = "";
+      if (format === "bold") wrapped = `**${selected || "văn bản đậm"}**`;
+      else if (format === "italic") wrapped = `*${selected || "văn bản nghiêng"}*`;
+      else if (format === "underline") wrapped = `<u>${selected || "văn bản gạch chân"}</u>`;
+      else if (format === "strike") wrapped = `~~${selected || "văn bản gạch ngang"}~~`;
+      else if (format === "link") wrapped = `[${selected || "liên kết"}](${value || "https://"})`;
+      else if (format === "highlight") wrapped = `<mark style="background:${value || "#FFF59D"}">${selected || "nội dung nổi bật"}</mark>`;
+      else if (format === "color") wrapped = `<span style="color:${value || "#3D2314"}">${selected || "văn bản có màu"}</span>`;
+
+      const newText = fullText.substring(0, start) + wrapped + fullText.substring(end);
+      const updatedBlock = {
+        ...currentBlock,
+        data: {
+          ...currentBlock.data,
+          [textKey]: newText,
+        },
+      };
+      targetBlocks[targetIdx] = updatedBlock;
+      setBlocks(targetBlocks);
+      pushHistory(targetBlocks);
+      setSaveStatus("Chưa lưu");
+
+      setTimeout(() => {
+        if (inputEl) {
+          inputEl.focus();
+          const newPos = start + wrapped.length;
+          inputEl.setSelectionRange(newPos, newPos);
+        }
+      }, 10);
+    } else {
+      toast.info("Vui lòng chọn khối văn bản hoặc tiêu đề để áp dụng định dạng chữ");
+    }
+  };
+
+  // 2. Change Active Block Type (Normal text, Heading 1/2/3, Quote)
+  const handleChangeActiveBlockType = (type: BlockType, level?: number) => {
+    const targetIdx = activeBlockIndex !== null && activeBlockIndex >= 0 && activeBlockIndex < blocks.length
+      ? activeBlockIndex
+      : null;
+
+    if (targetIdx !== null) {
+      const current = blocks[targetIdx];
+      const prevText = current.data.text || current.data.quote || "";
+      const defaultBlock = createDefaultBlock(type);
+      const updated: EditorBlock = {
+        ...current,
+        type,
+        data: {
+          ...defaultBlock.data,
+          text: prevText,
+          ...(level ? { level } : {}),
+          align: current.data.align || "left",
+        },
+      };
+      const newBlocks = [...blocks];
+      newBlocks[targetIdx] = updated;
+      setBlocks(newBlocks);
+      pushHistory(newBlocks);
+      setSaveStatus("Chưa lưu");
+      toast.success(`Đã đổi thành ${type === "heading" ? `Tiêu đề H${level || 2}` : "Đoạn văn"}`);
+    } else {
+      handleInsertBlockFromToolbar(type, level ? { level, text: "" } : { text: "" });
+    }
+  };
+
+  // 3. Convert or create list (Checklist, Bullet, Numbered)
+  const handleConvertToList = (listType: "checklist" | "bullet" | "numbered") => {
+    const targetIdx = activeBlockIndex !== null && activeBlockIndex >= 0 && activeBlockIndex < blocks.length
+      ? activeBlockIndex
+      : blocks.length - 1;
+
+    if (targetIdx >= 0 && blocks[targetIdx]) {
+      const current = blocks[targetIdx];
+      let items: any[] = [];
+
+      if (current.type === "list") {
+        const rawItems = current.data.items || [];
+        if (listType === "checklist") {
+          items = rawItems.map((it: any) =>
+            typeof it === "object" ? it : { checked: false, text: String(it) }
+          );
+        } else {
+          items = rawItems.map((it: any) =>
+            typeof it === "object" ? it.text || "" : String(it)
+          );
+        }
+      } else {
+        const text = current.data.text || current.data.quote || "";
+        const lines = text.split("\n").filter(Boolean);
+        const sourceLines = lines.length > 0 ? lines : [""];
+
+        if (listType === "checklist") {
+          items = sourceLines.map((line: string) => ({ checked: false, text: line }));
+        } else {
+          items = sourceLines;
+        }
+      }
+
+      const updated: EditorBlock = {
+        ...current,
+        type: "list",
+        data: {
+          listType,
+          items,
+        },
+      };
+      const newBlocks = [...blocks];
+      newBlocks[targetIdx] = updated;
+      setBlocks(newBlocks);
+      pushHistory(newBlocks);
+      setSaveStatus("Chưa lưu");
+      toast.success(
+        `Đã chuyển thành ${
+          listType === "checklist"
+            ? "Danh sách tích chọn"
+            : listType === "numbered"
+            ? "Danh sách đánh số"
+            : "Danh sách dấu chấm"
+        }`
+      );
+    } else {
+      const defaultItems = listType === "checklist" ? [{ checked: false, text: "" }] : [""];
+      const newBlock = createDefaultBlock("list");
+      newBlock.data = { listType, items: defaultItems };
+      const newBlocks = [...blocks, newBlock];
+      setBlocks(newBlocks);
+      pushHistory(newBlocks);
+      setActiveBlockIndex(newBlocks.length - 1);
+      setSaveStatus("Chưa lưu");
+      toast.success("Đã thêm danh sách mới");
+    }
+  };
+
+  // 4. Align text (Left, Center, Right, Justify)
+  const handleAlignText = (align: "left" | "center" | "right" | "justify") => {
+    const targetIdx = activeBlockIndex !== null && activeBlockIndex >= 0 && activeBlockIndex < blocks.length
+      ? activeBlockIndex
+      : 0;
+
+    if (blocks[targetIdx]) {
+      const updated = {
+        ...blocks[targetIdx],
+        data: {
+          ...blocks[targetIdx].data,
+          align,
+        },
+      };
+      const newBlocks = [...blocks];
+      newBlocks[targetIdx] = updated;
+      setBlocks(newBlocks);
+      pushHistory(newBlocks);
+      setSaveStatus("Chưa lưu");
+      const alignName =
+        align === "center"
+          ? "giữa"
+          : align === "right"
+          ? "phải"
+          : align === "justify"
+          ? "đều 2 bên"
+          : "trái";
+      toast.success(`Đã căn ${alignName}`);
+    }
+  };
+
+  // 5. Font Size changes (+ / -)
+  const handleFontSizeChange = (delta: number) => {
+    const targetIdx = activeBlockIndex !== null && activeBlockIndex >= 0 && activeBlockIndex < blocks.length
+      ? activeBlockIndex
+      : 0;
+
+    if (blocks[targetIdx]) {
+      const currentSize = blocks[targetIdx].data.fontSize || 16;
+      const nextSize = Math.max(12, Math.min(48, currentSize + delta));
+      const updated = {
+        ...blocks[targetIdx],
+        data: {
+          ...blocks[targetIdx].data,
+          fontSize: nextSize,
+        },
+      };
+      const newBlocks = [...blocks];
+      newBlocks[targetIdx] = updated;
+      setBlocks(newBlocks);
+      pushHistory(newBlocks);
+      setSaveStatus("Chưa lưu");
+    }
+  };
+
+  // Calculate current block styles for Docs Toolbar state
+  const currentActiveBlock = activeBlockIndex !== null && blocks[activeBlockIndex] ? blocks[activeBlockIndex] : null;
+  const currentStyle = currentActiveBlock?.type === "heading"
+    ? currentActiveBlock.data.level === 3
+      ? "Tiêu đề 2 (H3)"
+      : currentActiveBlock.data.level === 4
+      ? "Tiêu đề 3 (H4)"
+      : "Tiêu đề 1 (H2)"
+    : currentActiveBlock?.type === "quote"
+    ? "Trích dẫn"
+    : "Văn bản thường";
+
+  const currentFontSize = currentActiveBlock?.data?.fontSize || 16;
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && tagInput.trim()) {
@@ -359,15 +685,31 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         onPreview={() => setShowPreview(true)}
         showSettings={showSettings}
         onToggleSettings={() => setShowSettings(!showSettings)}
-        onInsertBlock={handleInsertBlockFromToolbar}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        canUndo={historyIndex > 0}
+        canRedo={historyIndex < history.length - 1}
+        onFormatText={handleFormatText}
+        onChangeActiveBlockType={handleChangeActiveBlockType}
+        onConvertToList={handleConvertToList}
+        onAlignText={handleAlignText}
         onInsertTable={handleInsertTableFromToolbar}
-        onChangeActiveBlockType={(type, level) => {
-          if (type === "heading") {
-            handleInsertBlockFromToolbar("heading", { level: level || 2, text: "" });
-          } else {
-            handleInsertBlockFromToolbar("text");
-          }
-        }}
+        onTriggerImageUpload={() => hiddenImageInputRef.current?.click()}
+        onInsertBlock={handleInsertBlockFromToolbar}
+        currentStyle={currentStyle}
+        fontSize={currentFontSize}
+        onFontSizeChange={handleFontSizeChange}
+        zoom={zoom}
+        onZoomChange={(newZoom) => setZoom(newZoom)}
+      />
+
+      {/* Hidden file input for toolbar image insertion */}
+      <input
+        ref={hiddenImageInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleToolbarImageUpload}
       />
 
       {/* 2. GOOGLE DOCS RULER */}
@@ -378,6 +720,11 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         {/* THE SINGLE PAGELESS DOCUMENT SHEET (Tờ giấy duy nhất - Co giãn vô tận) */}
         <div
           onPaste={handleDocumentPaste}
+          style={{
+            transform: `scale(${parseInt(zoom, 10) / 100})`,
+            transformOrigin: "top center",
+            transition: "transform 0.2s ease-in-out",
+          }}
           className="w-full max-w-[850px] bg-white shadow-[0_1px_3px_rgba(60,64,67,0.15),0_4px_8px_rgba(60,64,67,0.1)] rounded-sm min-h-[1100px] flex flex-col justify-between transition-all px-8 sm:px-14 md:px-18 py-10 md:py-14"
         >
           {/* ============================================================== */}
@@ -486,8 +833,16 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
             {editorMode === "visual" ? (
               <VisualBlockEditor
                 blocks={blocks}
+                activeBlockIndex={activeBlockIndex}
+                onSelectBlock={(idx, start, end) => {
+                  setActiveBlockIndex(idx);
+                  if (typeof start === "number" && typeof end === "number") {
+                    setSelectionInfo({ start, end });
+                  }
+                }}
                 onChange={(newBlocks) => {
                   setBlocks(newBlocks);
+                  pushHistory(newBlocks);
                   setSaveStatus("Chưa lưu");
                 }}
               />

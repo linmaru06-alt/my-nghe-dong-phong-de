@@ -69,8 +69,8 @@ export function createDefaultBlock(type: BlockType): EditorBlock {
         type,
         data: {
           url: "",
-          alt: "Cận cảnh thớ gỗ tự nhiên Mỹ Nghệ Đông Phong",
-          caption: "Ảnh chụp thực tế phôi gỗ già cỗi nhiều năm tuổi tại xưởng",
+          alt: "Ảnh bài viết",
+          caption: "",
         },
       };
 

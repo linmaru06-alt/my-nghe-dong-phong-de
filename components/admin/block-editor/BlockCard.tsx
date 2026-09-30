@@ -464,16 +464,28 @@ export function BlockCard({
           </div>
         )}
 
-        {/* 3. IMAGE BLOCK (With alignment, caption & direct upload) */}
+        {/* 3. IMAGE BLOCK (Hiển thị thuần túy hình ảnh, không thừa thãi) */}
         {block.type === "image" && (
-          <div className="my-4 p-4 rounded-xl border border-[#E1E5EA] bg-[#F8F9FA]/80 space-y-3">
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="relative w-full sm:w-80 aspect-[16/10] rounded-lg overflow-hidden bg-white border border-[#DADCE0] flex items-center justify-center flex-shrink-0 group/img shadow-xs">
-                {block.data.url ? (
-                  <>
-                    <Image src={block.data.url} alt={block.data.alt || "Ảnh bài viết"} fill className="object-cover" />
-                    <label className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 flex items-center justify-center cursor-pointer transition-opacity text-white text-xs font-semibold gap-1">
-                      <span>Thay đổi ảnh</span>
+          <div className="my-4 group/image-block relative">
+            {block.data.url ? (
+              <div className="relative flex flex-col items-center">
+                {/* Khung chứa ảnh tự nhiên, vừa vặn khổ giấy */}
+                <div className="relative max-w-full rounded-lg overflow-hidden border border-[#E8DFC8]/40 shadow-xs bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={block.data.url}
+                    alt={block.data.alt || "Ảnh minh họa bài viết"}
+                    className="max-h-[650px] w-auto max-w-full object-contain mx-auto rounded-lg select-none"
+                    loading="lazy"
+                  />
+
+                  {/* Nút thao tác nhanh chỉ hiện khi rê chuột lên ảnh */}
+                  <div className="absolute top-2.5 right-2.5 opacity-0 group-hover/image-block:opacity-100 transition-opacity flex items-center gap-1.5 bg-black/60 backdrop-blur-xs p-1 rounded-lg shadow-md">
+                    <label
+                      className="p-1.5 text-white/90 hover:text-white hover:bg-white/20 rounded cursor-pointer transition-colors"
+                      title="Thay đổi ảnh khác"
+                    >
+                      <ImageIcon className="w-4 h-4" />
                       <input
                         type="file"
                         accept="image/*"
@@ -485,55 +497,46 @@ export function BlockCard({
                         disabled={isUploading}
                       />
                     </label>
-                  </>
-                ) : (
-                  <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center p-4 hover:bg-[#F1F3F4] transition-colors">
-                    {isUploading ? (
-                      <Loader2 className="w-8 h-8 animate-spin text-[#1A73E8]" />
-                    ) : (
-                      <ImageIcon className="w-10 h-10 text-[#70757A] mb-2" />
-                    )}
-                    <span className="text-xs font-semibold text-[#1F1F1F]">Click để chọn ảnh hoặc dán URL</span>
-                    <span className="text-[11px] text-[#5F6368] mt-0.5">(Hoặc copy ảnh và bấm Ctrl+V)</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleUploadImageFile(file);
-                      }}
-                      disabled={isUploading}
-                    />
-                  </label>
+                    <button
+                      type="button"
+                      onClick={onDelete}
+                      className="p-1.5 text-white/90 hover:text-red-400 hover:bg-white/20 rounded transition-colors"
+                      title="Xóa ảnh"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Chú thích ảnh tối giản (chỉ hiện nếu người dùng có nhập caption) */}
+                {block.data.caption && (
+                  <p className="mt-2 text-center text-xs text-[#5F6368] italic font-serif">
+                    {block.data.caption}
+                  </p>
                 )}
               </div>
-
-              {/* Image Details */}
-              <div className="flex-1 w-full space-y-2.5">
-                <div>
-                  <label className="text-[11px] font-semibold text-[#5F6368] uppercase block mb-1">Đường dẫn ảnh (URL)</label>
-                  <input
-                    type="text"
-                    value={block.data.url || ""}
-                    onChange={(e) => onUpdate({ ...block.data, url: e.target.value })}
-                    placeholder="https://example.com/anh-go-quy.jpg"
-                    className="w-full bg-white border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] font-mono focus:border-[#1A73E8] outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-semibold text-[#5F6368] uppercase block mb-1">Chú thích ảnh (Caption)</label>
-                  <input
-                    type="text"
-                    value={block.data.caption || ""}
-                    onChange={(e) => onUpdate({ ...block.data, caption: e.target.value })}
-                    placeholder="Ảnh chụp thớ gỗ vân mây tự nhiên tại xưởng Đông Phong..."
-                    className="w-full bg-white border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] italic focus:border-[#1A73E8] outline-none"
-                  />
-                </div>
-              </div>
-            </div>
+            ) : (
+              /* Khung tải ảnh gọn nhẹ khi chưa có ảnh */
+              <label className="cursor-pointer w-full py-8 border-2 border-dashed border-[#DADCE0] hover:border-[#C5A059] rounded-xl flex flex-col items-center justify-center bg-[#FAF8F5]/60 hover:bg-[#FAF8F5] transition-all">
+                {isUploading ? (
+                  <Loader2 className="w-7 h-7 animate-spin text-[#1A73E8]" />
+                ) : (
+                  <ImageIcon className="w-8 h-8 text-[#70757A] mb-2" />
+                )}
+                <span className="text-xs font-semibold text-[#1F1F1F]">Click để chọn ảnh từ máy tính</span>
+                <span className="text-[11px] text-[#5F6368] mt-0.5">(Hoặc copy ảnh và bấm Ctrl + V)</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleUploadImageFile(file);
+                  }}
+                  disabled={isUploading}
+                />
+              </label>
+            )}
           </div>
         )}
 

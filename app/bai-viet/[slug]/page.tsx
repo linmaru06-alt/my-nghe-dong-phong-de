@@ -27,14 +27,36 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const thumb = post.thumbnail || "/images/placeholder.svg";
+  const postUrl = `https://mynghedongphong.vn/bai-viet/${post.slug}`;
+  const metaDesc = post.excerpt?.slice(0, 160) || `${post.title} - Kiến thức đồ gỗ quý phong thủy thủ công Mỹ Nghệ Đông Phong.`;
 
   return {
     title: `${post.title} | Mỹ Nghệ Đông Phong`,
-    description: post.excerpt?.slice(0, 160) || "",
+    description: metaDesc,
+    alternates: {
+      canonical: postUrl,
+    },
     openGraph: {
       title: `${post.title} — Mỹ Nghệ Đông Phong`,
-      description: post.excerpt?.slice(0, 160) || "",
-      images: [{ url: thumb }],
+      description: metaDesc,
+      url: postUrl,
+      type: "article",
+      publishedTime: post.publishedAt,
+      authors: ["Nghệ nhân Đông Phong"],
+      images: [
+        {
+          url: thumb,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${post.title} | Mỹ Nghệ Đông Phong`,
+      description: metaDesc,
+      images: [thumb],
     },
   };
 }

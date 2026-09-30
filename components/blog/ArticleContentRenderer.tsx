@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import {
   Sparkles,
   Quote,
@@ -62,12 +63,17 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
           case "heading": {
             const level = Number(block.data.level) || 2;
             const headingId = slugifyHeading(block.data.text || "");
+            const headingStyle = {
+              textAlign: block.data.align || "left",
+              fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
+            };
 
             if (level === 2) {
               return (
                 <h2
                   key={block.id}
                   id={headingId}
+                  style={headingStyle}
                   className="font-serif text-2xl md:text-3xl font-bold text-[#3D2314] mt-10 mb-4 pb-2 border-b border-border/70 scroll-mt-24"
                 >
                   {block.data.text}
@@ -79,6 +85,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                 <h3
                   key={block.id}
                   id={headingId}
+                  style={headingStyle}
                   className="font-serif text-xl md:text-2xl font-bold text-[#5C3A21] mt-8 mb-3 scroll-mt-24"
                 >
                   {block.data.text}
@@ -89,6 +96,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
               <h4
                 key={block.id}
                 id={headingId}
+                style={headingStyle}
                 className="font-serif text-lg font-bold text-[#5C3A21] mt-6 mb-2 scroll-mt-24"
               >
                 {block.data.text}
@@ -98,8 +106,15 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
 
           case "text": {
             return (
-              <div key={block.id} className="prose prose-stone max-w-none text-[#2A160C] text-sm md:text-base leading-relaxed">
-                <ReactMarkdown>{block.data.text || ""}</ReactMarkdown>
+              <div
+                key={block.id}
+                style={{
+                  textAlign: block.data.align || "left",
+                  fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
+                }}
+                className="prose prose-stone max-w-none text-[#2A160C] text-sm md:text-base leading-relaxed"
+              >
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.data.text || ""}</ReactMarkdown>
               </div>
             );
           }
@@ -152,7 +167,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                     </h4>
                   )}
                   <div className="prose prose-stone text-xs md:text-sm text-[#3D2C21] leading-relaxed">
-                    <ReactMarkdown>{block.data.leftContent || ""}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.data.leftContent || ""}</ReactMarkdown>
                   </div>
                 </div>
 
@@ -163,7 +178,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                     </h4>
                   )}
                   <div className="prose prose-stone text-xs md:text-sm text-[#3D2C21] leading-relaxed">
-                    <ReactMarkdown>{block.data.rightContent || ""}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.data.rightContent || ""}</ReactMarkdown>
                   </div>
                 </div>
               </div>
@@ -185,7 +200,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                   </h3>
                 </div>
                 <div className="prose prose-stone text-sm md:text-base text-[#2A160C] leading-relaxed pl-1">
-                  <ReactMarkdown>{block.data.content || ""}</ReactMarkdown>
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.data.content || ""}</ReactMarkdown>
                 </div>
               </div>
             );
@@ -362,7 +377,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                   {block.data.title || "Lời Kết & Cam Kết Chất Lượng"}
                 </h3>
                 <div className="prose prose-stone max-w-2xl mx-auto text-sm md:text-base text-[#5A4A42] leading-relaxed mb-5">
-                  <ReactMarkdown>{block.data.content || ""}</ReactMarkdown>
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.data.content || ""}</ReactMarkdown>
                 </div>
                 <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#C5A059] uppercase tracking-wider">
                   <Sparkles className="w-3.5 h-3.5" />

@@ -12,11 +12,15 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "check:pre-push": "node scripts/pre-push-check.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "ai:fetch-news": "node scripts/ai-news-agent.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.13.0",
     "@supabase/supabase-js": "^2.117.2",
     "cloudinary": "^2.11.0",
+    "dotenv": "^16.4.5",
+    "rss-parser": "^3.13.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.2.10",
     "lucide-react": "^0.395.0",

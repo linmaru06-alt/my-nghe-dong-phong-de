@@ -8,6 +8,7 @@ import { Catalog } from "./_pages/Catalog";
 import { ProductDetail } from "./_pages/ProductDetail";
 import { About } from "./_pages/About";
 import { Articles } from "./_pages/Articles";
+import { News } from "./_pages/News";
 import { ArticleDetail } from "./_pages/ArticleDetail";
 import { Contact } from "./_pages/Contact";
 import { Admin } from "./_pages/Admin";
@@ -169,6 +170,13 @@ export function App() {
 
         {currentRoute === "articles" && (
           <Articles
+            articles={articles}
+            onSelectArticle={handleSelectArticle}
+          />
+        )}
+
+        {currentRoute === "news" && (
+          <News
             articles={articles}
             onSelectArticle={handleSelectArticle}
           />

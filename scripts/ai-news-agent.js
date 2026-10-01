@@ -57,8 +57,8 @@ Nhiệm vụ:
   "title": "Tiêu đề tiếng Việt, hấp dẫn, ngắn gọn",
   "excerpt": "Đoạn tóm tắt khoảng 2 câu",
   "content": "Nội dung bài viết chi tiết, diễn xuôi, có sử dụng thẻ HTML cơ bản như <p>, <h2>, <ul>",
-  "group": "kien-thuc",
-  "groupName": "Kiến thức tổng hợp",
+  "group": "tin-tuc",
+  "groupName": "Tin tức ngành",
   "status": "draft"
 }
 `;
@@ -102,8 +102,8 @@ async function main() {
         id: `ai-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
         title: processed.title,
         slug: safeSlug,
-        group: processed.group || 'kien-thuc', 
-        groupName: processed.groupName || 'Kiến thức tổng hợp',
+        group: 'tin-tuc', 
+        groupName: processed.groupName || 'Tin tức ngành',
         author: 'AI Curation',
         publishedAt: new Date().toISOString(),
         thumbnail: '/assets/images/articles/default.webp',

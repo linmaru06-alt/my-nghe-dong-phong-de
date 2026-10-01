@@ -9,6 +9,7 @@ export function Header({ currentRoute, onNavigate, searchQuery, onSearchChange }
     { key: "products", label: "Sản phẩm" },
     { key: "about", label: "Giới thiệu" },
     { key: "articles", label: "Kiến thức đồ gỗ" },
+    { key: "news", label: "Tin tức" },
     { key: "contact", label: "Liên hệ" },
     { key: "admin", label: "Quản trị CMS" }
   ];

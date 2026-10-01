@@ -30,7 +30,6 @@ import { markdownToBlocks, blocksToMarkdown, EditorBlock, BlockType, createDefau
 import { ArticleContentRenderer } from "@/components/blog/ArticleContentRenderer";
 import { AutoResizeTextarea } from "@/components/ui/AutoResizeTextarea";
 import { GoogleDocsToolbar } from "./docs-editor/GoogleDocsToolbar";
-import { GoogleDocsRuler } from "./docs-editor/GoogleDocsRuler";
 
 export interface BlogFormData {
   id?: string;
@@ -712,8 +711,6 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         onChange={handleToolbarImageUpload}
       />
 
-      {/* 2. GOOGLE DOCS RULER */}
-      <GoogleDocsRuler />
 
       {/* 3. WORKSPACE CANVAS (Single Pageless Paper Sheet) */}
       <div className="flex-1 overflow-y-auto relative flex justify-center py-6 px-3 sm:px-6">

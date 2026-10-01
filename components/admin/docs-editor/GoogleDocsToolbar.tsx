@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -98,6 +98,22 @@ export function GoogleDocsToolbar({
   const [showAlignMenu, setShowAlignMenu] = useState(false);
   const [activeTextColor, setActiveTextColor] = useState("#3D2314");
   const [activeHighlightColor, setActiveHighlightColor] = useState("#D97706");
+  
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
+
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      if (typeof document !== "undefined") {
+        setIsBold(document.queryCommandState("bold"));
+        setIsItalic(document.queryCommandState("italic"));
+        setIsUnderline(document.queryCommandState("underline"));
+      }
+    };
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () => document.removeEventListener("selectionchange", handleSelectionChange);
+  }, []);
 
   const textColors = [
     { name: "Đen mộc tiêu chuẩn", value: "#1F1610" },
@@ -383,31 +399,46 @@ export function GoogleDocsToolbar({
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
-          onClick={() => onFormatText("bold")}
-          className="w-8 h-8 flex items-center justify-center rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
+          onClick={() => {
+            onFormatText("bold");
+            setIsBold(!isBold); // Optimistic UI update
+          }}
+          className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${
+            isBold ? "bg-[#D3E3FD] text-[#041E49]" : "hover:bg-black/10 text-[#444746]"
+          }`}
           title="In đậm chữ đang chọn (Ctrl+B)"
         >
-          <span className="font-bold text-[17px] font-sans text-[#444746]">B</span>
+          <span className="font-bold text-[17px] font-sans">B</span>
         </button>
 
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
-          onClick={() => onFormatText("italic")}
-          className="w-8 h-8 flex items-center justify-center rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
+          onClick={() => {
+            onFormatText("italic");
+            setIsItalic(!isItalic);
+          }}
+          className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${
+            isItalic ? "bg-[#D3E3FD] text-[#041E49]" : "hover:bg-black/10 text-[#444746]"
+          }`}
           title="In nghiêng chữ đang chọn (Ctrl+I)"
         >
-          <span className="italic font-serif text-[18px] text-[#444746] pr-1">I</span>
+          <span className="italic font-serif text-[18px] pr-1">I</span>
         </button>
 
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
-          onClick={() => onFormatText("underline")}
-          className="w-8 h-8 flex items-center justify-center rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
+          onClick={() => {
+            onFormatText("underline");
+            setIsUnderline(!isUnderline);
+          }}
+          className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${
+            isUnderline ? "bg-[#D3E3FD] text-[#041E49]" : "hover:bg-black/10 text-[#444746]"
+          }`}
           title="Gạch chân chữ đang chọn (Ctrl+U)"
         >
-          <span className="underline underline-offset-2 text-[17px] font-sans text-[#444746]">U</span>
+          <span className="underline underline-offset-2 text-[17px] font-sans">U</span>
         </button>
 
         {/* Text Color Picker */}

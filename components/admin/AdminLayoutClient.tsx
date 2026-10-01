@@ -4,6 +4,7 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import AdminAuthGuard from "@/components/admin/AdminAuthGuard";
+import { cn } from "@/lib/utils";
 
 export default function AdminLayoutClient({
   children,
@@ -17,11 +18,18 @@ export default function AdminLayoutClient({
     return <AdminAuthGuard>{children}</AdminAuthGuard>;
   }
 
+  const isBlogEditor = pathname.includes("/bai-viet/them") || (pathname.includes("/bai-viet/") && !pathname.endsWith("/bai-viet"));
+
   return (
     <AdminAuthGuard>
       <div className="min-h-screen bg-[#F8F6F2] flex">
         <AdminSidebar />
-        <main className="flex-1 lg:ml-64 p-4 md:p-8 min-h-screen overflow-x-auto">
+        <main
+          className={cn(
+            "flex-1 lg:ml-64 min-h-screen overflow-x-auto",
+            isBlogEditor ? "p-0" : "p-4 md:p-8"
+          )}
+        >
           {children}
         </main>
       </div>

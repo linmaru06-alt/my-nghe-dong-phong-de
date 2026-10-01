@@ -672,7 +672,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F0F4F9] -m-6 md:-m-8">
+    <div className="flex flex-col min-h-screen bg-[#F0F4F9]">
       {/* 1. GOOGLE DOCS TOPBAR & TOOLBAR */}
       <GoogleDocsToolbar
         title={formData.title}
@@ -716,7 +716,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       <GoogleDocsRuler />
 
       {/* 3. WORKSPACE CANVAS (Single Pageless Paper Sheet) */}
-      <div className="flex-1 overflow-y-auto relative flex justify-center pt-0 pb-6 px-3 sm:px-6">
+      <div className="flex-1 overflow-y-auto relative flex justify-center py-6 px-3 sm:px-6">
         {/* THE SINGLE PAGELESS DOCUMENT SHEET (Tờ giấy duy nhất - Co giãn vô tận) */}
         <div
           onPaste={handleDocumentPaste}

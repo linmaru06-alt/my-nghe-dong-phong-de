@@ -8,7 +8,6 @@ import {
   CloudUpload,
   Undo2,
   Redo2,
-  Printer,
   Paintbrush,
   Bold,
   Italic,
@@ -235,16 +234,6 @@ export function GoogleDocsToolbar({
           title="Làm lại (Ctrl+Y)"
         >
           <Redo2 className="w-4 h-4" />
-        </button>
-
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => window.print()}
-          className="p-1.5 rounded hover:bg-black/5 transition-colors hidden md:block"
-          title="In tài liệu (Ctrl+P)"
-        >
-          <Printer className="w-4 h-4" />
         </button>
 
         <button

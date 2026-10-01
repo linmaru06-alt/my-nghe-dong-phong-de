@@ -777,37 +777,8 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
               />
             </div>
 
-            {/* Dải Metadata: Chuyên mục, Sapo, Tác giả, Thời gian đọc */}
+            {/* Dải Metadata: Sapo */}
             <div className="space-y-4 pt-2">
-              <div className="flex flex-wrap items-center gap-3 text-xs">
-                {/* Category Selector */}
-                <div className="flex items-center gap-1.5 bg-[#EDF2FA] text-[#1A73E8] px-3 py-1 rounded-full font-medium border border-[#D3E3FD]">
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <select
-                    value={formData.category}
-                    onChange={(e) => {
-                      setFormData((p) => ({ ...p, category: e.target.value }));
-                      setSaveStatus("Chưa lưu");
-                    }}
-                    className="bg-transparent font-semibold text-xs outline-none cursor-pointer"
-                  >
-                    <option value="kien-thuc-ve-go">Kiến Thức Về Gỗ</option>
-                    <option value="vat-pham-phong-thuy">Vật Phẩm Phong Thủy</option>
-                    <option value="nghe-thuat-che-tac">Nghệ Thuật Chế Tác</option>
-                    <option value="tin-tuc-su-kien">Tin Tức Xưởng Đông Phong</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-1 text-[#5F6368]">
-                  <Clock className="w-3.5 h-3.5 text-[#C5A059]" />
-                  <span>Ước tính: {formData.readingTime} phút đọc</span>
-                </div>
-
-                <div className="text-[#5F6368]">
-                  <span>Tác giả: <strong>Nghệ nhân Đông Phong</strong></span>
-                </div>
-              </div>
-
               {/* Sapo / Tóm tắt mở đầu bài viết */}
               <div>
                 <AutoResizeTextarea
@@ -967,6 +938,63 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                     Markdown
                   </button>
                 </div>
+              </div>
+
+              {/* Chuyên mục */}
+              <div>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Chuyên mục</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => {
+                    setFormData((p) => ({ ...p, category: e.target.value }));
+                    setSaveStatus("Chưa lưu");
+                  }}
+                  className="w-full bg-[#FAF8F5] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] focus:border-[#1A73E8] outline-none"
+                >
+                  <option value="kien-thuc-ve-go">Kiến Thức Về Gỗ</option>
+                  <option value="vat-pham-phong-thuy">Vật Phẩm Phong Thủy</option>
+                  <option value="nghe-thuat-che-tac">Nghệ Thuật Chế Tác</option>
+                  <option value="tin-tuc-su-kien">Tin Tức Xưởng Đông Phong</option>
+                </select>
+              </div>
+
+              {/* Tác giả */}
+              <div>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Tác giả</label>
+                <input
+                  type="text"
+                  value="Nghệ nhân Đông Phong"
+                  disabled
+                  className="w-full bg-[#F1F3F4] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#5F6368] cursor-not-allowed outline-none"
+                />
+              </div>
+
+              {/* Thời gian đọc */}
+              <div>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 flex justify-between">
+                  <span>Thời gian đọc (phút)</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsReadingTimeManual(false);
+                      toast.success("Đã bật tự động tính thời gian đọc");
+                    }}
+                    className="text-[11px] text-[#1A73E8] hover:underline flex items-center gap-0.5"
+                  >
+                    <Wand2 className="w-3 h-3" /> Tự động
+                  </button>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={formData.readingTime}
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, readingTime: parseInt(e.target.value) || 1 }));
+                    setIsReadingTimeManual(true);
+                    setSaveStatus("Chưa lưu");
+                  }}
+                  className="w-full bg-[#FAF8F5] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] focus:border-[#1A73E8] outline-none"
+                />
               </div>
 
               {/* Slug URL */}

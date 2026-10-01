@@ -9,9 +9,6 @@ import {
   Undo2,
   Redo2,
   Paintbrush,
-  Bold,
-  Italic,
-  Underline,
   Link2,
   Image as ImageIcon,
   Table as TableIcon,
@@ -31,7 +28,6 @@ import {
   Quote,
   Minus,
   MessageCircle,
-  Highlighter,
 } from "lucide-react";
 import { BlockType } from "@/lib/blockEditor";
 
@@ -100,6 +96,8 @@ export function GoogleDocsToolbar({
   const [showInsertMenu, setShowInsertMenu] = useState(false);
   const [showZoomMenu, setShowZoomMenu] = useState(false);
   const [showAlignMenu, setShowAlignMenu] = useState(false);
+  const [activeTextColor, setActiveTextColor] = useState("#3D2314");
+  const [activeHighlightColor, setActiveHighlightColor] = useState("#D97706");
 
   const textColors = [
     { name: "Đen mộc tiêu chuẩn", value: "#1F1610" },
@@ -386,104 +384,80 @@ export function GoogleDocsToolbar({
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => onFormatText("bold")}
-          className="p-1.5 rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
           title="In đậm chữ đang chọn (Ctrl+B)"
         >
-          <Bold className="w-4 h-4" />
+          <span className="font-bold text-[17px] font-sans text-[#444746]">B</span>
         </button>
 
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => onFormatText("italic")}
-          className="p-1.5 rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
           title="In nghiêng chữ đang chọn (Ctrl+I)"
         >
-          <Italic className="w-4 h-4" />
+          <span className="italic font-serif text-[18px] text-[#444746] pr-1">I</span>
         </button>
 
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => onFormatText("underline")}
-          className="p-1.5 rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded hover:bg-black/10 active:bg-[#D3E3FD] transition-colors"
           title="Gạch chân chữ đang chọn (Ctrl+U)"
         >
-          <Underline className="w-4 h-4" />
+          <span className="underline underline-offset-2 text-[17px] font-sans text-[#444746]">U</span>
         </button>
 
-        {/* Text Color Dropdown */}
-        <div className="relative">
+        {/* Text Color Picker */}
+        <div className="relative flex items-center">
           <button
             type="button"
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setShowColorMenu(!showColorMenu)}
-            className="p-1.5 rounded hover:bg-black/5 transition-colors flex flex-col items-center"
-            title="Đổi màu chữ đang chọn"
+            className="w-8 h-8 flex flex-col items-center justify-center rounded hover:bg-black/5 transition-colors relative"
+            title="Màu chữ"
           >
-            <span className="font-bold text-xs leading-none">A</span>
-            <div className="w-3.5 h-0.5 bg-[#3D2314] mt-0.5 rounded-full" />
+            <span className="font-bold text-[15px] leading-none text-[#1A73E8]">A</span>
+            <div 
+              className="w-4 h-[3px] mt-0.5 rounded-full" 
+              style={{ backgroundColor: activeTextColor }}
+            />
           </button>
-
-          {showColorMenu && (
-            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 p-2">
-              <div className="text-[10px] font-semibold text-[#5F6368] uppercase mb-1.5">Màu chữ gỗ quý</div>
-              <div className="space-y-1">
-                {textColors.map((c) => (
-                  <button
-                    key={c.value}
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      onFormatText("color", c.value);
-                      setShowColorMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-2 py-1 text-xs hover:bg-[#F1F3F4] rounded text-left"
-                  >
-                    <span className="w-3.5 h-3.5 rounded-full border border-black/15 shadow-2xs" style={{ backgroundColor: c.value }} />
-                    <span className="truncate text-[#1F1F1F]">{c.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <input 
+            type="color" 
+            value={activeTextColor}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            onChange={(e) => {
+              setActiveTextColor(e.target.value);
+              onFormatText('color', e.target.value);
+            }}
+          />
         </div>
 
-        {/* Highlight Color */}
-        <div className="relative">
+        {/* Highlight Color Picker */}
+        <div className="relative flex items-center">
           <button
             type="button"
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setShowHighlightMenu(!showHighlightMenu)}
-            className="p-1.5 rounded hover:bg-black/5 transition-colors"
-            title="Đánh dấu nền (Highlight) cho chữ đang chọn"
+            className="w-8 h-8 flex items-center justify-center rounded hover:bg-black/5 transition-colors relative"
+            title="Màu đánh dấu nền"
           >
-            <Highlighter className="w-4 h-4 text-[#D97706]" />
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={activeHighlightColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                <line x1="16" y1="8" x2="2" y2="22"></line>
+                <line x1="17.5" y1="15" x2="9" y2="15"></line>
+             </svg>
           </button>
-
-          {showHighlightMenu && (
-            <div className="absolute top-full left-0 mt-1 w-40 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 p-2">
-              <div className="text-[10px] font-semibold text-[#5F6368] uppercase mb-1.5">Màu nền highlight</div>
-              <div className="grid grid-cols-6 gap-1.5">
-                {highlightColors.map((h) => (
-                  <button
-                    key={h.value}
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      onFormatText("highlight", h.value);
-                      setShowHighlightMenu(false);
-                    }}
-                    title={h.name}
-                    className="w-5 h-5 rounded border border-black/15 flex items-center justify-center hover:scale-110 transition-transform"
-                    style={{ backgroundColor: h.value }}
-                  >
-                    {h.value === "transparent" && <Minus className="w-2.5 h-2.5 text-red-500" />}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <input 
+            type="color" 
+            value={activeHighlightColor}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            onChange={(e) => {
+              setActiveHighlightColor(e.target.value);
+              onFormatText('highlight', e.target.value);
+            }}
+          />
         </div>
 
         <div className="w-px h-4 bg-[#B4B9C2] mx-1" />

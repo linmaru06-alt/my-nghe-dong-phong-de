@@ -31,6 +31,7 @@ import {
 import { EditorBlock, BlockType } from "@/lib/blockEditor";
 import { toast } from "@/components/ui/Toast";
 import { AutoResizeTextarea } from "@/components/ui/AutoResizeTextarea";
+import { RichContentEditable } from "@/components/ui/RichContentEditable";
 
 export interface BlockCardProps {
   id: string;
@@ -201,30 +202,11 @@ export function BlockCard({
       }
     }
 
-    // Inline shortcuts: Ctrl+B, Ctrl+I, Ctrl+U, Ctrl+K
+    // For RichContentEditable, browser handles Ctrl+B, Ctrl+I, Ctrl+U natively.
+    // We only need to handle Ctrl+K if we want custom link UI, but let's just let the toolbar handle it or fallback to native.
     if (e.metaKey || e.ctrlKey) {
-      if (e.key === "b" || e.key === "i" || e.key === "k" || e.key === "u") {
-        e.preventDefault();
-        const el = e.currentTarget;
-        const start = el.selectionStart;
-        const end = el.selectionEnd;
-        const text = el.value;
-        const selected = text.substring(start, end);
-        let wrapped = "";
-
-        if (e.key === "b") wrapped = `**${selected}**`;
-        if (e.key === "i") wrapped = `*${selected}*`;
-        if (e.key === "u") wrapped = `<u>${selected}</u>`;
-        if (e.key === "k") wrapped = `[${selected || "liên kết"}](https://)`;
-
-        const newText = text.substring(0, start) + wrapped + text.substring(end);
-        onUpdate({ ...block.data, text: newText });
-
-        setTimeout(() => {
-          el.focus();
-          if (e.key === "k") el.setSelectionRange(start + wrapped.length - 9, start + wrapped.length - 1);
-          else el.setSelectionRange(start + wrapped.length, start + wrapped.length);
-        }, 0);
+      if (e.key === "b" || e.key === "i" || e.key === "u") {
+        // Native contentEditable handles this, so we don't preventDefault
         return;
       }
     }
@@ -385,24 +367,20 @@ export function BlockCard({
         {/* 1. TEXT / PARAGRAPH BLOCK */}
         {block.type === "text" && (
           <div className="relative">
-            <AutoResizeTextarea
+            <RichContentEditable
               id={`block-input-${index}`}
-              value={block.data.text || ""}
-              onChange={(e) => handleTextChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onPaste={handlePaste}
+              html={block.data.text || ""}
+              onChange={(val) => handleTextChange(val)}
+              onKeyDown={handleKeyDown as any}
+              onPaste={handlePaste as any}
               onFocus={() => onSelectBlock?.(index)}
-              onSelect={(e) => {
-                const el = e.currentTarget;
-                onSelectBlock?.(index, el.selectionStart, el.selectionEnd);
-              }}
+              onSelect={() => onSelectBlock?.(index)}
               style={{
                 textAlign: block.data.align || "left",
                 fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
               }}
               placeholder=""
-              rows={1}
-              className="w-full bg-transparent border-none rounded-none p-0 text-[16px] text-[#1F1610] focus:outline-none focus:ring-0 leading-[1.8] min-h-[1.8em] resize-none overflow-hidden font-sans tracking-normal whitespace-pre-wrap"
+              className="w-full bg-transparent border-none rounded-none p-0 text-[16px] text-[#1F1610] focus:outline-none focus:ring-0 leading-[1.8] min-h-[1.8em] font-sans tracking-normal break-words"
             />
 
             {/* Slash Menu */}
@@ -440,24 +418,20 @@ export function BlockCard({
         {/* 2. HEADING BLOCK (H2, H3, H4) */}
         {block.type === "heading" && (
           <div className="relative group/heading">
-            <AutoResizeTextarea
+            <RichContentEditable
               id={`block-heading-${index}`}
-              value={block.data.text || ""}
-              onChange={(e) => onUpdate({ ...block.data, text: e.target.value })}
-              onKeyDown={handleKeyDown}
-              onPaste={handlePaste}
+              html={block.data.text || ""}
+              onChange={(val) => onUpdate({ ...block.data, text: val })}
+              onKeyDown={handleKeyDown as any}
+              onPaste={handlePaste as any}
               onFocus={() => onSelectBlock?.(index)}
-              onSelect={(e) => {
-                const el = e.currentTarget;
-                onSelectBlock?.(index, el.selectionStart, el.selectionEnd);
-              }}
+              onSelect={() => onSelectBlock?.(index)}
               style={{
                 textAlign: block.data.align || "left",
                 fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
               }}
               placeholder=""
-              rows={1}
-              className={`w-full bg-transparent border-none rounded-none p-0 font-serif font-bold text-[#3D2314] focus:outline-none focus:ring-0 min-h-[1.4em] resize-none overflow-hidden ${
+              className={`w-full bg-transparent border-none rounded-none p-0 font-serif font-bold text-[#3D2314] focus:outline-none focus:ring-0 min-h-[1.4em] break-words ${
                 block.data.level === 3 ? "text-xl md:text-2xl mt-4 mb-2" : block.data.level === 4 ? "text-lg md:text-xl mt-3 mb-1" : "text-2xl md:text-3xl mt-6 mb-3 pb-1 border-b border-[#C5A059]/40"
               }`}
             />

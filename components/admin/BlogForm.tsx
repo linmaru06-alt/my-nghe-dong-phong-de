@@ -376,58 +376,34 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     format: "bold" | "italic" | "underline" | "strike" | "link" | "highlight" | "color",
     value?: string
   ) => {
-    let targetIdx = activeBlockIndex !== null && activeBlockIndex >= 0 && activeBlockIndex < blocks.length
-      ? activeBlockIndex
-      : 0;
-
-    let targetBlocks = [...blocks];
-    if (targetBlocks.length === 0) {
-      targetBlocks = [createDefaultBlock("text")];
-      targetIdx = 0;
-    }
-    const currentBlock = targetBlocks[targetIdx];
-
-    if (currentBlock.type === "text" || currentBlock.type === "heading" || currentBlock.type === "quote") {
-      const textKey = currentBlock.type === "quote" ? "quote" : "text";
-      const elId = currentBlock.type === "heading" ? `block-heading-${targetIdx}` : `block-input-${targetIdx}`;
-      const inputEl = document.getElementById(elId) as HTMLTextAreaElement | HTMLInputElement | null;
-
-      const fullText = (currentBlock.data[textKey] || "");
-      const start = inputEl ? inputEl.selectionStart ?? selectionInfo.start : selectionInfo.start;
-      const end = inputEl ? inputEl.selectionEnd ?? selectionInfo.end : selectionInfo.end;
-      const selected = fullText.substring(start, end);
-
-      let wrapped = "";
-      if (format === "bold") wrapped = `**${selected || "văn bản đậm"}**`;
-      else if (format === "italic") wrapped = `*${selected || "văn bản nghiêng"}*`;
-      else if (format === "underline") wrapped = `<u>${selected || "văn bản gạch chân"}</u>`;
-      else if (format === "strike") wrapped = `~~${selected || "văn bản gạch ngang"}~~`;
-      else if (format === "link") wrapped = `[${selected || "liên kết"}](${value || "https://"})`;
-      else if (format === "highlight") wrapped = `<mark style="background:${value || "#FFF59D"}">${selected || "nội dung nổi bật"}</mark>`;
-      else if (format === "color") wrapped = `<span style="color:${value || "#3D2314"}">${selected || "văn bản có màu"}</span>`;
-
-      const newText = fullText.substring(0, start) + wrapped + fullText.substring(end);
-      const updatedBlock = {
-        ...currentBlock,
-        data: {
-          ...currentBlock.data,
-          [textKey]: newText,
-        },
-      };
-      targetBlocks[targetIdx] = updatedBlock;
-      setBlocks(targetBlocks);
-      pushHistory(targetBlocks);
-      setSaveStatus("Chưa lưu");
-
-      setTimeout(() => {
-        if (inputEl) {
-          inputEl.focus();
-          const newPos = start + wrapped.length;
-          inputEl.setSelectionRange(newPos, newPos);
+    // With true WYSIWYG contentEditable, we just execute commands directly on the browser selection.
+    // The contentEditable's onInput handler will automatically sync the generated HTML to the block state.
+    
+    // Ensure we have focus on the editor area
+    if (document.activeElement && document.activeElement.hasAttribute('contenteditable')) {
+      if (format === "color") {
+        document.execCommand("foreColor", false, value || "#3D2314");
+      } else if (format === "highlight") {
+        // 'hiliteColor' works in most browsers, 'backColor' works in others
+        document.execCommand("hiliteColor", false, value || "transparent");
+        document.execCommand("backColor", false, value || "transparent");
+      } else if (format === "link") {
+        const url = prompt("Nhập đường dẫn liên kết:", "https://");
+        if (url) {
+          document.execCommand("createLink", false, url);
         }
-      }, 10);
+      } else if (format === "strike") {
+        document.execCommand("strikeThrough", false, "");
+      } else {
+        // bold, italic, underline
+        document.execCommand(format, false, "");
+      }
+      
+      // Force trigger state update by dispatching input event
+      document.activeElement.dispatchEvent(new Event('input', { bubbles: true }));
+      setSaveStatus("Chưa lưu");
     } else {
-      toast.info("Vui lòng chọn khối văn bản hoặc tiêu đề để áp dụng định dạng chữ");
+      toast.info("Vui lòng bôi đen chữ trong đoạn văn để áp dụng định dạng");
     }
   };
 

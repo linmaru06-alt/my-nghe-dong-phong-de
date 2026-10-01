@@ -26,8 +26,8 @@ export default function AdminLayoutClient({
         <AdminSidebar />
         <main
           className={cn(
-            "flex-1 lg:ml-64 min-h-screen overflow-x-auto",
-            isBlogEditor ? "p-0" : "p-4 md:p-8"
+            "flex-1 lg:ml-64 min-h-screen",
+            isBlogEditor ? "p-0" : "p-4 md:p-8 overflow-x-auto"
           )}
         >
           {children}

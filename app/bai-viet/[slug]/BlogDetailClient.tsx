@@ -2,19 +2,12 @@
 
 import React, { useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Calendar, Clock, ArrowLeft, Sparkles } from "lucide-react";
-import Breadcrumb from "@/components/ui/Breadcrumb";
-import Badge from "@/components/ui/Badge";
+import { Sparkles } from "lucide-react";
 import ReadingProgress from "@/components/ui/ReadingProgress";
-import TableOfContents, { TocItem } from "@/components/blog/TableOfContents";
 import ProductCard from "@/components/product/ProductCard";
-import BlogCard from "@/components/blog/BlogCard";
 import postsData from "@/data/posts.json";
 import productsData from "@/data/products.json";
-import { formatDate } from "@/lib/utils";
 import { ArticleContentRenderer } from "@/components/blog/ArticleContentRenderer";
-
 
 export interface BlogDetailClientProps {
   post?: any;
@@ -32,50 +25,30 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
         )
       : null);
 
-  // Extract headings from markdown content for TOC
-  const tocItems: TocItem[] = useMemo(() => {
-    if (!post?.content) return [];
-    const lines = post.content.split("\n");
-    const items: TocItem[] = [];
-
-    lines.forEach((line: string) => {
-      const h2Match = line.match(/^##\s+(.+)$/);
-      if (h2Match) {
-        const text = h2Match[1].trim();
-        const id = text
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, "")
-          .replace(/\s+/g, "-");
-        items.push({ id, text, level: 2 });
-      }
-
-      const h3Match = line.match(/^###\s+(.+)$/);
-      if (h3Match) {
-        const text = h3Match[1].trim();
-        const id = text
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, "")
-          .replace(/\s+/g, "-");
-        items.push({ id, text, level: 3 });
-      }
-    });
-
-    return items;
-  }, [post?.content]);
-
   // Related products
   const relatedProducts = useMemo(() => {
     if (!post?.relatedProducts || post.relatedProducts.length === 0) return [];
     return productsData.filter((p) => post.relatedProducts.includes(p.id));
   }, [post?.relatedProducts]);
 
-  // Related posts (same category, excluding current)
-  const relatedPosts = useMemo(() => {
+  // Recent posts
+  const recentPosts = useMemo(() => {
     if (!post) return [];
-    return postsData
-      .filter((p) => p.category === post.category && p.id !== post.id)
-      .slice(0, 3);
+    return [...postsData]
+      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+      .filter((p) => p.id !== post.id)
+      .slice(0, 5);
   }, [post]);
+
+  const getCategoryName = (cat: string) => {
+    switch (cat) {
+      case 'kien-thuc-ve-go': return 'KIẾN THỨC VỀ GỖ';
+      case 'vat-pham-phong-thuy': return 'VẬT PHẨM PHONG THỦY';
+      case 'nghe-thuat-che-tac': return 'NGHỆ THUẬT CHẾ TÁC';
+      case 'tin-tuc-su-kien': return 'TIN TỨC XƯỞNG ĐÔNG PHONG';
+      default: return 'TIN TỨC, BÀI VIẾT';
+    }
+  };
 
   if (!post) {
     return (
@@ -97,105 +70,62 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
   }
 
   return (
-    <div className="bg-bg min-h-screen pb-16 md:pb-24">
+    <div className="bg-white min-h-screen pb-16 md:pb-24">
       {/* Fixed Reading Progress Bar */}
       <ReadingProgress />
 
-      <div className="container mx-auto px-4 md:px-6 py-6 md:py-10">
-        {/* Breadcrumb */}
-        <Breadcrumb
-          items={[
-            { label: "Bài viết", href: "/bai-viet" },
-            { label: post.title },
-          ]}
-        />
+      <div className="container mx-auto px-4 md:px-8 py-8 md:py-12 max-w-6xl">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+          {/* Main Article Content */}
+          <article className="flex-1 lg:w-[70%]">
+            <header className="mb-6">
+              <div className="text-[13px] font-bold text-[#888] uppercase tracking-[0.05em] mb-3">
+                {getCategoryName(post.category)}
+              </div>
+              <h1 className="text-3xl md:text-[34px] font-bold text-[#111] mb-5 leading-tight">
+                {post.title}
+              </h1>
+              <div className="w-12 h-[3px] bg-[#ddd] mb-8"></div>
+            </header>
 
-        {/* Back link */}
-        <div className="my-4">
-          <Link
-            href="/bai-viet"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Quay lại cẩm nang bài viết</span>
-          </Link>
-        </div>
-
-        {/* Article Header */}
-        <header className="max-w-4xl mx-auto text-center py-6 md:py-10 border-b border-border mb-10">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Badge variant="wood">Cẩm nang đồ gỗ</Badge>
-            <span className="text-xs text-text-muted flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5" />
-              {formatDate(post.publishedAt)}
-            </span>
-            <span className="text-xs text-text-muted flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
-              {post.readingTime} phút đọc
-            </span>
-          </div>
-
-          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl font-bold text-primary leading-tight mb-6">
-            {post.title}
-          </h1>
-
-          <p className="text-base md:text-lg text-text-muted max-w-2xl mx-auto leading-relaxed italic">
-            &quot;{post.excerpt}&quot;
-          </p>
-        </header>
-
-        {/* Main Content Layout (Sidebar TOC + Article Body) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 max-w-6xl mx-auto">
-          {/* Article Body (8 cols) */}
-          <article className="lg:col-span-8 bg-surface p-6 md:p-10 rounded-card border border-border shadow-card">
-            {/* Featured Image */}
-            <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden mb-8 bg-accent-soft/30">
-              <Image
-                src={post.thumbnail}
-                alt={post.title}
-                fill
-                priority
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 65vw"
-              />
+            <div className="prose prose-lg max-w-none text-[#333] prose-headings:font-bold prose-headings:text-[#111] prose-a:text-[#337ab7] hover:prose-a:underline prose-li:marker:text-[#666]">
+              <ArticleContentRenderer content={post.content} />
             </div>
-
-            {/* Rich Block & Markdown Renderer */}
-            <ArticleContentRenderer content={post.content} />
           </article>
 
-          {/* Desktop Table of Contents Sidebar (4 cols) */}
-          <div className="hidden lg:block lg:col-span-4">
-            <TableOfContents items={tocItems} />
-          </div>
+          {/* Sidebar */}
+          <aside className="w-full lg:w-[30%]">
+            <div className="sticky top-28">
+              <h3 className="font-bold text-[15px] text-[#111] mb-2 uppercase tracking-wide">
+                BÀI VIẾT MỚI
+              </h3>
+              <div className="w-8 h-[2px] bg-[#ccc] mb-5"></div>
+              
+              <ul className="flex flex-col">
+                {recentPosts.map((rp) => (
+                  <li key={rp.id} className="border-b border-[#eee] last:border-0 py-3.5 first:pt-0">
+                    <Link href={`/bai-viet/${rp.slug}`} className="text-[#337ab7] text-[15px] hover:underline leading-relaxed block">
+                      {rp.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
         </div>
 
         {/* Related Products in this article */}
         {relatedProducts.length > 0 && (
-          <section className="max-w-6xl mx-auto mt-16 pt-10 border-t border-border">
+          <section className="mt-16 pt-10 border-t border-[#eee]">
             <div className="flex items-center gap-2 mb-6">
-              <Sparkles className="w-5 h-5 text-secondary" />
-              <h3 className="font-serif text-2xl font-bold text-primary">
+              <Sparkles className="w-5 h-5 text-[#C5A059]" />
+              <h3 className="font-serif text-2xl font-bold text-[#111]">
                 Tác Phẩm Được Đề Cập Trong Bài Viết
               </h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {relatedProducts.map((p) => (
                 <ProductCard key={p.id} {...p} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Related Posts */}
-        {relatedPosts.length > 0 && (
-          <section className="max-w-6xl mx-auto mt-16 pt-10 border-t border-border">
-            <h3 className="font-serif text-2xl font-bold text-primary mb-6">
-              Bài Viết Liên Quan Cùng Chủ Đề
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {relatedPosts.map((rp) => (
-                <BlogCard key={rp.id} {...rp} />
               ))}
             </div>
           </section>

@@ -30,6 +30,8 @@ export function RichContentEditable({
   const elRef = useRef<HTMLDivElement>(null);
   const htmlRef = useRef(html);
 
+  const initialHtml = useRef(html).current;
+
   // Sync prop -> DOM if changed externally (e.g. undo/redo)
   useEffect(() => {
     if (elRef.current && html !== htmlRef.current) {
@@ -62,7 +64,7 @@ export function RichContentEditable({
         ...style
       }}
       data-placeholder={placeholder}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: initialHtml }}
     />
   );
 }

@@ -597,17 +597,7 @@ export function GoogleDocsToolbar({
 
         <div className="w-px h-4 bg-[#B4B9C2] mx-1" />
 
-        {/* Checklist, Bullet List, Numbered List */}
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => onConvertToList("checklist")}
-          className="p-1.5 rounded hover:bg-black/5 transition-colors text-[#1A73E8]"
-          title="Chuyển thành danh sách việc cần làm (Checklist)"
-        >
-          <ListChecks className="w-4 h-4" />
-        </button>
-
+        {/* Bullet List, Numbered List */}
         <button
           type="button"
           onMouseDown={(e) => e.preventDefault()}

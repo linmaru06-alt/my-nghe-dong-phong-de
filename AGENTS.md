@@ -102,3 +102,26 @@ Toàn bộ giao diện phải toát lên nét đẹp tinh tế, trầm ấm và 
    - Hệ thống GitHub Actions CI (`.github/workflows/ci.yml`) sẽ tự động kiểm tra độc lập trên mỗi commit/Pull Request.
    - Nhánh `main` chỉ nhận các commit vượt qua cả bài kiểm tra cục bộ và bài kiểm tra trên GitHub CI.
 
+---
+
+## 7. Quy trình 1-Click SQL & Cơ chế Supabase An toàn
+
+- **Nguyên tắc bất di bất dịch**: Tuyệt đối **KHÔNG** chạy các lệnh phá hủy DB (`DROP TABLE`, `DROP COLUMN`) làm mất dữ liệu sản phẩm, bài viết đang hoạt động.
+- **Cơ chế 1-Click SQL**:
+  1. Viết code TypeScript Frontend/Backend trước (kiểu dữ liệu an toàn).
+  2. Tạo toàn bộ mã SQL cần thiết (`CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, Index, RLS policy).
+  3. Xuất toàn bộ mã SQL vào **một khối code duy nhất** (` ```sql `) ở cuối câu trả lời.
+  4. Người dùng chỉ việc copy khối SQL đó dán vào Supabase SQL Editor và bấm Run một lần duy nhất.
+- **Bảo mật RLS**: Luôn bật Row Level Security: Khách truy cập (Public) chỉ có quyền `SELECT` các bài viết/sản phẩm có `status = 'published'`; Admin có quyền toàn bộ.
+
+---
+
+## 8. Tiêu chuẩn SEO & Semantic HTML (SEO Standards)
+
+- **Semantic HTML**: Mỗi trang chỉ có **duy nhất 1 thẻ `<h1>`** mang từ khóa trọng tâm. Phân cấp `<h2>` -> `<h3>` logic.
+- **Thuộc tính ảnh `alt`**: Bắt buộc 100% ảnh thớ gỗ, vân gỗ phải có thuộc tính `alt` mô tả trực quan và giàu giá trị thực thể, cấm để trống hoặc generic.
+- **Core Web Vitals**: Luôn có `aspect-ratio` chống nhảy giật layout (CLS < 0.1), ảnh below-the-fold phải dùng `loading="lazy"`.
+- **Tối ưu tìm kiếm AI (GEO)**: Đoạn mở đầu Direct Answer 40-60 từ trả lời trực tiếp thắc mắc cốt lõi, duy trì file `public/llms.txt` để hỗ trợ AI bot (ChatGPT, Gemini, Perplexity).
+- **Bảo vệ trang riêng tư**: Chặn tuyệt đối Google index khu vực quản trị CMS (`/admin`, `/admin/*`) qua `robots.ts` và thẻ meta `noindex, nofollow`.
+
+

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getPublishedPosts, getPostBySlug } from "@/lib/server/posts";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // GET /api/posts - API công khai lấy danh sách bài viết đã xuất bản
 export async function GET(req: Request) {

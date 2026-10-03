@@ -17,7 +17,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
  */
 export const supabase = createClient(
   supabaseUrl || "https://placeholder.supabase.co",
-  supabaseAnonKey || "placeholder"
+  supabaseAnonKey || "placeholder",
+  {
+    global: {
+      fetch: (url, opt = {}) => fetch(url, { ...opt, cache: "no-store" }),
+    },
+  }
 );
 
 /**

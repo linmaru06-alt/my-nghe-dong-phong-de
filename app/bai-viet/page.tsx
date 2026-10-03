@@ -3,6 +3,7 @@ import BlogClient from "./BlogClient";
 import { getPublishedPosts } from "@/lib/server/posts";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Cẩm Nang & Kiến Thức Gỗ Quý | Mỹ Nghệ Đông Phong",

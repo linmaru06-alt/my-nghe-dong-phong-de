@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React from "react";
 
 interface RichContentEditableProps {
   html: string;
@@ -15,56 +15,81 @@ interface RichContentEditableProps {
   placeholder?: string;
 }
 
-export function RichContentEditable({
-  html,
-  onChange,
-  onKeyDown,
-  onPaste,
-  onFocus,
-  onSelect,
-  className,
-  style,
-  id,
-  placeholder
-}: RichContentEditableProps) {
-  const elRef = useRef<HTMLDivElement>(null);
-  const htmlRef = useRef(html);
+export class RichContentEditable extends React.Component<RichContentEditableProps> {
+  elRef: React.RefObject<HTMLDivElement>;
+  lastHtml: string;
 
-  const initialHtml = useRef(html).current;
+  constructor(props: RichContentEditableProps) {
+    super(props);
+    this.elRef = React.createRef();
+    this.lastHtml = props.html;
+  }
 
-  // Sync prop -> DOM if changed externally (e.g. undo/redo)
-  useEffect(() => {
-    if (elRef.current && html !== htmlRef.current) {
-      elRef.current.innerHTML = html;
-      htmlRef.current = html;
+  shouldComponentUpdate(nextProps: RichContentEditableProps) {
+    // Only re-render if the HTML changed EXTERNALLY (different from what's currently in the DOM)
+    if (this.elRef.current && nextProps.html !== this.elRef.current.innerHTML) {
+      return true;
     }
-  }, [html]);
+    
+    // Check if structural props changed
+    if (
+      this.props.className !== nextProps.className ||
+      this.props.style !== nextProps.style ||
+      this.props.id !== nextProps.id ||
+      this.props.placeholder !== nextProps.placeholder
+    ) {
+      return true;
+    }
+    
+    // Do NOT check function props (onChange, onKeyDown, etc.) because they are often inline 
+    // and change every render, which would cause unnecessary re-renders and cursor jumps.
+    return false;
+  }
 
-  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const newHtml = e.currentTarget.innerHTML;
-    htmlRef.current = newHtml;
-    onChange(newHtml);
+  componentDidUpdate() {
+    if (this.elRef.current && this.props.html !== this.elRef.current.innerHTML) {
+      this.elRef.current.innerHTML = this.props.html;
+    }
+  }
+
+  handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const html = e.currentTarget.innerHTML;
+    this.lastHtml = html;
+    if (this.props.onChange) {
+      this.props.onChange(html);
+    }
   };
 
-  return (
-    <div
-      id={id}
-      ref={elRef}
-      contentEditable
-      suppressContentEditableWarning
-      onInput={handleInput}
-      onBlur={handleInput}
-      onKeyDown={onKeyDown}
-      onPaste={onPaste}
-      onFocus={onFocus}
-      onSelect={onSelect}
-      className={`${className} empty:before:content-[attr(data-placeholder)] empty:before:text-[#5F6368]/40`}
-      style={{
-        outline: "none",
-        ...style
-      }}
-      data-placeholder={placeholder}
-      dangerouslySetInnerHTML={{ __html: initialHtml }}
-    />
-  );
+  render() {
+    const {
+      html,
+      onKeyDown,
+      onPaste,
+      onFocus,
+      onSelect,
+      className,
+      style,
+      id,
+      placeholder,
+    } = this.props;
+
+    return (
+      <div
+        id={id}
+        ref={this.elRef}
+        contentEditable={true}
+        suppressContentEditableWarning={true}
+        onInput={this.handleInput}
+        onBlur={this.handleInput}
+        onKeyDown={onKeyDown}
+        onPaste={onPaste}
+        onFocus={onFocus}
+        onSelect={onSelect}
+        className={`${className || ""} empty:before:content-[attr(data-placeholder)] empty:before:text-[#5F6368]/40`}
+        style={{ outline: "none", ...style }}
+        data-placeholder={placeholder}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+  }
 }

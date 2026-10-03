@@ -31,12 +31,12 @@ export class RichContentEditable extends React.Component<RichContentEditableProp
       return true;
     }
     
-    // Check if structural props changed
+    // Check if structural props changed (deep compare for style object)
     if (
       this.props.className !== nextProps.className ||
-      this.props.style !== nextProps.style ||
       this.props.id !== nextProps.id ||
-      this.props.placeholder !== nextProps.placeholder
+      this.props.placeholder !== nextProps.placeholder ||
+      JSON.stringify(this.props.style) !== JSON.stringify(nextProps.style)
     ) {
       return true;
     }

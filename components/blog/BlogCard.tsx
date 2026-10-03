@@ -29,6 +29,7 @@ export const BlogCard = React.memo(function BlogCard({
     "kien-thuc-ve-go": "Kiến thức gỗ",
     "huong-dan-lua-chon": "Hướng dẫn chọn",
     "bao-quan-san-pham": "Bảo quản gỗ",
+    "tin-tuc": "Tin tức & Thị trường",
   };
 
   return (

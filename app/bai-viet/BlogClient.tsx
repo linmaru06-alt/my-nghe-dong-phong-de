@@ -13,6 +13,7 @@ import { formatDate } from "@/lib/utils";
 
 const tabs = [
   { id: "", label: "Tất cả bài viết" },
+  { id: "tin-tuc", label: "Tin tức & Thị trường" },
   { id: "kien-thuc-ve-go", label: "Kiến thức về gỗ" },
   { id: "huong-dan-lua-chon", label: "Hướng dẫn lựa chọn" },
   { id: "bao-quan-san-pham", label: "Bảo quản sản phẩm" },
@@ -27,7 +28,14 @@ export interface BlogClientProps {
 
 export default function BlogClient({ initialTab = "", initialPosts }: BlogClientProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
-  const posts = initialPosts || postsData;
+  const rawPosts = initialPosts || postsData;
+  const posts = React.useMemo(() => {
+    return [...rawPosts].sort((a, b) => {
+      const dateA = new Date(a.publishedAt || 0).getTime();
+      const dateB = new Date(b.publishedAt || 0).getTime();
+      return dateB - dateA;
+    });
+  }, [rawPosts]);
 
   useEffect(() => {
     setActiveTab(initialTab);

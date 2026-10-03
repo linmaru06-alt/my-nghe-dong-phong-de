@@ -143,8 +143,14 @@ async function processWithGemini(
 ): Promise<ProcessedArticle | null> {
   const prompt = buildAihotPrompt(item);
 
-  // Thử model gemini-1.5-flash trước, nếu lỗi chuyển gemini-pro
-  const modelCandidates = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+  // Danh sách model Google Gemini thế hệ mới (2026)
+  const modelCandidates = [
+    "gemini-3.5-flash",
+    "gemini-3.1-flash-lite",
+    "gemini-3.7-flash",
+    "gemini-3.8-flash",
+    "gemini-flash-latest",
+  ];
 
   for (const modelName of modelCandidates) {
     try {

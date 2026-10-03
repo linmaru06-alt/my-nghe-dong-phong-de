@@ -4,7 +4,7 @@
  * Kế thừa toàn bộ động cơ AIHOT + Next.js Server Layer
  */
 import dotenv from "dotenv";
-import { runAutoNewsCuration } from "../lib/server/ai-auto-news.js";
+import { runAutoNewsCuration } from "../lib/server/ai-auto-news.ts";
 
 dotenv.config({ path: ".env.local" });
 dotenv.config();

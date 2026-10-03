@@ -1,3 +1,34 @@
+
+const CURATED_WOOD_IMAGES: Record<string, string> = {
+  "bach-xanh":
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuCCNKBoBrwOVLNiOqQ8du_TmY5jBOS0MshjNuG1MdshoWGLypsTb-F9wxVkgBG1t6SCw6icr3PLdI-jfAm_AluCifaVI2rgr2Ga33BwtZgSbXGvCUcwmgT-j_h78V4vqykKtMIHQ7Ftofa2WDl8PVK42pBCLIRikOefIvSYD0dxIAwJJTu7HpGGVA6IYeFHNEXVr6bIN_kKOz0s006qv8Yu5OY7nxlbLxr_gPBoHKXfqFjco5OZYRvZAA",
+  "tu-dan":
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuAAKSe5vnL2SBorGy44O6b058sBu3A6PBVavoMl6Em4Q7FxueSYXQJ-OYz1dBhas22gmAuDK3Ag27pjiPFzYtgrnVGzIjmlPlgLkQGi4EmysuHp7mXhyQgdb6E6nAAAzh7hzRFjhPE6Gn8WN1vhHMDr3-dDeQm_KnpiMptIjTtMwib-7OydRmpsCyVIupIMC_ZLI2FXlduTjXOQmZUAJWj8fBcJz7-pSbPWlaFUg6R4f8fXLzQ-Hibn1Q",
+  "sua-do":
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuDCLQJSGdzaUzbEkMos_gG-Lv-rr3CSwjE2etFuYUNOfx0eCiXkCoYPmcxswPcSPurehR927s_SWSA194dvIczQefMExkza4lS9aT67RlZln9n-zVT8zSZvMpCxCVW_I2KZZ13sHfsiTCtmqOXHuZguG_AH4Pe3WnkgOHKO6jxPpTQG9Lc1onk9PFr2ErRTff7PoyINdXZCXcTVuOk-edSMohvHfr9aHfIn_z256Ozn0Mhypti_f7jm7A",
+  "hoang-dan":
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuAAKSe5vnL2SBorGy44O6b058sBu3A6PBVavoMl6Em4Q7FxueSYXQJ-OYz1dBhas22gmAuDK3Ag27pjiPFzYtgrnVGzIjmlPlgLkQGi4EmysuHp7mXhyQgdb6E6nAAAzh7hzRFjhPE6Gn8WN1vhHMDr3-dDeQm_KnpiMptIjTtMwib-7OydRmpsCyVIupIMC_ZLI2FXlduTjXOQmZUAJWj8fBcJz7-pSbPWlaFUg6R4f8fXLzQ-Hibn1Q",
+  "kien-truc":
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuA0ZQTkMxoeFqbUb51lzz1AWErlK8e8YqLdwyuV4VJhgCI6QwEibA2s7vaIeMR-r6rVV3viNAWKTq8y3eR9jq_tmV5BhOHoNtA54qsNxbsxhqUFZ7VbvmKkLCnVafZbWgIq-WfpeK20LradYiSqBqZgFL5XA4LqXodTe4Nk3_30SvhuGdAqdtDwUVuwuLFiPDO-KKfveLVWqHTu1WVMx8dmwtwC3RBJsP69PNC97pbAfZ1m8rq-Zqucew",
+  "default":
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuCCNKBoBrwOVLNiOqQ8du_TmY5jBOS0MshjNuG1MdshoWGLypsTb-F9wxVkgBG1t6SCw6icr3PLdI-jfAm_AluCifaVI2rgr2Ga33BwtZgSbXGvCUcwmgT-j_h78V4vqykKtMIHQ7Ftofa2WDl8PVK42pBCLIRikOefIvSYD0dxIAwJJTu7HpGGVA6IYeFHNEXVr6bIN_kKOz0s006qv8Yu5OY7nxlbLxr_gPBoHKXfqFjco5OZYRvZAA",
+};
+
+function selectSmartThumbnail(item: RawNewsItem, processed: ProcessedArticle): string {
+  if (item.imageUrl && item.imageUrl.startsWith("http")) {
+    return item.imageUrl;
+  }
+  const text = (processed.title + " " + (processed.woodTypesMentioned || []).join(" ")).toLowerCase();
+  if (text.includes("bách xanh") || text.includes("bach xanh")) return CURATED_WOOD_IMAGES["bach-xanh"];
+  if (text.includes("tử đàn") || text.includes("tu dan")) return CURATED_WOOD_IMAGES["tu-dan"];
+  if (text.includes("sưa") || text.includes("sua")) return CURATED_WOOD_IMAGES["sua-do"];
+  if (text.includes("hoàng đàn") || text.includes("hoang dan")) return CURATED_WOOD_IMAGES["hoang-dan"];
+  if (text.includes("nhà cổ") || text.includes("kiến trúc") || text.includes("đốc phủ sứ") || text.includes("cột gỗ")) {
+    return CURATED_WOOD_IMAGES["kien-truc"];
+  }
+  return CURATED_WOOD_IMAGES["default"];
+}
+
 import fs from "fs/promises";
 import path from "path";
 import Parser from "rss-parser";
@@ -16,6 +47,7 @@ interface RawNewsItem {
   content: string;
   pubDate?: string;
   sourceName: string;
+  imageUrl?: string;
 }
 
 interface ProcessedArticle {
@@ -76,12 +108,20 @@ async function fetchRawNews(sourcesPath: string, maxItemsPerSource = 5): Promise
 
       for (const it of items) {
         if (it.title && it.link) {
+          let imgUrl = "";
+          if (it.enclosure && (it.enclosure as any).url) {
+            imgUrl = (it.enclosure as any).url;
+          } else if (it.content) {
+            const match = it.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+            if (match) imgUrl = match[1];
+          }
           allItems.push({
             title: it.title.trim(),
             link: it.link.trim(),
             content: it.contentSnippet || it.content || it.summary || "",
             pubDate: it.pubDate,
             sourceName: src.name,
+            imageUrl: imgUrl || undefined,
           });
         }
       }
@@ -286,15 +326,22 @@ export async function runAutoNewsCuration(options: {
       const wordCount = processed.content.replace(/<[^>]*>/g, "").split(/\s+/).length;
       const readingTime = Math.max(3, Math.ceil(wordCount / 200));
 
+      const articleThumbnail = selectSmartThumbnail(item, processed);
+      let enrichedContent = processed.content;
+      if (!enrichedContent.includes("<figure") && !enrichedContent.includes("<img")) {
+        enrichedContent = enrichedContent.replace(
+          "</h2>",
+          `</h2><figure class="my-6 text-center"><img src="${articleThumbnail}" alt="${processed.title}" class="rounded-xl w-full max-h-[460px] object-cover shadow-sm mx-auto" /><figcaption class="text-xs text-text-muted mt-2 italic font-light">Hình ảnh: Tinh hoa thớ gỗ quý và kỹ nghệ chế tác mộc tại Mỹ Nghệ Đông Phong</figcaption></figure>`
+        );
+      }
       const newPost: Post = {
         id: `ai-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
         title: processed.title,
         slug: finalSlug,
         category: "tin-tuc",
         excerpt: processed.excerpt,
-        content: processed.content,
-        thumbnail:
-          "/assets/images/articles/default.webp",
+        content: enrichedContent,
+        thumbnail: selectSmartThumbnail(item, processed),
         relatedProducts: relatedIds.length > 0 ? relatedIds : ["vt-001", "vt-002"],
         status: autoPublish ? "published" : "draft",
         publishedAt: new Date().toISOString().split("T")[0],

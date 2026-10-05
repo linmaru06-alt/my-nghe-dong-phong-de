@@ -188,8 +188,21 @@ export async function savePosts(posts: Post[]): Promise<{ success: boolean; tota
         category: b.category,
         read_time: b.readingTime || 5,
         status: b.status || "published",
+        published_at: b.publishedAt || new Date().toISOString().split("T")[0],
+        related_products: b.relatedProducts || [],
       }));
       await supabaseAdmin.from("posts").upsert(payload, { onConflict: "id" });
+      
+      // Xóa các bài viết không còn trong danh sách (để fix lỗi xóa nhưng vẫn hiển thị)
+      const newIds = posts.map(p => p.id);
+      const { data: existing } = await supabaseAdmin.from("posts").select("id");
+      if (existing) {
+        const toDelete = existing.map((e: any) => e.id).filter((id: string) => !newIds.includes(id));
+        if (toDelete.length > 0) {
+          await supabaseAdmin.from("posts").delete().in("id", toDelete);
+        }
+      }
+      
       console.log("[Posts Server Layer] Đã đồng bộ lên Supabase Database thành công");
     } catch (supaErr: any) {
       console.warn("[Posts Server Layer] Lỗi đồng bộ Supabase:", supaErr.message);

@@ -196,8 +196,21 @@ export async function saveProducts(products: Product[]): Promise<{ success: bool
         images: p.images || [],
         featured: Boolean(p.featured),
         status: p.status || "published",
+        related_posts: p.relatedPosts || [],
+        created_at: p.createdAt || new Date().toISOString(),
       }));
       await supabaseAdmin.from("products").upsert(payload, { onConflict: "id" });
+      
+      // Xóa các sản phẩm không còn trong danh sách (để fix lỗi xóa nhưng vẫn hiển thị)
+      const newIds = products.map(p => p.id);
+      const { data: existing } = await supabaseAdmin.from("products").select("id");
+      if (existing) {
+        const toDelete = existing.map((e: any) => e.id).filter((id: string) => !newIds.includes(id));
+        if (toDelete.length > 0) {
+          await supabaseAdmin.from("products").delete().in("id", toDelete);
+        }
+      }
+
       console.log("[Products Server Layer] Đã đồng bộ lên Supabase Database thành công");
     } catch (supaErr: any) {
       console.warn("[Products Server Layer] Lỗi đồng bộ Supabase:", supaErr.message);

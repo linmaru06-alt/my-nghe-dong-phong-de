@@ -39,12 +39,14 @@ async function syncPostsToBackend(posts: Post[]): Promise<boolean> {
       body: JSON.stringify({ posts }),
     });
     if (!res.ok) {
-      console.warn("[usePosts] API đồng bộ disk trả về mã lỗi:", res.status);
+      const errJson = await res.json().catch(() => ({}));
+      console.error("[usePosts] API đồng bộ trả về lỗi:", res.status, errJson);
       return false;
     }
-    return true;
+    const json = await res.json().catch(() => ({}));
+    return Boolean(json.success);
   } catch (err) {
-    console.warn("[usePosts] Không thể đồng bộ bài viết vào backend disk:", err);
+    console.error("[usePosts] Không thể kết nối API đồng bộ bài viết:", err);
     return false;
   }
 }
@@ -55,42 +57,53 @@ export const usePostsStore = create<PostsState>((set, get) => ({
 
   loadPosts: async () => {
     if (typeof window === "undefined") return;
+
+    // Đọc bản lưu cục bộ trước để giao diện không bị giật
+    let currentLocal: Post[] = [];
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        currentLocal = JSON.parse(stored);
+        if (Array.isArray(currentLocal) && currentLocal.length > 0) {
+          set({ posts: currentLocal, isLoaded: true });
+        }
+      }
+    } catch {}
+
     try {
       const res = await fetch("/api/admin/posts", { cache: "no-store" });
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-          const localStored = localStorage.getItem(STORAGE_KEY);
-          const localTimestamp = Number(localStorage.getItem(STORAGE_KEY + "_timestamp") || 0);
-          const now = Date.now();
-          // Nếu có chỉnh sửa cục bộ trong 2 phút vừa qua, ưu tiên giữ lại để tránh bị đè ngược
-          if (localStored && now - localTimestamp < 120000) {
-            try {
-              const parsed = JSON.parse(localStored);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                set({ posts: parsed, isLoaded: true });
-                return;
-              }
-            } catch {}
+          const serverPosts: Post[] = json.data;
+
+          // HỢP NHẤT THÔNG MINH (Smart Reconciliation):
+          // Không xóa bài mới tạo ở Local mà Server chưa kịp lưu!
+          const serverIds = new Set(serverPosts.map((p) => p.id));
+          const unsavedLocalPosts = currentLocal.filter((p) => !serverIds.has(p.id));
+
+          // Gộp các bài Server đã có + Các bài Local mới tạo chưa kịp lưu lên Server
+          const mergedPosts = [...unsavedLocalPosts, ...serverPosts];
+
+          // Lưu kết quả hợp nhất an toàn
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedPosts));
+          set({ posts: mergedPosts, isLoaded: true });
+
+          // Nếu phát hiện có bài viết ở Local mà Server chưa có, tự động kích hoạt đồng bộ lên Server
+          if (unsavedLocalPosts.length > 0) {
+            console.log(`[usePosts] Tự động đồng bộ ${unsavedLocalPosts.length} bài viết mới từ máy cục bộ lên Server...`);
+            syncPostsToBackend(mergedPosts);
           }
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(json.data));
-          set({ posts: json.data, isLoaded: true });
           return;
         }
       }
     } catch (e) {
-      console.warn("[usePosts] Không kết nối được API, dùng dữ liệu lưu tạm:", e);
+      console.warn("[usePosts] Không kết nối được API, tiếp tục dùng dữ liệu cục bộ:", e);
     }
 
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        set({ posts: JSON.parse(stored), isLoaded: true });
-      } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(initialPosts));
-        set({ posts: initialPosts as Post[], isLoaded: true });
-      }
-    } catch {
+    // Fallback nếu không kết nối được server
+    if (currentLocal.length === 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialPosts));
       set({ posts: initialPosts as Post[], isLoaded: true });
     }
   },
@@ -118,7 +131,9 @@ export const usePostsStore = create<PostsState>((set, get) => ({
       localStorage.setItem(STORAGE_KEY + "_timestamp", Date.now().toString());
     }
     set({ posts: list });
-    return await syncPostsToBackend(list);
+
+    const isSynced = await syncPostsToBackend(list);
+    return isSynced;
   },
 
   addPost: async (post: Post) => {
@@ -140,6 +155,12 @@ export const usePostsStore = create<PostsState>((set, get) => ({
       localStorage.setItem(STORAGE_KEY + "_timestamp", Date.now().toString());
     }
     set({ posts: list });
+
+    // Gọi endpoint DELETE chính xác cho bài viết này
+    try {
+      await fetch(`/api/admin/posts?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    } catch {}
+
     return await syncPostsToBackend(list);
   },
 

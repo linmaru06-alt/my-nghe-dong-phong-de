@@ -291,22 +291,29 @@ export function blocksToMarkdown(blocks: EditorBlock[]): string {
 }
 
 /**
- * Phân tích Markdown thành danh sách khối khi người dùng chỉnh sửa bài viết đã có sẵn
+ * Phân tích Markdown / HTML thành danh sách khối khi người dùng chỉnh sửa bài viết đã có sẵn
  */
 export function markdownToBlocks(markdown: string): EditorBlock[] {
   if (!markdown || !markdown.trim()) {
     return [createDefaultBlock("text")];
   }
 
-  const rawBlocks = markdown.split(/\n\n+/);
+  // Tiền xử lý: Tách dòng rõ ràng nếu nội dung chứa thẻ HTML block
+  let normalized = markdown
+    .replace(/(<\/(?:h[1-6]|figure|blockquote|table|ul|ol)>)/gi, "$1\n\n")
+    .replace(/(<\/p>)/gi, "$1\n\n")
+    .replace(/(<figure[\s\S]*?<\/figure>)/gi, "\n\n$1\n\n")
+    .replace(/(<img[^>]+src=["'][^"']+["'][^>]*?\/?>)/gi, "\n\n$1\n\n");
+
+  const rawBlocks = normalized.split(/\n\n+/);
   const blocks: EditorBlock[] = [];
 
   for (let i = 0; i < rawBlocks.length; i++) {
-    const raw = rawBlocks[i].trim();
+    let raw = rawBlocks[i].trim();
     if (!raw) continue;
 
     // 1. Divider
-    if (raw === "---" || raw === "***" || raw === "___") {
+    if (raw === "---" || raw === "***" || raw === "___" || raw === "<hr>" || raw === "<hr/>" || raw === "<hr />") {
       blocks.push({ id: generateId(), type: "divider", data: { style: "solid" } });
       continue;
     }
@@ -379,7 +386,23 @@ export function markdownToBlocks(markdown: string): EditorBlock[] {
       continue;
     }
 
-    // 6. Heading (H2, H3, H4)
+    // 6.1. HTML Heading (<h2 ...> ... </h2>)
+    const htmlHeadingMatch = raw.match(/^<h([2-4])[^>]*>([\s\S]*?)<\/h\1>$/i);
+    if (htmlHeadingMatch) {
+      const level = parseInt(htmlHeadingMatch[1], 10);
+      const text = htmlHeadingMatch[2].replace(/<[^>]*>/g, "").trim();
+      blocks.push({
+        id: generateId(),
+        type: "heading",
+        data: {
+          level,
+          text,
+        },
+      });
+      continue;
+    }
+
+    // 6.2. Markdown Heading (H2, H3, H4)
     const headingMatch = raw.match(/^(#{2,4})\s+(.+)$/);
     if (headingMatch) {
       const level = headingMatch[1].length;
@@ -394,7 +417,42 @@ export function markdownToBlocks(markdown: string): EditorBlock[] {
       continue;
     }
 
-    // 7. Image ![alt](url)
+    // 7.1. HTML Figure with Img (<figure ...><img ... /><figcaption>...</figcaption></figure>)
+    const figureMatch = raw.match(/<figure[^>]*>[\s\S]*?<img[^>]+src=["']([^"']+)["'][^>]*?(?:alt=["']([^"']*)["'])?[^>]*?>[\s\S]*?(?:<figcaption[^>]*>([\s\S]*?)<\/figcaption>)?[\s\S]*?<\/figure>/i);
+    if (figureMatch) {
+      const url = figureMatch[1];
+      const alt = figureMatch[2] || "Ảnh bài viết Mỹ Nghệ Đông Phong";
+      const caption = figureMatch[3] ? figureMatch[3].replace(/<[^>]*>/g, "").trim() : "";
+      blocks.push({
+        id: generateId(),
+        type: "image",
+        data: {
+          url,
+          alt,
+          caption,
+        },
+      });
+      continue;
+    }
+
+    // 7.2. HTML Standalone Img (<img ... />)
+    const htmlImgMatch = raw.match(/^<img[^>]+src=["']([^"']+)["'][^>]*?(?:alt=["']([^"']*)["'])?[^>]*?\/?>$/i);
+    if (htmlImgMatch) {
+      const url = htmlImgMatch[1];
+      const alt = htmlImgMatch[2] || "Ảnh bài viết Mỹ Nghệ Đông Phong";
+      blocks.push({
+        id: generateId(),
+        type: "image",
+        data: {
+          url,
+          alt,
+          caption: "",
+        },
+      });
+      continue;
+    }
+
+    // 7.3. Markdown Image ![alt](url)
     const imgMatch = raw.match(/^!\[(.*?)\]\((.*?)\)/);
     if (imgMatch) {
       const alt = imgMatch[1];
@@ -412,7 +470,19 @@ export function markdownToBlocks(markdown: string): EditorBlock[] {
       continue;
     }
 
-    // 8. Blockquote
+    // 8.1. HTML Blockquote (<blockquote>...</blockquote>)
+    const htmlQuoteMatch = raw.match(/^<blockquote[^>]*>([\s\S]*?)<\/blockquote>$/i);
+    if (htmlQuoteMatch) {
+      const quote = htmlQuoteMatch[1].replace(/<[^>]*>/g, "").trim();
+      blocks.push({
+        id: generateId(),
+        type: "quote",
+        data: { quote, author: "" },
+      });
+      continue;
+    }
+
+    // 8.2. Markdown Blockquote
     if (raw.startsWith(">")) {
       const cleanQuote = raw
         .split("\n")

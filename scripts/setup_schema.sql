@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS posts (
   author_name TEXT DEFAULT 'Nghệ nhân Đông Phong',
   read_time INT DEFAULT 5,
   status TEXT DEFAULT 'published',
+  published_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  related_products TEXT[] DEFAULT ARRAY[]::TEXT[],
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

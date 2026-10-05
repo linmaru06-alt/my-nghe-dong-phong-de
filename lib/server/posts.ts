@@ -178,7 +178,7 @@ export async function savePosts(posts: Post[]): Promise<{ success: boolean; tota
   // 1. Đồng bộ lên Supabase Database (Ưu tiên cao nhất)
   if (isSupabaseConfigured) {
     try {
-      const payload = posts.map((b) => ({
+      const fullPayload = posts.map((b) => ({
         id: b.id,
         title: b.title,
         slug: b.slug,
@@ -191,21 +191,44 @@ export async function savePosts(posts: Post[]): Promise<{ success: boolean; tota
         published_at: b.publishedAt || new Date().toISOString().split("T")[0],
         related_products: b.relatedProducts || [],
       }));
-      await supabaseAdmin.from("posts").upsert(payload, { onConflict: "id" });
-      
-      // Xóa các bài viết không còn trong danh sách (để fix lỗi xóa nhưng vẫn hiển thị)
-      const newIds = posts.map(p => p.id);
-      const { data: existing } = await supabaseAdmin.from("posts").select("id");
-      if (existing) {
-        const toDelete = existing.map((e: any) => e.id).filter((id: string) => !newIds.includes(id));
-        if (toDelete.length > 0) {
-          await supabaseAdmin.from("posts").delete().in("id", toDelete);
+
+      const { error: supaErr } = await supabaseAdmin.from("posts").upsert(fullPayload, { onConflict: "id" });
+
+      if (supaErr) {
+        // Nếu lỗi PGRST204 do thiếu cột published_at hoặc related_products trong CSDL cũ
+        if (
+          supaErr.code === "PGRST204" ||
+          (supaErr.message && (supaErr.message.includes("published_at") || supaErr.message.includes("related_products") || supaErr.message.includes("column")))
+        ) {
+          console.warn("[Posts Server Layer] Supabase thiếu cột mở rộng, kích hoạt Fallback lưu cấu trúc chuẩn:", supaErr.message);
+          const fallbackPayload = posts.map((b) => ({
+            id: b.id,
+            title: b.title,
+            slug: b.slug,
+            excerpt: b.excerpt || null,
+            content: b.content || "",
+            thumbnail: b.thumbnail || null,
+            category: b.category,
+            read_time: b.readingTime || 5,
+            status: b.status || "published",
+          }));
+          const { error: fallbackErr } = await supabaseAdmin.from("posts").upsert(fallbackPayload, { onConflict: "id" });
+          if (fallbackErr) {
+            console.error("[Posts Server Layer] Lỗi Supabase Fallback:", fallbackErr);
+            throw new Error(`Lỗi đồng bộ Supabase: ${fallbackErr.message}`);
+          } else {
+            console.log("[Posts Server Layer] ✅ Đã lưu thành công vào Supabase qua cơ chế Fallback an toàn");
+          }
+        } else {
+          console.error("[Posts Server Layer] Lỗi Supabase:", supaErr);
+          throw new Error(`Lỗi đồng bộ Supabase: ${supaErr.message}`);
         }
+      } else {
+        console.log("[Posts Server Layer] ✅ Đã đồng bộ lên Supabase Database thành công (Full Payload)");
       }
-      
-      console.log("[Posts Server Layer] Đã đồng bộ lên Supabase Database thành công");
-    } catch (supaErr: any) {
-      console.warn("[Posts Server Layer] Lỗi đồng bộ Supabase:", supaErr.message);
+    } catch (supaCatchErr: any) {
+      console.error("[Posts Server Layer] Ngoại lệ Supabase:", supaCatchErr.message);
+      throw supaCatchErr;
     }
   }
 
@@ -249,4 +272,44 @@ export async function savePosts(posts: Post[]): Promise<{ success: boolean; tota
 
   return { success: true, total: posts.length };
 }
+
+/**
+ * Xóa một bài viết cụ thể theo ID trên toàn bộ các tầng lưu trữ (Supabase, File, Memory)
+ */
+export async function deletePostById(id: string): Promise<{ success: boolean }> {
+  memoryPostsCache = null;
+
+  // 1. Xóa trong Supabase Database
+  if (isSupabaseConfigured) {
+    try {
+      const { error } = await supabaseAdmin.from("posts").delete().eq("id", id);
+      if (error) {
+        console.warn("[Posts Server Layer] Lỗi xóa Supabase:", error.message);
+      }
+    } catch (err: any) {
+      console.warn("[Posts Server Layer] Ngoại lệ khi xóa Supabase:", err.message);
+    }
+  }
+
+  // 2. Cập nhật lại file JSON cục bộ / /tmp
+  try {
+    const all = await getAllPosts();
+    const filtered = all.filter((p) => p.id !== id);
+    try {
+      await fs.writeFile(POSTS_FILE, JSON.stringify(filtered, null, 2), "utf-8");
+    } catch {
+      await fs.writeFile(TMP_POSTS_FILE, JSON.stringify(filtered, null, 2), "utf-8");
+    }
+  } catch {}
+
+  // 3. Revalidate các trang công khai
+  try {
+    revalidatePath("/");
+    revalidatePath("/bai-viet");
+    revalidatePath("/bai-viet/[slug]", "page");
+  } catch {}
+
+  return { success: true };
+}
+
 

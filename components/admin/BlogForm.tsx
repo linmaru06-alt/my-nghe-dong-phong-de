@@ -642,13 +642,24 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     };
 
     try {
+      let isSuccess = false;
       if (isEdit && formData.id) {
-        await updatePost(formData.id, postPayload);
+        isSuccess = await updatePost(formData.id, postPayload);
       } else {
-        await addPost(postPayload as any);
+        isSuccess = await addPost(postPayload as any);
       }
+
       setSaveStatus("Đã lưu lúc " + new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }));
-      toast.success("Đã xuất bản bài viết thành công!");
+
+      if (isSuccess) {
+        toast.success("Đã xuất bản bài viết thành công lên trang web!");
+      } else {
+        toast.warning(
+          "Đã lưu an toàn trên máy cục bộ",
+          "Máy chủ phản hồi chậm hoặc đang đồng bộ. Dữ liệu bài viết đã được bảo vệ trên trình duyệt của bạn."
+        );
+      }
+
       router.push("/admin/bai-viet");
     } catch (error: any) {
       toast.error("Lỗi khi đăng bài", error.message);

@@ -44,3 +44,32 @@ export async function POST(req: Request) {
   }
 }
 
+// DELETE /api/admin/posts?id=xxx - Xóa chính xác bài viết theo ID
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Thiếu tham số id bài viết cần xóa" },
+        { status: 400 }
+      );
+    }
+
+    const { deletePostById } = await import("@/lib/server/posts");
+    await deletePostById(id);
+
+    return NextResponse.json({
+      success: true,
+      message: `Đã xóa bài viết ${id} thành công`,
+    });
+  } catch (error: any) {
+    console.error("[API /api/admin/posts DELETE] Lỗi xóa bài viết:", error);
+    return NextResponse.json(
+      { success: false, error: error.message || "Lỗi khi xóa bài viết" },
+      { status: 500 }
+    );
+  }
+}
+

@@ -271,6 +271,60 @@ function findRelatedProductIds(
   return Array.from(matchedIds).slice(0, 3);
 }
 
+const CRAWLED_HISTORY_FILE = path.join(process.cwd(), "data", "crawled_urls.json");
+
+interface CrawledRecord {
+  url: string;
+  rawTitle: string;
+  crawledAt: string;
+  postId?: string;
+}
+
+async function loadCrawledHistory(): Promise<CrawledRecord[]> {
+  try {
+    const raw = await fs.readFile(CRAWLED_HISTORY_FILE, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+async function saveCrawledHistory(records: CrawledRecord[]): Promise<void> {
+  try {
+    const trimmed = records.slice(0, 500);
+    await fs.writeFile(CRAWLED_HISTORY_FILE, JSON.stringify(trimmed, null, 2), "utf-8");
+  } catch {}
+}
+
+function normalizeKeywords(t: string): Set<string> {
+  const stopWords = new Set([
+    "va", "cua", "cac", "nhung", "mot", "tai", "trong", "cho", "o", "duoc",
+    "bi", "nay", "do", "tu", "voi", "den", "la", "co", "ra", "vao", "khi", "nhu",
+    "nghe", "nhan", "dong", "phong", "my", "nghe", "bai", "viet", "cau", "chuyen",
+    "truoc", "so", "phan", "ve", "su", "qua", "lang", "kinh", "hoc", "the", "theo"
+  ]);
+  const words = (t || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !stopWords.has(w));
+  return new Set(words);
+}
+
+function computeSimilarity(textA: string, textB: string): number {
+  const setA = normalizeKeywords(textA);
+  const setB = normalizeKeywords(textB);
+  if (setA.size === 0 || setB.size === 0) return 0;
+  let matches = 0;
+  setA.forEach((w) => {
+    if (setB.has(w)) matches++;
+  });
+  return matches / Math.min(setA.size, setB.size);
+}
+
 /**
  * ĐỘNG CƠ TỰ ĐỘNG CÀO VÀ ĐĂNG BÀI 100% (FULL AUTO)
  */
@@ -304,10 +358,34 @@ export async function runAutoNewsCuration(options: {
 
   const genAI = new GoogleGenerativeAI(apiKey);
 
-  // 1. Đọc danh sách bài viết hiện có để chống trùng lặp
+  // 1. Đọc danh sách bài viết hiện có và lịch sử cào để chống trùng lặp tuyệt đối
   const existingPosts = await getAllPosts();
+  const crawledHistory = await loadCrawledHistory();
+
+  const crawledUrls = new Set(crawledHistory.map((r) => r.url.trim()));
+  const crawledTitles = new Set(crawledHistory.map((r) => r.rawTitle.toLowerCase().trim()));
+
   const existingSlugs = new Set(existingPosts.map((p) => p.slug.toLowerCase()));
   const existingTitles = new Set(existingPosts.map((p) => p.title.toLowerCase()));
+  const existingThumbnails = new Set(
+    existingPosts
+      .map((p) => p.thumbnail)
+      .filter((t) => t && !t.includes("placeholder") && !t.includes("googleusercontent"))
+  );
+
+  // Bóc tách thêm các URL gốc và tiêu đề gốc đã từng lưu ẩn trong thân bài viết
+  for (const p of existingPosts) {
+    const metaMatch = p.content.match(/<!--\s*source_meta:\s*({[\s\S]*?})\s*-->/);
+    if (metaMatch) {
+      try {
+        const meta = JSON.parse(metaMatch[1]);
+        if (meta.url) crawledUrls.add(meta.url.trim());
+        if (meta.title) crawledTitles.add(meta.title.toLowerCase().trim());
+      } catch {}
+    }
+    const urlMatch = p.content.match(/<!--\s*source_url:\s*([^\s>]+)\s*-->/);
+    if (urlMatch) crawledUrls.add(urlMatch[1].trim());
+  }
 
   // Đọc danh sách sản phẩm để gắn liên kết SKU tự động
   let productsList: any[] = [];
@@ -324,18 +402,51 @@ export async function runAutoNewsCuration(options: {
   console.log(`[AI Auto-News] Thu thập được ${rawItems.length} tin thô từ các nguồn.`);
 
   const newPostsToSave: Post[] = [];
+  const newCrawledRecords: CrawledRecord[] = [];
   let skipped = 0;
 
   for (const item of rawItems) {
     if (newPostsToSave.length >= maxArticles) break;
 
+    // KIỂM TRA TRÙNG LẶP LỚP 1: URL bài báo gốc đã từng cào chưa?
+    if (crawledUrls.has(item.link.trim())) {
+      console.log(`[AI Auto-News] ⏭️ Bỏ qua do URL gốc đã từng cào: ${item.link}`);
+      skipped++;
+      continue;
+    }
+
+    // KIỂM TRA TRÙNG LẶP LỚP 2: Tiêu đề bài báo gốc hoặc slug có bị trùng không?
     const baseSlug = slugify(item.title);
-    if (existingSlugs.has(baseSlug) || existingTitles.has(item.title.toLowerCase())) {
+    if (
+      crawledTitles.has(item.title.toLowerCase().trim()) ||
+      existingSlugs.has(baseSlug) ||
+      existingTitles.has(item.title.toLowerCase().trim())
+    ) {
+      console.log(`[AI Auto-News] ⏭️ Bỏ qua do tiêu đề hoặc slug trùng lặp: "${item.title}"`);
+      skipped++;
+      continue;
+    }
+
+    // KIỂM TRA TRÙNG LẶP LỚP 3: Mức độ tương đồng chủ đề với các bài hiện có (> 45% từ khóa)
+    let isTopicDuplicate = false;
+    for (const ep of existingPosts) {
+      const sim = computeSimilarity(item.title, ep.title);
+      const simExcerpt = computeSimilarity(item.title, ep.excerpt);
+      if (sim >= 0.45 || simExcerpt >= 0.5) {
+        console.log(`[AI Auto-News] ⏭️ Bỏ qua do trùng chủ đề với bài đã có: "${ep.title}" (Độ tương đồng: ${Math.round(sim * 100)}%)`);
+        isTopicDuplicate = true;
+        break;
+      }
+    }
+    if (isTopicDuplicate) {
       skipped++;
       continue;
     }
 
     let extraImages: { url: string; caption: string }[] = [];
+    let crawledPermanentImg: string | null = null;
+    let crawledLeadImg: string | null = null;
+
     try {
       console.log(`[AI Auto-News] 🌐 Đang cào toàn văn bài báo gốc từ: ${item.link}`);
       const crawled = await crawlFullArticle(item.link);
@@ -345,9 +456,11 @@ export async function runAutoNewsCuration(options: {
       }
       if (crawled.permanentImageUrl) {
         item.imageUrl = crawled.permanentImageUrl;
+        crawledPermanentImg = crawled.permanentImageUrl;
         console.log(`[AI Auto-News] 🖼️ Ảnh bài báo gốc đã rehost thành công: ${crawled.permanentImageUrl}`);
       } else if (crawled.leadImage) {
         item.imageUrl = crawled.leadImage;
+        crawledLeadImg = crawled.leadImage;
       }
       if (crawled.inArticleImages && crawled.inArticleImages.length > 0) {
         extraImages = crawled.inArticleImages;
@@ -356,10 +469,33 @@ export async function runAutoNewsCuration(options: {
       console.warn(`[AI Auto-News] Lỗi khi cào bài báo ${item.link}:`, crawlErr.message);
     }
 
+    // KIỂM TRA TRÙNG LẶP LỚP 4: Ảnh đại diện đã từng được dùng cho bài viết khác chưa?
+    const checkImg = crawledPermanentImg || crawledLeadImg || item.imageUrl;
+    if (checkImg && existingThumbnails.has(checkImg)) {
+      console.log(`[AI Auto-News] ⏭️ Bỏ qua do ảnh bài báo này đã từng xuất hiện ở bài viết khác: ${checkImg}`);
+      skipped++;
+      continue;
+    }
+
     console.log(`[AI Auto-News] Đang phân tích tin: "${item.title}"`);
     const processed = await processWithGemini(genAI, item);
 
     if (processed) {
+      // KIỂM TRA TRÙNG LẶP LỚP 5: Tiêu đề do Gemini sinh ra có bị trùng lặp với bài hiện có không?
+      let isGeneratedTitleDuplicate = false;
+      for (const ep of existingPosts) {
+        const sim = computeSimilarity(processed.title, ep.title);
+        if (sim >= 0.5) {
+          console.log(`[AI Auto-News] ⏭️ Bỏ qua do tiêu đề AI sinh ra tương đồng cao với bài cũ: "${ep.title}" (${Math.round(sim * 100)}%)`);
+          isGeneratedTitleDuplicate = true;
+          break;
+        }
+      }
+      if (isGeneratedTitleDuplicate) {
+        skipped++;
+        continue;
+      }
+
       let finalSlug = slugify(processed.title);
       if (existingSlugs.has(finalSlug)) {
         finalSlug = `${finalSlug}-${Date.now().toString().slice(-4)}`;
@@ -399,8 +535,14 @@ export async function runAutoNewsCuration(options: {
           }
         }
       }
+
+      // Nhúng metadata ẩn vào cuối bài viết để chống trùng lặp vĩnh viễn trên Supabase
+      const sourceMetaHtml = `\n<!-- source_meta: ${JSON.stringify({ url: item.link, title: item.title })} -->\n<!-- source_url: ${item.link} -->\n`;
+      enrichedContent += sourceMetaHtml;
+
+      const newPostId = `ai-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const newPost: Post = {
-        id: `ai-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        id: newPostId,
         title: processed.title,
         slug: finalSlug,
         category: "tin-tuc",
@@ -414,6 +556,12 @@ export async function runAutoNewsCuration(options: {
       };
 
       newPostsToSave.push(newPost);
+      newCrawledRecords.push({
+        url: item.link.trim(),
+        rawTitle: item.title.trim(),
+        crawledAt: new Date().toISOString(),
+        postId: newPostId,
+      });
       existingSlugs.add(finalSlug);
       existingTitles.add(processed.title.toLowerCase());
       console.log(`[AI Auto-News] ✅ ĐÃ TẠO BÀI VIẾT: "${newPost.title}" (Status: ${newPost.status})`);
@@ -438,6 +586,11 @@ export async function runAutoNewsCuration(options: {
   // 3. TỰ ĐỘNG ĐĂNG BÀI: Lưu bài viết mới lên đầu danh sách và đồng bộ Supabase + Cloudinary + Cache
   const mergedPosts = [...newPostsToSave, ...existingPosts];
   await savePosts(mergedPosts);
+
+  // Lưu lịch sử cào URL vĩnh viễn
+  if (newCrawledRecords.length > 0) {
+    await saveCrawledHistory([...newCrawledRecords, ...crawledHistory]);
+  }
 
   // 4. Ghi nhận log nếu có Supabase
   try {

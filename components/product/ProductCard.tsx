@@ -54,11 +54,13 @@ export const ProductCard = React.memo(function ProductCard({
           {name}
         </h3>
         
-        <div className="mt-2.5 mb-1.5 flex items-center">
-          <span className="inline-block bg-[#3D2314] text-[#E8BF87] text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[1px] uppercase">
-            {firstPrice ? "CÓ SẴN" : "LIÊN HỆ"}
-          </span>
-        </div>
+        {firstPrice ? (
+          <div className="mt-2.5 mb-1.5 flex items-center">
+            <span className="inline-block bg-[#3D2314] text-[#E8BF87] text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[1px] uppercase">
+              CÓ SẴN
+            </span>
+          </div>
+        ) : null}
         
         <p className="text-[12px] text-primary mt-1 font-medium">
           Mỹ Nghệ Đông Phong

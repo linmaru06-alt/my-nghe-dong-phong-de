@@ -371,9 +371,9 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     }
   };
 
-  // 1. Text Formatting (Bold, Italic, Underline, Strike, Link, Highlight, Color)
+  // 1. Text Formatting (Bold, Italic, Underline, Strike, Link, Highlight, Color, FontName)
   const handleFormatText = (
-    format: "bold" | "italic" | "underline" | "strike" | "link" | "highlight" | "color",
+    format: "bold" | "italic" | "underline" | "strike" | "link" | "highlight" | "color" | "fontName",
     value?: string
   ) => {
     // With true WYSIWYG contentEditable, we just execute commands directly on the browser selection.
@@ -383,6 +383,8 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     if (document.activeElement && document.activeElement.hasAttribute('contenteditable')) {
       if (format === "color") {
         document.execCommand("foreColor", false, value || "#3D2314");
+      } else if (format === "fontName") {
+        document.execCommand("fontName", false, value || "sans-serif");
       } else if (format === "highlight") {
         // 'hiliteColor' works in most browsers, 'backColor' works in others
         document.execCommand("hiliteColor", false, value || "transparent");

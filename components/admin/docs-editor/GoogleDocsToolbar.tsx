@@ -48,7 +48,7 @@ export interface GoogleDocsToolbarProps {
   onRedo: () => void;
   canUndo: boolean;
   canRedo: boolean;
-  onFormatText: (format: "bold" | "italic" | "underline" | "strike" | "link" | "highlight" | "color", value?: string) => void;
+  onFormatText: (format: "bold" | "italic" | "underline" | "strike" | "link" | "highlight" | "color" | "fontName", value?: string) => void;
   onChangeActiveBlockType: (type: BlockType, level?: number) => void;
   onConvertToList: (listType: "checklist" | "bullet" | "numbered") => void;
   onAlignText: (align: "left" | "center" | "right" | "justify") => void;
@@ -91,6 +91,7 @@ export function GoogleDocsToolbar({
   onZoomChange,
 }: GoogleDocsToolbarProps) {
   const [showStyleMenu, setShowStyleMenu] = useState(false);
+  const [showFontMenu, setShowFontMenu] = useState(false);
   const [showColorMenu, setShowColorMenu] = useState(false);
   const [showHighlightMenu, setShowHighlightMenu] = useState(false);
   const [showInsertMenu, setShowInsertMenu] = useState(false);
@@ -98,6 +99,7 @@ export function GoogleDocsToolbar({
   const [showAlignMenu, setShowAlignMenu] = useState(false);
   const [activeTextColor, setActiveTextColor] = useState("#3D2314");
   const [activeHighlightColor, setActiveHighlightColor] = useState("#D97706");
+  const [activeFont, setActiveFont] = useState("Be Vietnam Pro");
   
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
@@ -132,6 +134,17 @@ export function GoogleDocsToolbar({
     { name: "Xanh ngọc dịu", value: "#A7F3D0" },
     { name: "Hồng hoàng gia", value: "#FBCFE8" },
     { name: "Xanh dương nhạt", value: "#BAE6FD" },
+  ];
+
+  const fontFamilies = [
+    "Be Vietnam Pro",
+    "Arial",
+    "Times New Roman",
+    "Georgia",
+    "Verdana",
+    "Merriweather",
+    "Playfair Display",
+    "Inter",
   ];
 
   const zoomLevels = ["75%", "90%", "100%", "125%", "150%"];
@@ -364,10 +377,39 @@ export function GoogleDocsToolbar({
 
         <div className="w-px h-4 bg-[#B4B9C2] mx-1" />
 
-        {/* Font Family Display */}
-        <div className="flex items-center px-2 py-1 rounded hover:bg-black/5 cursor-pointer text-xs font-medium gap-1 hidden xl:flex text-[#1F1F1F]">
-          <span>Be Vietnam Pro</span>
-          <ChevronDown className="w-3 h-3 text-[#70757A]" />
+        {/* Font Family Dropdown */}
+        <div className="relative hidden xl:block">
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setShowFontMenu(!showFontMenu)}
+            className="flex items-center px-2 py-1 rounded hover:bg-black/5 text-xs font-medium gap-1 text-[#1F1F1F]"
+            title="Đổi phông chữ"
+          >
+            <span className="w-24 text-left truncate">{activeFont}</span>
+            <ChevronDown className="w-3 h-3 text-[#70757A]" />
+          </button>
+
+          {showFontMenu && (
+            <div className="absolute top-full left-0 mt-1 w-40 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 py-1 text-xs">
+              {fontFamilies.map((font) => (
+                <button
+                  key={font}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    setActiveFont(font);
+                    onFormatText("fontName", font);
+                    setShowFontMenu(false);
+                  }}
+                  className={`w-full text-left px-3 py-1.5 hover:bg-[#F1F3F4] ${font === activeFont ? "font-bold text-[#1A73E8]" : "text-[#1F1F1F]"}`}
+                  style={{ fontFamily: font }}
+                >
+                  {font}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Font Size controls */}

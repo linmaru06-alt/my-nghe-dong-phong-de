@@ -210,11 +210,12 @@ async function processWithGemini(
 ): Promise<ProcessedArticle | null> {
   const prompt = buildAihotPrompt(item);
 
-  // Danh sách model Google Gemini thế hệ mới
+  // Danh sách model Google Gemini thế hệ mới nhất
   const modelCandidates = [
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
+    "gemini-3.8-flash",
+    "gemini-flash-latest",
   ];
 
   for (const modelName of modelCandidates) {
@@ -450,7 +451,7 @@ export async function runAutoNewsCuration(options: {
         items_scanned: rawItems.length,
         items_accepted: newPostsToSave.length,
         items_skipped: skipped,
-        model_used: "gemini-1.5-flash",
+        model_used: "gemini-3.8-flash",
         status: "success",
       });
     }

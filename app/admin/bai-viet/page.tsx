@@ -3,13 +3,15 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Search, Edit2, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Eye, Sparkles } from "lucide-react";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { usePostsStore } from "@/lib/usePosts";
 import { formatDate } from "@/lib/utils";
 
 export default function AdminPostsPage() {
   const { posts, deletePost, loadPosts } = usePostsStore();
+  const [isCurating, setIsCurating] = useState(false);
+  const [curateMessage, setCurateMessage] = useState<string | null>(null);
 
   React.useEffect(() => {
     loadPosts();
@@ -17,6 +19,31 @@ export default function AdminPostsPage() {
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+
+  const handleTriggerAiNews = async () => {
+    if (isCurating) return;
+    setIsCurating(true);
+    setCurateMessage("Đang cào bài báo thật và biên soạn chuyên sâu...");
+    try {
+      const res = await fetch("/api/admin/ai-news/trigger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ maxArticles: 1, autoPublish: true }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCurateMessage(`✅ Xuất bản thành công ${data.publishedCount} bài viết mới với ảnh Cloudinary!`);
+        await loadPosts();
+      } else {
+        setCurateMessage(`⚠️ ${data.error || data.message || "Không có tin mới phù hợp"}`);
+      }
+    } catch (err: any) {
+      setCurateMessage(`❌ Lỗi kết nối: ${err.message}`);
+    } finally {
+      setIsCurating(false);
+      setTimeout(() => setCurateMessage(null), 8000);
+    }
+  };
 
   const filtered = useMemo(() => {
     return posts.filter((p) => {
@@ -51,14 +78,33 @@ export default function AdminPostsPage() {
           </p>
         </div>
 
-        <Link
-          href="/admin/bai-viet/them"
-          className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-hover text-white px-4 py-2.5 rounded-btn text-xs font-bold shadow-sm transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Thêm bài viết mới</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleTriggerAiNews}
+            disabled={isCurating}
+            className="inline-flex items-center gap-1.5 bg-amber-700 hover:bg-amber-800 text-white px-3.5 py-2.5 rounded-btn text-xs font-bold shadow-sm transition-colors disabled:opacity-50"
+            title="Tự động cào tin bài báo mới nhất và biên soạn 800-1200 từ"
+          >
+            <Sparkles className={`w-4 h-4 ${isCurating ? "animate-spin" : ""}`} />
+            <span>{isCurating ? "Đang cào & biên soạn..." : "Cào tin tức AI"}</span>
+          </button>
+
+          <Link
+            href="/admin/bai-viet/them"
+            className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-hover text-white px-4 py-2.5 rounded-btn text-xs font-bold shadow-sm transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Thêm bài viết mới</span>
+          </Link>
+        </div>
       </div>
+
+      {curateMessage && (
+        <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs rounded-lg animate-in fade-in">
+          {curateMessage}
+        </div>
+      )}
 
       {/* Toolbar */}
       <div className="bg-surface p-4 rounded-card border border-border flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">

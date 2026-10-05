@@ -17,7 +17,7 @@ async function main() {
   try {
     const res = await runAutoNewsCuration({
       autoPublish: true,
-      maxArticles: 2,
+      maxArticles: 1,
     });
 
     console.log("\nKẾT QUẢ THỰC THI:");

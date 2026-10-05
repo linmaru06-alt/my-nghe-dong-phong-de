@@ -67,8 +67,12 @@ export const ProductCard = React.memo(function ProductCard({
           <span>{code}</span>
           <span>&middot;</span>
           <span>{woodType}</span>
-          <span>&middot;</span>
-          <PriceDisplay price={firstPrice} size="sm" className="font-semibold text-primary" />
+          {firstPrice ? (
+            <>
+              <span>&middot;</span>
+              <PriceDisplay price={firstPrice} size="sm" className="font-semibold text-primary" />
+            </>
+          ) : null}
         </div>
       </div>
     </Link>

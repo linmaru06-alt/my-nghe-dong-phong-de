@@ -378,15 +378,15 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   ) => {
     // With true WYSIWYG contentEditable, we just execute commands directly on the browser selection.
     // The contentEditable's onInput handler will automatically sync the generated HTML to the block state.
-    
-    // Ensure we have focus on the editor area
-    if (document.activeElement && document.activeElement.hasAttribute('contenteditable')) {
+    // We use window.getSelection() because when using inputs like the Color Picker,
+    // the contenteditable loses focus, but the browser preserves the window selection.
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
       if (format === "color") {
         document.execCommand("foreColor", false, value || "#3D2314");
       } else if (format === "fontName") {
         document.execCommand("fontName", false, value || "sans-serif");
       } else if (format === "highlight") {
-        // 'hiliteColor' works in most browsers, 'backColor' works in others
         document.execCommand("hiliteColor", false, value || "transparent");
         document.execCommand("backColor", false, value || "transparent");
       } else if (format === "link") {
@@ -401,11 +401,19 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         document.execCommand(format, false, "");
       }
       
-      // Force trigger state update by dispatching input event
-      document.activeElement.dispatchEvent(new Event('input', { bubbles: true }));
+      // Find the actual contenteditable node that was modified and force a React state sync
+      const node = selection.anchorNode;
+      const editableNode = node?.nodeType === 3 
+        ? node.parentElement?.closest('[contenteditable="true"]') 
+        : (node as Element)?.closest?.('[contenteditable="true"]');
+        
+      if (editableNode) {
+        editableNode.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      
       setSaveStatus("Chưa lưu");
     } else {
-      toast.info("Vui lòng bôi đen chữ trong đoạn văn để áp dụng định dạng");
+      toast.info("Vui lòng click vào đoạn văn hoặc bôi đen chữ để áp dụng định dạng");
     }
   };
 

@@ -36,6 +36,14 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-playfair), Georgia, serif;
 }
 
+/* Fix WYSIWYG Font Mappings (execCommand) */
+font[face="Be Vietnam Pro"], [style*="font-family: 'Be Vietnam Pro'"] {
+  font-family: var(--font-vietnam), -apple-system, sans-serif !important;
+}
+font[face="Playfair Display"], [style*="font-family: 'Playfair Display'"] {
+  font-family: var(--font-playfair), Georgia, serif !important;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

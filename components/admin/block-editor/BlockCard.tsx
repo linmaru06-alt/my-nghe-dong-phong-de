@@ -214,22 +214,46 @@ export function BlockCard({
     // Space key: naturally preserved without blocking
     // Enter key: Split or insert new paragraph
     if (e.key === "Enter" && !e.shiftKey) {
-      const el = e.currentTarget;
-      const start = el.selectionStart;
-      const text = el.value;
+      const el = e.currentTarget as any;
+      
+      // If it's an AutoResizeTextarea (has selectionStart)
+      if (typeof el.selectionStart === "number") {
+        const start = el.selectionStart;
+        const text = el.value || "";
 
-      if (start === text.length) {
-        e.preventDefault();
-        onInsertBelow("text", { text: "" });
-      } else if (start < text.length) {
-        e.preventDefault();
-        const before = text.substring(0, start);
-        const after = text.substring(start);
-        onUpdate({ ...block.data, text: before });
-        onInsertBelow("text", { text: after });
+        if (start === text.length) {
+          e.preventDefault();
+          onInsertBelow("text", { text: "" });
+        } else if (start < text.length) {
+          e.preventDefault();
+          const before = text.substring(0, start);
+          const after = text.substring(start);
+          if (block.type === "quote") onUpdate({ ...block.data, quote: before });
+          else if (block.type === "section") onUpdate({ ...block.data, content: before });
+          else onUpdate({ ...block.data, text: before });
+          
+          onInsertBelow("text", { text: after });
+        }
+      } else {
+        // If it's a RichContentEditable (contenteditable div)
+        // We let the browser handle Enter to create <br> or <div> natively inside the block
+        // Block splitting for rich text is complex, so we just let it be a multi-line block
+        // unless they explicitly want a new block, they can click the + button.
+        // Wait, Notion creates a new block on Enter. 
+        // For simplicity, we just allow multi-line in the same block, or they can use Shift+Enter.
+        // Actually, let's just let it be native.
       }
     } else if (e.key === "Backspace") {
-      if ((block.data.text || "") === "") {
+      let currentText = "";
+      if (block.type === "quote") currentText = block.data.quote || "";
+      else if (block.type === "section") currentText = block.data.content || "";
+      else {
+        // For text/heading blocks, it might contain HTML like <br>
+        const raw = block.data.text || "";
+        currentText = raw.replace(/<[^>]*>/g, "").trim();
+      }
+
+      if (currentText === "") {
         e.preventDefault();
         onDelete();
         onFocusPrevious();

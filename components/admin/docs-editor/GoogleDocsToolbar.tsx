@@ -239,7 +239,7 @@ export function GoogleDocsToolbar({
       </div>
 
       {/* 2. GOOGLE DOCS TOOLBAR ROW */}
-      <div className="px-3 py-1.5 flex items-center gap-0.5 overflow-x-auto text-[#444746] bg-[#EDF2FA] border-t border-[#E1E5EA]">
+      <div className="px-3 py-1.5 flex flex-wrap items-center gap-0.5 text-[#444746] bg-[#EDF2FA] border-t border-[#E1E5EA]">
         {/* Undo / Redo */}
         <button
           type="button"

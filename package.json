@@ -13,6 +13,7 @@
     "type-check": "tsc --noEmit",
     "check:pre-push": "node scripts/pre-push-check.mjs",
     "prepare": "husky",
+    "seed": "node scripts/seed-supabase.js",
     "ai:fetch-news": "npx tsx scripts/ai-news-agent.js"
   },
   "dependencies": {

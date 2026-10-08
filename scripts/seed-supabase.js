@@ -99,6 +99,7 @@ async function seed() {
       images: p.images || [],
       featured: Boolean(p.featured),
       status: p.status || "published",
+      related_posts: p.relatedPosts || [],
     }));
 
     const { error: prodErr } = await supabase.from("products").upsert(products, { onConflict: "id" });
@@ -123,6 +124,8 @@ async function seed() {
       category: b.category,
       read_time: b.readingTime || 5,
       status: b.status || "published",
+      published_at: b.publishedAt || new Date().toISOString().split("T")[0],
+      related_products: b.relatedProducts || [],
     }));
 
     const { error: postErr } = await supabase.from("posts").upsert(posts, { onConflict: "id" });

@@ -1,15 +1,14 @@
-name: Daily 4-Slot Auto Publisher
+name: Daily Smart Auto Publisher (Ramp-up)
 
 on:
   schedule:
     # 00:30 UTC = 07:30 Giờ Việt Nam (Slot 1: Tin tức & Thị trường)
     - cron: '30 0 * * *'
-    # 04:30 UTC = 11:30 Giờ Việt Nam (Slot 2: Kiến thức về gỗ)
-    - cron: '30 4 * * *'
-    # 09:30 UTC = 16:30 Giờ Việt Nam (Slot 3: Bảo quản sản phẩm)
-    - cron: '30 9 * * *'
-    # 13:30 UTC = 20:30 Giờ Việt Nam (Slot 4: Hướng dẫn lựa chọn)
+    # 13:30 UTC = 20:30 Giờ Việt Nam (Slot 2: Cẩm nang Content Pillar chuyên sâu)
     - cron: '30 13 * * *'
+    # --- GIAI ĐOẠN 2: MỞ TOÀN LỰC KHI ĐÃ THOÁT SANDBOX (Sau 30 ngày) ---
+    # - cron: '30 4 * * *'  # 11:30 VN: Kiến thức về gỗ
+    # - cron: '30 9 * * *'  # 16:30 VN: Bảo quản sản phẩm
   # Cho phép kích hoạt thủ công từ giao diện GitHub bất cứ lúc nào
   workflow_dispatch:
     inputs:

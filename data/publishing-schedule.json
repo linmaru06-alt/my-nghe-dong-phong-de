@@ -1,9 +1,10 @@
 {
-  "version": "1.0",
-  "name": "Lịch Xuất Bản 4 Khung Giờ Vàng — Mỹ Nghệ Đông Phong",
-  "dailyTarget": 4,
+  "version": "1.1",
+  "name": "Lịch Xuất Bản Thông Minh — Mỹ Nghệ Đông Phong",
+  "currentPhase": "Phase 1: Ramp-up an toàn thoát Sandbox & tối ưu Crawl Budget",
+  "dailyTarget": 2,
   "timezone": "Asia/Ho_Chi_Minh",
-  "slots": [
+  "activeSlots": [
     {
       "slot": 1,
       "time": "07:30",
@@ -15,30 +16,19 @@
     },
     {
       "slot": 2,
-      "time": "11:30",
-      "name": "Kiến Thức Về Gỗ & Phân Biệt Danh Mộc",
-      "category": "kien-thuc-ve-go",
-      "engine": "pillar-deep-research",
-      "source": "Lấy hạt giống từ Pillar 2 (Kiến thức) trong data/content-pillars.json -> Bung thành bài viết chi tiết theo từng dòng gỗ (Tử Đàn, Sưa, Bách Xanh...) -> Nghiên cứu đa nguồn trên web về thớ gỗ, tôm gỗ, tỷ trọng.",
-      "imageRule": "Ảnh chụp mộc thật từ bài viết chuyên ngành trên web hoặc kho ảnh thật của Xưởng Đông Phong. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
-    },
-    {
-      "slot": 3,
-      "time": "16:30",
-      "name": "Bảo Quản Sản Phẩm & Giải Đáp Nỗi Lo",
-      "category": "bao-quan-san-pham",
-      "engine": "pillar-deep-research",
-      "source": "Lấy hạt giống từ Pillar 3 (Giải đáp nỗi lo) trong data/content-pillars.json -> Bung thành bài viết xử lý dính nước/mồ hôi, đứt dây, đo size cổ tay, chống nồm ẩm -> Nghiên cứu đa nguồn giải pháp thực tế.",
-      "imageRule": "Ảnh chụp cận cảnh thớ gỗ tự nhiên, quy trình lau mộc bằng vải cotton hoặc cách đo cổ tay thật. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
-    },
-    {
-      "slot": 4,
       "time": "20:30",
-      "name": "Hướng Dẫn Lựa Chọn & Tư Vấn Phong Thủy",
-      "category": "huong-dan-lua-chon",
+      "name": "Cẩm Nang Chuyên Sâu Đồ Gỗ (Content Pillar)",
+      "category": "auto-rotate",
       "engine": "pillar-deep-research",
-      "source": "Lấy hạt giống từ Pillar 4 & 5 (Tư vấn & Chuyển đổi) -> Bung thành bài viết chọn theo ngũ hành bản mệnh, size hạt theo công việc, phân khúc ngân sách -> Gắn box sản phẩm liên quan và CTA Zalo.",
-      "imageRule": "Ảnh sản phẩm mộc thật trên tay người đeo hoặc bối cảnh thực tế. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
+      "rotationCategories": ["kien-thuc-ve-go", "bao-quan-san-pham", "huong-dan-lua-chon"],
+      "source": "Lấy hạt giống từ data/content-pillars.json, luân phiên giữa Kiến thức -> Bảo quản -> Hướng dẫn lựa chọn. Nghiên cứu sâu số liệu thật, bảng so sánh và nút tư vấn Zalo.",
+      "imageRule": "Ảnh chụp mộc thật từ bài viết chuyên ngành trên web hoặc kho ảnh thật của Xưởng Đông Phong. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
     }
+  ],
+  "phase2FullSlots": [
+    { "slot": 1, "time": "07:30", "category": "tin-tuc", "name": "Tin tức thị trường" },
+    { "slot": 2, "time": "11:30", "category": "kien-thuc-ve-go", "name": "Kiến thức về gỗ" },
+    { "slot": 3, "time": "16:30", "category": "bao-quan-san-pham", "name": "Bảo quản sản phẩm" },
+    { "slot": 4, "time": "20:30", "category": "huong-dan-lua-chon", "name": "Hướng dẫn lựa chọn" }
   ]
 }

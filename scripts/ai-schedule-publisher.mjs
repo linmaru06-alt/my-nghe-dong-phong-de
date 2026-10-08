@@ -67,10 +67,10 @@ function getCurrentSlot() {
   }
 
   const hour = new Date().getHours();
-  if (hour >= 6 && hour < 10) return 1; // 07:30
-  if (hour >= 10 && hour < 14) return 2; // 11:30
-  if (hour >= 14 && hour < 18) return 3; // 16:30
-  return 4; // 20:30
+  // Khung 1: 06:00 - 12:00 (Sáng sớm: Tin tức & Thị trường)
+  if (hour < 12) return 1;
+  // Khung 2: Sau 12:00 (Đặc biệt 20:30 Tối: Cẩm nang Content Pillar chuyên sâu luân phiên)
+  return 2;
 }
 
 /**
@@ -224,10 +224,28 @@ async function main() {
 
   const scheduleRaw = await fs.readFile(path.join(process.cwd(), "data", "publishing-schedule.json"), "utf-8");
   const scheduleData = JSON.parse(scheduleRaw);
-  const currentSlotConfig = scheduleData.slots.find((s) => s.slot === slot) || scheduleData.slots[0];
+  const slotsList = scheduleData.activeSlots || scheduleData.slots || [];
+  let currentSlotConfig = slotsList.find((s) => s.slot === slot) || slotsList[0];
+
+  let targetCategory = currentSlotConfig.category;
+  if (targetCategory === "auto-rotate") {
+    // Luân phiên giữa 3 chuyên mục: kien-thuc-ve-go, bao-quan-san-pham, huong-dan-lua-chon
+    const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
+    const posts = JSON.parse(postsRaw);
+    const rotationPool = currentSlotConfig.rotationCategories || ["kien-thuc-ve-go", "bao-quan-san-pham", "huong-dan-lua-chon"];
+    
+    // Tìm chuyên mục nào ít bài nhất hoặc được đăng lâu nhất
+    const counts = rotationPool.map((cat) => ({
+      cat,
+      count: posts.filter((p) => p.category === cat).length,
+    }));
+    counts.sort((a, b) => a.count - b.count);
+    targetCategory = counts[0].cat;
+    console.log(`[Auto-Rotate] Chọn chuyên mục luân phiên tối nay: ${targetCategory}`);
+  }
 
   console.log(`- Thời gian dự kiến: ${currentSlotConfig.time}`);
-  console.log(`- Chuyên mục: ${currentSlotConfig.category} (${currentSlotConfig.name})`);
+  console.log(`- Chuyên mục: ${targetCategory} (${currentSlotConfig.name})`);
   console.log(`- Động cơ: ${currentSlotConfig.engine}`);
   console.log(`- Quy tắc ảnh: ${currentSlotConfig.imageRule}`);
 
@@ -239,7 +257,7 @@ async function main() {
     console.log(`✅ Kết quả: Đã xuất bản ${res.publishedCount} bài tin tức thị trường.`);
   } else {
     console.log(`\n[Slot ${slot}] Đang lấy chủ đề gốc từ Content Pillar & nghiên cứu web...`);
-    const newPost = await generatePillarArticle(currentSlotConfig.category, currentSlotConfig.name);
+    const newPost = await generatePillarArticle(targetCategory, currentSlotConfig.name);
     console.log(`✅ Đã xuất bản thành công bài viết chuyên sâu:`);
     console.log(`   - Tiêu đề: ${newPost.title}`);
     console.log(`   - Đường dẫn: /bai-viet/${newPost.slug}`);

@@ -1,0 +1,59 @@
+name: Daily 4-Slot Auto Publisher
+
+on:
+  schedule:
+    # 00:30 UTC = 07:30 Giờ Việt Nam (Slot 1: Tin tức & Thị trường)
+    - cron: '30 0 * * *'
+    # 04:30 UTC = 11:30 Giờ Việt Nam (Slot 2: Kiến thức về gỗ)
+    - cron: '30 4 * * *'
+    # 09:30 UTC = 16:30 Giờ Việt Nam (Slot 3: Bảo quản sản phẩm)
+    - cron: '30 9 * * *'
+    # 13:30 UTC = 20:30 Giờ Việt Nam (Slot 4: Hướng dẫn lựa chọn)
+    - cron: '30 13 * * *'
+  # Cho phép kích hoạt thủ công từ giao diện GitHub bất cứ lúc nào
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: 'Chọn khung giờ (1: Tin tức, 2: Kiến thức, 3: Bảo quản, 4: Lựa chọn, hoặc để trống tự nhận diện)'
+        required: false
+        default: ''
+
+jobs:
+  publish-article:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Run Auto Publisher Script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -n "${{ github.event.inputs.slot }}" ]; then
+            node scripts/ai-schedule-publisher.mjs --slot=${{ github.event.inputs.slot }}
+          else
+            node scripts/ai-schedule-publisher.mjs
+          fi
+
+      - name: Commit & Push New Post If Updated
+        run: |
+          git config --global user.name "Dong Phong Auto Bot"
+          git config --global user.email "bot@mynghedongphong.vn"
+          git add data/posts.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(auto-news): tu dong xuat ban bai viet moi [skip ci]" && git push)

@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "name": "Lịch Xuất Bản 4 Khung Giờ Vàng — Mỹ Nghệ Đông Phong",
+  "dailyTarget": 4,
+  "timezone": "Asia/Ho_Chi_Minh",
+  "slots": [
+    {
+      "slot": 1,
+      "time": "07:30",
+      "name": "Tin Tức & Thị Trường Gỗ Quý",
+      "category": "tin-tuc",
+      "engine": "hot-news-crawler",
+      "source": "Quét tin nóng, từ khóa hot từ Google News và báo chí uy tín về làng nghề, bảo tồn danh mộc, xu hướng thị trường gỗ tự nhiên.",
+      "imageRule": "100% ảnh chụp thật trích xuất trực tiếp từ bài báo gốc. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
+    },
+    {
+      "slot": 2,
+      "time": "11:30",
+      "name": "Kiến Thức Về Gỗ & Phân Biệt Danh Mộc",
+      "category": "kien-thuc-ve-go",
+      "engine": "pillar-deep-research",
+      "source": "Lấy hạt giống từ Pillar 2 (Kiến thức) trong data/content-pillars.json -> Bung thành bài viết chi tiết theo từng dòng gỗ (Tử Đàn, Sưa, Bách Xanh...) -> Nghiên cứu đa nguồn trên web về thớ gỗ, tôm gỗ, tỷ trọng.",
+      "imageRule": "Ảnh chụp mộc thật từ bài viết chuyên ngành trên web hoặc kho ảnh thật của Xưởng Đông Phong. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
+    },
+    {
+      "slot": 3,
+      "time": "16:30",
+      "name": "Bảo Quản Sản Phẩm & Giải Đáp Nỗi Lo",
+      "category": "bao-quan-san-pham",
+      "engine": "pillar-deep-research",
+      "source": "Lấy hạt giống từ Pillar 3 (Giải đáp nỗi lo) trong data/content-pillars.json -> Bung thành bài viết xử lý dính nước/mồ hôi, đứt dây, đo size cổ tay, chống nồm ẩm -> Nghiên cứu đa nguồn giải pháp thực tế.",
+      "imageRule": "Ảnh chụp cận cảnh thớ gỗ tự nhiên, quy trình lau mộc bằng vải cotton hoặc cách đo cổ tay thật. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
+    },
+    {
+      "slot": 4,
+      "time": "20:30",
+      "name": "Hướng Dẫn Lựa Chọn & Tư Vấn Phong Thủy",
+      "category": "huong-dan-lua-chon",
+      "engine": "pillar-deep-research",
+      "source": "Lấy hạt giống từ Pillar 4 & 5 (Tư vấn & Chuyển đổi) -> Bung thành bài viết chọn theo ngũ hành bản mệnh, size hạt theo công việc, phân khúc ngân sách -> Gắn box sản phẩm liên quan và CTA Zalo.",
+      "imageRule": "Ảnh sản phẩm mộc thật trên tay người đeo hoặc bối cảnh thực tế. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "version": "1.0",
+  "description": "Danh bạ các nguồn tài liệu, trang web chuyên khảo và diễn đàn uy tín về gỗ quý, lâm sản và phong thủy tại Việt Nam",
+  "sources": [
+    {
+      "name": "Viện Khoa Học Lâm Nghiệp Việt Nam (VAFS)",
+      "url": "https://vafs.gov.vn",
+      "specialty": "Nghiên cứu khoa học, định danh danh mộc, tỷ trọng, đặc tính giải phẫu thớ gỗ"
+    },
+    {
+      "name": "Báo Nông Nghiệp Việt Nam - Chuyên đề Lâm Nghiệp",
+      "url": "https://nongnghiep.vn/lam-nghiep",
+      "specialty": "Chính sách bảo tồn, nguồn giống cây gỗ quý bản địa (Sưa, Hoàng đàn, Bách xanh)"
+    },
+    {
+      "name": "Gỗ Phương Đông",
+      "url": "https://gophuongdong.com",
+      "specialty": "Kiến thức chuyên sâu về gỗ quý, thớ gỗ, mùi hương và công dụng"
+    },
+    {
+      "name": "Đồ Gỗ Quang Thích",
+      "url": "https://dogoquangthich.com",
+      "specialty": "Kinh nghiệm phân biệt gỗ Sưa, Tử Đàn, Huyết Long, Bách Xanh thật giả"
+    },
+    {
+      "name": "Mộc Trầm Hương",
+      "url": "https://moctramhuong.vn",
+      "specialty": "Kiến thức về trầm tốc, trầm chìm nước, tinh dầu thơm và hạt vòng"
+    },
+    {
+      "name": "Govi Furniture Research",
+      "url": "https://govi.vn",
+      "specialty": "Bài viết hướng dẫn nhận diện các loại gỗ quý và quy chuẩn độ bền"
+    },
+    {
+      "name": "Nội Thất Viễn Đông",
+      "url": "https://noithatviendong.com",
+      "specialty": "Đặc tính sinh thái và vùng phân bố của Bách Xanh Mộc Châu, Trầm Hương"
+    },
+    {
+      "name": "Việt Hương Trầm",
+      "url": "https://viethuongtram.vn",
+      "specialty": "Kiến thức phong thủy ngũ hành, định tâm thư giãn từ tinh dầu tự nhiên"
+    },
+    {
+      "name": "Phong Thủy Huyết Long",
+      "url": "https://phongthuyhuyetlong.com",
+      "specialty": "Hiệu ứng thấu quang, vân nu gỗ Huyết Long và Bách Xanh chìm"
+    },
+    {
+      "name": "Diễn đàn Otofun - Box Kinh Nghiệm Chơi Đồ Gỗ",
+      "url": "https://otofun.net",
+      "specialty": "Kinh nghiệm thực chiến của người chơi gỗ sành sỏi, phản ánh thị trường thật"
+    },
+    {
+      "name": "Tạp chí Gỗ & Lâm Sản Việt Nam",
+      "url": "https://goviet.org.vn",
+      "specialty": "Thị trường xuất khẩu gỗ thủ công mỹ nghệ, làng nghề mộc truyền thống"
+    },
+    {
+      "name": "Cổng thông tin Làng nghề Việt Nam",
+      "url": "https://langnghevietnam.vn",
+      "specialty": "Lịch sử các làng nghề mộc cổ truyền (Đồng Kỵ, La Xuyên, Chàng Sơn, Canh Nậu)"
+    }
+  ]
+}

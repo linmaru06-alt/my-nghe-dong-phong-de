@@ -1,0 +1,34 @@
+{
+  "version": "1.1",
+  "name": "Lịch Xuất Bản Thông Minh — Mỹ Nghệ Đông Phong",
+  "currentPhase": "Phase 1: Ramp-up an toàn thoát Sandbox & tối ưu Crawl Budget",
+  "dailyTarget": 2,
+  "timezone": "Asia/Ho_Chi_Minh",
+  "activeSlots": [
+    {
+      "slot": 1,
+      "time": "07:30",
+      "name": "Tin Tức & Thị Trường Gỗ Quý",
+      "category": "tin-tuc",
+      "engine": "hot-news-crawler",
+      "source": "Quét tin nóng, từ khóa hot từ Google News và báo chí uy tín về làng nghề, bảo tồn danh mộc, xu hướng thị trường gỗ tự nhiên.",
+      "imageRule": "100% ảnh chụp thật trích xuất trực tiếp từ bài báo gốc. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
+    },
+    {
+      "slot": 2,
+      "time": "20:30",
+      "name": "Cẩm Nang Chuyên Sâu Đồ Gỗ (Content Pillar)",
+      "category": "auto-rotate",
+      "engine": "pillar-deep-research",
+      "rotationCategories": ["kien-thuc-ve-go", "bao-quan-san-pham", "huong-dan-lua-chon"],
+      "source": "Lấy hạt giống từ data/content-pillars.json, luân phiên giữa Kiến thức -> Bảo quản -> Hướng dẫn lựa chọn. Nghiên cứu sâu số liệu thật, bảng so sánh và nút tư vấn Zalo.",
+      "imageRule": "Ảnh chụp mộc thật từ bài viết chuyên ngành trên web hoặc kho ảnh thật của Xưởng Đông Phong. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
+    }
+  ],
+  "phase2FullSlots": [
+    { "slot": 1, "time": "07:30", "category": "tin-tuc", "name": "Tin tức thị trường" },
+    { "slot": 2, "time": "11:30", "category": "kien-thuc-ve-go", "name": "Kiến thức về gỗ" },
+    { "slot": 3, "time": "16:30", "category": "bao-quan-san-pham", "name": "Bảo quản sản phẩm" },
+    { "slot": 4, "time": "20:30", "category": "huong-dan-lua-chon", "name": "Hướng dẫn lựa chọn" }
+  ]
+}

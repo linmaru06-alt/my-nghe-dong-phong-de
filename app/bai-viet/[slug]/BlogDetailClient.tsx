@@ -70,22 +70,22 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
   }
 
   return (
-    <div className="bg-white min-h-screen pb-16 md:pb-24">
+    <div className="bg-white min-h-screen pb-20 md:pb-24">
       {/* Fixed Reading Progress Bar */}
       <ReadingProgress />
 
-      <div className="container mx-auto px-4 md:px-8 py-8 md:py-12 max-w-6xl">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+      <div className="container mx-auto px-4 md:px-8 py-6 md:py-12 max-w-6xl">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
           {/* Main Article Content */}
           <article className="flex-1 lg:w-[70%]">
             <header className="mb-6">
-              <div className="text-[13px] font-bold text-[#888] uppercase tracking-[0.05em] mb-3">
+              <div className="text-[12px] md:text-[13px] font-bold text-[#888] uppercase tracking-[0.05em] mb-2.5">
                 {getCategoryName(post.category)}
               </div>
-              <h1 className="text-3xl md:text-[34px] font-bold text-[#111] mb-5 leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-[34px] font-bold text-[#111] mb-4 md:mb-5 leading-tight sm:leading-snug">
                 {post.title}
               </h1>
-              <div className="w-12 h-[3px] bg-[#ddd] mb-8"></div>
+              <div className="w-12 h-[3px] bg-[#ddd] mb-6 md:mb-8"></div>
             </header>
 
             <div className="prose prose-lg max-w-none text-[#333] prose-headings:font-bold prose-headings:text-[#111] prose-a:text-[#337ab7] hover:prose-a:underline prose-li:marker:text-[#666]">

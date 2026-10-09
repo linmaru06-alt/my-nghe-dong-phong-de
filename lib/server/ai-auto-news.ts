@@ -153,12 +153,27 @@ async function fetchRawNews(sourcesPath: string, maxItemsPerSource = 5): Promise
   return allItems;
 }
 
+// Danh sách từ khóa bắt buộc về đồ gỗ quý & thủ công mỹ nghệ
+const MANDATORY_WOOD_KEYWORDS = [
+  "gỗ", "mộc", "tử đàn", "sưa đỏ", "bách xanh", "hoàng đàn",
+  "mun sừng", "gỗ trắc", "ngọc am", "huyết long", "trầm hương",
+  "cẩm lai", "nu gỗ", "thủ công mỹ nghệ", "làng nghề mộc",
+  "điêu khắc gỗ", "vòng tay gỗ", "vòng phong thủy", "bút gỗ",
+  "đồ gỗ", "vương mộc", "tiểu diệp", "gối gỗ", "đũa gỗ", "đệm ô tô hạt gỗ"
+];
+
+function isWoodRelated(text: string): boolean {
+  if (!text) return false;
+  const lower = text.toLowerCase();
+  return MANDATORY_WOOD_KEYWORDS.some((kw) => lower.includes(kw));
+}
+
 /**
  * Prompt Suite: Tác giả Nghệ nhân Đông Phong — Biên soạn chuyên sâu 800 - 1.200 từ chuẩn E-E-A-T & GEO
  */
 function buildAihotPrompt(item: RawNewsItem): string {
   return `
-Bạn là Nghệ nhân trưởng kiêm Trưởng Ban Biên Tập của thương hiệu "Mỹ Nghệ Đông Phong" (thương hiệu đồ gỗ quý, thủ công mỹ nghệ và phong thủy cao cấp).
+Bạn là Nghệ nhân trưởng kiêm Trưởng Ban Biên Tập của thương hiệu "Mỹ Nghệ Đông Phong" (thương hiệu đồ gỗ quý, thủ công mỹ nghệ và phong thủy cao cấp: Vòng tay, Bút ký, Bi lăn tay, Gối gỗ, Tẩu gỗ, Đũa gỗ, Đệm ô tô gỗ).
 Dưới đây là TOÀN VĂN NỘI DUNG VÀ THÔNG TIN BÀI BÁO THẬT thu thập được:
 - Nguồn tin gốc: ${item.sourceName}
 - Tiêu đề bài báo gốc: ${item.title}
@@ -184,9 +199,11 @@ Bài viết bắt buộc phải có đủ 5 phần với các thẻ <h2>, <p>, <
 4. <h2>: Giá trị phong thủy, năng lượng vượng khí và hương thơm tự nhiên của gỗ quý đối với không gian sống của gia chủ.
 5. <h2>: Lời khuyên dưỡng gỗ & gìn giữ tinh hoa từ Mỹ Nghệ Đông Phong (cách giữ vân, bảo quản tự nhiên, nói không với hóa chất độc hại).
 
-【QUY TẮC 3: ĐÁNH GIÁ ĐỘ PHÙ HỢP】
-- Nếu bài viết hoàn toàn không liên quan đến: Đồ gỗ quý, Thủ công mỹ nghệ, Kiến trúc mộc, Di sản văn hóa, Làng nghề truyền thống, Cây gỗ quý, hoặc Phong thủy đời sống, hãy trả về ĐÚNG chữ: "SKIP".
-- Điểm phù hợp (relevanceScore) từ 1 đến 10. Chỉ xuất bản bài có điểm >= 7.
+【QUY TẮC 3: ĐÁNH GIÁ ĐỘ PHÙ HỢP CỰC KỲ KHẮT KHE】
+- BẮT BUỘC chủ đề cốt lõi của bài báo gốc phải trực tiếp liên quan đến: Đồ gỗ quý, Cây gỗ quý, Thủ công mỹ nghệ, Làng nghề mộc, Kiến trúc gỗ cổ, hoặc Vật phẩm mộc phong thủy.
+- TUYỆT ĐỐI KHÔNG gán ghép, KHÔNG bẻ lái gượng gạo từ các bài báo về đời sống gia đình, số phận cá nhân, diễn viên, showbiz, tai nạn hay chính trị sang đồ gỗ.
+- NẾU BÀI BÁO KHÔNG LIÊN QUAN ĐẾN ĐỒ GỖ HOẶC THỦ CÔNG MỸ NGHỆ, BẮT BUỘC TRẢ VỀ ĐÚNG MỘT TỪ DUY NHẤT: "SKIP".
+- Điểm phù hợp (relevanceScore) từ 1 đến 10. Chỉ xuất bản bài có điểm >= 8.
 
 【ĐỊNH DẠNG ĐẦU RA】
 XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json):
@@ -212,6 +229,8 @@ async function processWithGemini(
 
   // Danh sách model Google Gemini thế hệ mới nhất
   const modelCandidates = [
+    "gemini-2.5-flash",
+    "gemini-1.5-flash",
     "gemini-3.5-flash-lite",
     "gemini-3.1-flash-lite",
     "gemini-3.8-flash",
@@ -411,6 +430,13 @@ export async function runAutoNewsCuration(options: {
     // KIỂM TRA TRÙNG LẶP LỚP 1: URL bài báo gốc đã từng cào chưa?
     if (crawledUrls.has(item.link.trim())) {
       console.log(`[AI Auto-News] ⏭️ Bỏ qua do URL gốc đã từng cào: ${item.link}`);
+      skipped++;
+      continue;
+    }
+
+    // KIỂM TRA CHỦ ĐỀ BẮT BUỘC: Phải chứa từ khóa về gỗ quý hoặc thủ công mỹ nghệ
+    if (!isWoodRelated(item.title + " " + item.content)) {
+      console.log(`[AI Auto-News] ⏭️ Bỏ qua do không liên quan đến đồ gỗ / thủ công mỹ nghệ: "${item.title}"`);
       skipped++;
       continue;
     }

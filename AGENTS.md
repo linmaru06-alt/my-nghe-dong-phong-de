@@ -27,6 +27,8 @@ Toàn bộ giao diện phải toát lên nét đẹp tinh tế, trầm ấm và 
   - Nội dung & Thao tác: Sans-serif hiện đại, tối ưu tiếng Việt chuẩn (Google Fonts: `Be Vietnam Pro` hoặc `Plus Jakarta Sans`).
 - **Hình ảnh:**
   - Ảnh lớn, sắc nét, tôn vinh cận cảnh thớ gỗ, nu gỗ, vân gỗ và độ hoàn thiện thủ công.
+  - Tuyệt đối **KHÔNG sử dụng ảnh tạo từ AI** (Midjourney, DALL-E, Stable Diffusion, ảnh giả lập). Khách chơi gỗ sành sỏi rất tinh mắt, ảnh AI vân gỗ bị biến dạng sẽ làm mất uy tín thương hiệu.
+  - **100% ảnh bài viết phải là ảnh chụp thật**: Lấy từ các trang web, bài viết nghiên cứu chuyên ngành gỗ uy tín, hoặc ảnh chụp mộc thật từ xưởng Đông Phong trên Supabase Storage.
   - Tuyệt đối không dùng ảnh placeholder vỡ nét hoặc ảnh giả lập kém chất lượng.
 - **Tối ưu di động (Mobile-First):**
   - Khách hàng phần lớn truy cập trên điện thoại. Menu trực quan, thanh tìm kiếm nhanh, nút Zalo & Gọi điện luôn nổi ở vị trí ngón tay cái dễ bấm nhất.

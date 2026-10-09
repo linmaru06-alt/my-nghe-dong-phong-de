@@ -1,30 +1,14 @@
 [
   {
-    "name": "Báo Dân Trí - Văn Hóa & Đời Sống",
-    "url": "https://dantri.com.vn/rss/van-hoa.rss"
-  },
-  {
-    "name": "Báo Dân Trí - Đời Sống",
-    "url": "https://dantri.com.vn/rss/doi-song.rss"
-  },
-  {
-    "name": "VnExpress - Đời Sống",
-    "url": "https://vnexpress.net/rss/doi-song.rss"
-  },
-  {
-    "name": "VnExpress - Khoa Học & Môi Trường",
-    "url": "https://vnexpress.net/rss/khoa-hoc.rss"
-  },
-  {
-    "name": "Báo Thanh Niên - Văn Hóa",
-    "url": "https://thanhnien.vn/rss/van-hoa.rss"
-  },
-  {
-    "name": "Báo Dân Trí - Xã Hội",
-    "url": "https://dantri.com.vn/rss/xa-hoi.rss"
-  },
-  {
     "name": "Google News - Gỗ Quý & Thủ Công Mỹ Nghệ",
-    "url": "https://news.google.com/rss/search?q=%22g%E1%BB%97+qu%C3%BD%22+OR+%22g%E1%BB%97+s%C6%B0a%22+OR+%22g%E1%BB%97+t%E1%BB%AD+%C4%91%C3%A0n%22+OR+%22b%C3%A1ch+xanh%22+OR+%22ho%C3%A0ng+%C4%91%C3%A0n%22&hl=vi&gl=VN&ceid=VN:vi"
+    "url": "https://news.google.com/rss/search?q=%22g%E1%BB%97+qu%C3%BD%22+OR+%22%C4%91%E1%BB%93+g%E1%BB%97+m%E1%BB%B9+ngh%E1%BB%87%22+OR+%22l%C3%A0ng+ngh%E1%BB%81+m%E1%BB%99c%22+OR+%22g%E1%BB%97+phong+th%E1%BB%A7y%22&hl=vi&gl=VN&ceid=VN:vi"
+  },
+  {
+    "name": "Google News - Các Dòng Gỗ Vương Mộc (Sưa, Tử Đàn, Bách Xanh, Hoàng Đàn)",
+    "url": "https://news.google.com/rss/search?q=%22g%E1%BB%97+s%C6%B0a%22+OR+%22t%E1%BB%AD+%C4%91%C3%A0n%22+OR+%22b%C3%A1ch+xanh%22+OR+%22ho%C3%A0ng+%C4%91%C3%A0n%22+OR+%22mun+s%E1%BB%ABng%22+OR+%22g%E1%BB%97+tr%E1%BA%AFc%22&hl=vi&gl=VN&ceid=VN:vi"
+  },
+  {
+    "name": "Google News - Nghệ Nhân Mộc & Điêu Khắc Mỹ Nghệ",
+    "url": "https://news.google.com/rss/search?q=%22ngh%E1%BB%87+nh%C3%A2n+m%E1%BB%99c%22+OR+%22%C4%91i%C3%AAu+kh%E1%BA%AFc+g%E1%BB%97%22+OR+%22v%C3%B2ng+tay+g%E1%BB%97%22+OR+%22tr%E1%BA%A7m+h%C6%B0%C6%A1ng%22&hl=vi&gl=VN&ceid=VN:vi"
   }
 ]

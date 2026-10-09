@@ -74,7 +74,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                   key={block.id}
                   id={headingId}
                   style={headingStyle}
-                  className="font-serif text-2xl md:text-3xl font-bold text-[#3D2314] mt-10 mb-4 pb-2 border-b border-border/70 scroll-mt-24"
+                  className="font-serif text-xl sm:text-2xl md:text-3xl font-bold text-[#3D2314] mt-8 md:mt-10 mb-3 md:mb-4 pb-2 border-b border-border/70 scroll-mt-24 leading-snug"
                 >
                   {block.data.text}
                 </h2>
@@ -86,7 +86,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                   key={block.id}
                   id={headingId}
                   style={headingStyle}
-                  className="font-serif text-xl md:text-2xl font-bold text-[#5C3A21] mt-8 mb-3 scroll-mt-24"
+                  className="font-serif text-lg sm:text-xl md:text-2xl font-bold text-[#5C3A21] mt-6 md:mt-8 mb-2.5 md:mb-3 scroll-mt-24 leading-snug"
                 >
                   {block.data.text}
                 </h3>
@@ -97,7 +97,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                 key={block.id}
                 id={headingId}
                 style={headingStyle}
-                className="font-serif text-lg font-bold text-[#5C3A21] mt-6 mb-2 scroll-mt-24"
+                className="font-serif text-base sm:text-lg font-bold text-[#5C3A21] mt-5 md:mt-6 mb-2 scroll-mt-24 leading-snug"
               >
                 {block.data.text}
               </h4>
@@ -112,7 +112,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                   textAlign: block.data.align || "left",
                   fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
                 }}
-                className="prose prose-stone max-w-none text-[#2A160C] text-sm md:text-base leading-relaxed"
+                className="prose prose-stone max-w-none text-[#2A160C] text-[15.5px] sm:text-base leading-[1.8] break-words"
               >
                 <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.data.text || ""}</ReactMarkdown>
               </div>

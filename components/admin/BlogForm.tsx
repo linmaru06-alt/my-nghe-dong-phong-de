@@ -225,7 +225,18 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       data.append("folder", "blog");
 
       const res = await fetch("/api/admin/upload", { method: "POST", body: data });
-      const json = await res.json();
+
+      if (res.status === 413) {
+        throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
+      }
+
+      let json;
+      try {
+        json = await res.json();
+      } catch (parseError) {
+        throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
+      }
+
       if (res.ok && json.success && json.url) {
         setFormData((prev) => ({ ...prev, thumbnail: json.url }));
         toast.success("Tải ảnh bìa thành công");
@@ -267,7 +278,18 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           data.append("folder", "blog");
 
           const res = await fetch("/api/admin/upload", { method: "POST", body: data });
-          const json = await res.json();
+
+          if (res.status === 413) {
+            throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
+          }
+
+          let json;
+          try {
+            json = await res.json();
+          } catch (parseError) {
+            throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
+          }
+
           if (res.ok && json.success && json.url) {
             const newBlock = createDefaultBlock("image");
             newBlock.data = {
@@ -342,7 +364,18 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       data.append("folder", "blog");
 
       const res = await fetch("/api/admin/upload", { method: "POST", body: data });
-      const json = await res.json();
+      
+      if (res.status === 413) {
+        throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
+      }
+
+      let json;
+      try {
+        json = await res.json();
+      } catch (parseError) {
+        throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
+      }
+
       if (res.ok && json.success && json.url) {
         const newBlock = createDefaultBlock("image");
         newBlock.data = {

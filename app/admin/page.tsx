@@ -45,7 +45,7 @@ export default function AdminDashboardPage() {
       color: "bg-amber-50 text-amber-700 border-amber-200",
     },
     {
-      label: "Bài viết cẩm nang",
+      label: "Blog cẩm nang",
       value: totalPosts,
       icon: BookOpen,
       color: "bg-purple-50 text-purple-700 border-purple-200",
@@ -81,7 +81,7 @@ export default function AdminDashboardPage() {
             className="inline-flex items-center gap-1.5 bg-surface border border-border hover:border-primary text-text px-4 py-2 rounded-btn text-xs font-semibold shadow-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Thêm bài viết</span>
+            <span>Thêm blog</span>
           </Link>
         </div>
       </div>

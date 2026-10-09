@@ -51,7 +51,7 @@ export function Header() {
   const navLinks = [
     { label: "Sản phẩm", href: "/san-pham" },
     { label: "Giới thiệu", href: "/gioi-thieu" },
-    { label: "Bài viết", href: "/bai-viet" },
+    { label: "Blog", href: "/bai-viet" },
     { label: "Liên hệ", href: "/lien-he" },
   ];
 

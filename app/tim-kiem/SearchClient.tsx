@@ -139,7 +139,7 @@ export default function SearchClient({
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>Bài viết cẩm nang ({matchedPosts.length})</span>
+            <span>Blog cẩm nang ({matchedPosts.length})</span>
           </button>
         </div>
       )}
@@ -177,16 +177,16 @@ export default function SearchClient({
           <div className="text-center py-16 bg-surface rounded-card border border-border p-8">
             <BookOpen className="w-12 h-12 text-text-muted mx-auto mb-3 opacity-50" />
             <h3 className="font-serif text-lg font-bold text-text mb-2">
-              Không có bài viết phù hợp
+              Không có blog phù hợp
             </h3>
             <p className="text-sm text-text-muted">
-              Xem tất cả bài viết kiến thức tại chuyên mục Cẩm Nang.
+              Xem tất cả blog kiến thức tại chuyên mục Cẩm Nang.
             </p>
             <Link
               href="/bai-viet"
               className="inline-block mt-4 text-xs font-bold text-primary hover:underline"
             >
-              Xem danh sách bài viết →
+              Xem danh sách blog →
             </Link>
           </div>
         )

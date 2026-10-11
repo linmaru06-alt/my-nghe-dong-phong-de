@@ -46,7 +46,7 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
       case 'vat-pham-phong-thuy': return 'VẬT PHẨM PHONG THỦY';
       case 'nghe-thuat-che-tac': return 'NGHỆ THUẬT CHẾ TÁC';
       case 'tin-tuc-su-kien': return 'TIN TỨC XƯỞNG ĐÔNG PHONG';
-      default: return 'TIN TỨC, BLOG';
+      default: return 'TIN TỨC, BÀI VIẾT';
     }
   };
 
@@ -54,16 +54,16 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
         <h2 className="text-xl font-serif font-bold text-primary mb-2">
-          Không tìm thấy blog yêu cầu
+          Không tìm thấy bài viết yêu cầu
         </h2>
         <p className="text-xs text-text-muted mb-6">
-          Blog có thể đã được cập nhật đường dẫn hoặc chuyển danh mục.
+          Bài viết có thể đã được cập nhật đường dẫn hoặc chuyển danh mục.
         </p>
         <Link
           href="/bai-viet"
           className="px-6 py-2.5 rounded-btn bg-primary text-white text-xs font-bold shadow-sm hover:bg-primary-hover transition-colors"
         >
-          Xem cẩm nang blog
+          Xem cẩm nang bài viết
         </Link>
       </div>
     );
@@ -97,7 +97,7 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
           <aside className="w-full lg:w-[30%]">
             <div className="sticky top-28">
               <h3 className="font-bold text-[15px] text-[#111] mb-2 uppercase tracking-wide">
-                BLOG MỚI
+                BÀI VIẾT MỚI
               </h3>
               <div className="w-8 h-[2px] bg-[#ccc] mb-5"></div>
               
@@ -120,7 +120,7 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
             <div className="flex items-center gap-2 mb-6">
               <Sparkles className="w-5 h-5 text-[#C5A059]" />
               <h3 className="font-serif text-2xl font-bold text-[#111]">
-                Tác Phẩm Được Đề Cập Trong Blog
+                Tác Phẩm Được Đề Cập Trong Bài Viết
               </h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

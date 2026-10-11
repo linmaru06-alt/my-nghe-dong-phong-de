@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -27,25 +27,25 @@ export default function AdminDashboardPage() {
 
   const stats = [
     {
-      label: "Tổng tác phẩm",
+      label: "Tá»•ng tĂ¡c pháº©m",
       value: totalProducts,
       icon: Package,
       color: "bg-blue-50 text-blue-700 border-blue-200",
     },
     {
-      label: "Đang phát hành",
+      label: "Äang phĂ¡t hĂ nh",
       value: publishedProducts,
       icon: FileCheck,
       color: "bg-emerald-50 text-emerald-700 border-emerald-200",
     },
     {
-      label: "Bản nháp",
+      label: "Báº£n nhĂ¡p",
       value: draftProducts,
       icon: FileClock,
       color: "bg-amber-50 text-amber-700 border-amber-200",
     },
     {
-      label: "Blog cẩm nang",
+      label: "Blog cáº©m nang",
       value: totalPosts,
       icon: BookOpen,
       color: "bg-purple-50 text-purple-700 border-purple-200",
@@ -60,10 +60,10 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl md:text-3xl font-bold text-primary">
-            Tổng Quan Quản Trị
+            Tá»•ng Quan Quáº£n Trá»‹
           </h1>
           <p className="text-xs md:text-sm text-text-muted mt-1">
-            Hệ thống quản lý nội dung đồ gỗ mỹ nghệ & phong thủy Đông Phong.
+            Há»‡ thá»‘ng quáº£n lĂ½ ná»™i dung Ä‘á»“ gá»— má»¹ nghá»‡ & phong thá»§y ÄĂ´ng Phong.
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
             className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-btn text-xs font-bold shadow-sm transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Thêm sản phẩm</span>
+            <span>ThĂªm sáº£n pháº©m</span>
           </Link>
 
           <Link
@@ -81,7 +81,7 @@ export default function AdminDashboardPage() {
             className="inline-flex items-center gap-1.5 bg-surface border border-border hover:border-primary text-text px-4 py-2 rounded-btn text-xs font-semibold shadow-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Thêm blog</span>
+            <span>ThĂªm blog</span>
           </Link>
         </div>
       </div>
@@ -115,13 +115,13 @@ export default function AdminDashboardPage() {
       <div className="bg-surface rounded-card border border-border shadow-xs p-6">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
           <h2 className="font-serif text-base font-bold text-text">
-            Sản Phẩm Gần Đây
+            Sáº£n Pháº©m Gáº§n ÄĂ¢y
           </h2>
           <Link
             href="/admin/san-pham"
             className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
           >
-            <span>Xem tất cả ({totalProducts})</span>
+            <span>Xem táº¥t cáº£ ({totalProducts})</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -130,12 +130,12 @@ export default function AdminDashboardPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="text-xs font-semibold text-text-muted uppercase border-b border-border">
-                <th className="py-3 px-2">Ảnh</th>
-                <th className="py-3 px-3">Tác phẩm</th>
-                <th className="py-3 px-3">Loại gỗ</th>
-                <th className="py-3 px-3">Đơn giá</th>
-                <th className="py-3 px-3">Trạng thái</th>
-                <th className="py-3 px-2 text-right">Hành động</th>
+                <th className="py-3 px-2">áº¢nh</th>
+                <th className="py-3 px-3">TĂ¡c pháº©m</th>
+                <th className="py-3 px-3">Loáº¡i gá»—</th>
+                <th className="py-3 px-3">ÄÆ¡n giĂ¡</th>
+                <th className="py-3 px-3">Tráº¡ng thĂ¡i</th>
+                <th className="py-3 px-2 text-right">HĂ nh Ä‘á»™ng</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -175,7 +175,7 @@ export default function AdminDashboardPage() {
                         href={`/admin/san-pham/${p.id}`}
                         className="text-xs text-primary hover:underline font-semibold"
                       >
-                        Sửa
+                        Sá»­a
                       </Link>
                     </td>
                   </tr>

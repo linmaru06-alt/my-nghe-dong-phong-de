@@ -43,7 +43,7 @@ export function ImageUploader({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // Upload file lên backend Next.js API (/api/admin/upload)
+  // Upload file lĂªn backend Next.js API (/api/admin/upload)
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -69,24 +69,24 @@ export function ImageUploader({
         });
 
         if (res.status === 413) {
-          throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
+          throw new Error("áº¢nh quĂ¡ lá»›n (vÆ°á»£t quĂ¡ giá»›i háº¡n mĂ¡y chá»§)");
         }
 
         let data;
         try {
           data = await res.json();
         } catch (parseError) {
-          throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
+          throw new Error(`Lá»—i mĂ¡y chá»§ (${res.status}): KhĂ´ng thá»ƒ Ä‘á»c pháº£n há»“i`);
         }
         
         if (res.ok && data.success && data.url) {
           newUrls.push(data.url);
         } else {
-          throw new Error(data.error || "Không thể tải ảnh");
+          throw new Error(data.error || "KhĂ´ng thá»ƒ táº£i áº£nh");
         }
       } catch (err: any) {
-        console.warn("[ImageUploader] Upload qua API gặp sự cố, thử dự phòng:", err.message);
-        // Dự phòng: nếu API không khả dụng, đọc tạm bằng FileReader
+        console.warn("[ImageUploader] Upload qua API gáº·p sá»± cá»‘, thá»­ dá»± phĂ²ng:", err.message);
+        // Dá»± phĂ²ng: náº¿u API khĂ´ng kháº£ dá»¥ng, Ä‘á»c táº¡m báº±ng FileReader
         await new Promise<void>((resolve) => {
           const reader = new FileReader();
           reader.onload = (event) => {
@@ -112,9 +112,9 @@ export function ImageUploader({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <label className="text-xs font-semibold text-text uppercase tracking-wider block">
-          Hình ảnh tác phẩm ({images.length}/{maxFiles})
+          HĂ¬nh áº£nh tĂ¡c pháº©m ({images.length}/{maxFiles})
         </label>
-        <span className="text-[11px] text-text-muted">Ảnh đầu tiên là ảnh đại diện</span>
+        <span className="text-[11px] text-text-muted">áº¢nh Ä‘áº§u tiĂªn lĂ  áº£nh Ä‘áº¡i diá»‡n</span>
       </div>
 
       {/* Grid of uploaded images */}
@@ -134,7 +134,7 @@ export function ImageUploader({
             {/* Main Image Badge */}
             {index === 0 && (
               <span className="absolute top-1.5 left-1.5 bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-pill shadow-xs z-10">
-                Ảnh chính
+                áº¢nh chĂ­nh
               </span>
             )}
 
@@ -144,7 +144,7 @@ export function ImageUploader({
                 <button
                   type="button"
                   onClick={() => handleSetMain(index)}
-                  title="Đặt làm ảnh đại diện"
+                  title="Äáº·t lĂ m áº£nh Ä‘áº¡i diá»‡n"
                   className="p-1.5 rounded-full bg-white/80 hover:bg-white text-amber-600 transition-colors"
                 >
                   <Star className="w-3.5 h-3.5 fill-current" />
@@ -153,7 +153,7 @@ export function ImageUploader({
               <button
                 type="button"
                 onClick={() => handleRemove(index)}
-                title="Xóa ảnh"
+                title="XĂ³a áº£nh"
                 className="p-1.5 rounded-full bg-white/80 hover:bg-white text-red-600 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
@@ -168,12 +168,12 @@ export function ImageUploader({
             {isUploading ? (
               <>
                 <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin mb-1" />
-                <span className="text-[11px] font-medium text-primary">Đang tải lên...</span>
+                <span className="text-[11px] font-medium text-primary">Äang táº£i lĂªn...</span>
               </>
             ) : (
               <>
                 <Upload className="w-5 h-5 text-text-muted mb-1" />
-                <span className="text-[11px] font-medium text-text-muted">Chọn ảnh từ máy</span>
+                <span className="text-[11px] font-medium text-text-muted">Chá»n áº£nh tá»« mĂ¡y</span>
               </>
             )}
             <input
@@ -199,7 +199,7 @@ export function ImageUploader({
             type="url"
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
-            placeholder="Hoặc dán URL ảnh trực tuyến..."
+            placeholder="Hoáº·c dĂ¡n URL áº£nh trá»±c tuyáº¿n..."
             className="flex-1 bg-surface border border-border rounded-btn px-3 py-1.5 text-xs text-text placeholder:text-text-muted focus:outline-none focus:border-primary"
           />
           <button
@@ -207,7 +207,7 @@ export function ImageUploader({
             disabled={!urlInput.trim()}
             className="px-3 py-1.5 bg-surface border border-border hover:border-primary text-text hover:text-primary rounded-btn text-xs font-medium transition-colors disabled:opacity-40"
           >
-            Thêm
+            ThĂªm
           </button>
         </form>
       )}

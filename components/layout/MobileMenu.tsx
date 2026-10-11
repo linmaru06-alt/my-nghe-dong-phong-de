@@ -112,7 +112,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm sản phẩm, bài viết..."
+                  placeholder="Tìm sản phẩm, blog..."
                   className="w-full bg-bg border border-border rounded-btn pl-9 pr-4 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-primary"
                 />
                 <Search className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -182,7 +182,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   onClick={() => setIsPostsOpen(!isPostsOpen)}
                   className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium text-text hover:text-primary hover:bg-bg transition-colors"
                 >
-                  <span>Bài viết kiến thức</span>
+                  <span>Blog</span>
                   <motion.div
                     animate={{ rotate: isPostsOpen ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
@@ -204,7 +204,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                         onClick={onClose}
                         className="block py-2 text-xs font-semibold text-primary"
                       >
-                        → Xem tất cả bài viết
+                        → Xem tất cả blog
                       </Link>
                       {blogCategories.map((item) => (
                         <Link

@@ -68,7 +68,17 @@ export function ImageUploader({
           body: formData,
         });
 
-        const data = await res.json();
+        if (res.status === 413) {
+          throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
+        }
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (parseError) {
+          throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
+        }
+        
         if (res.ok && data.success && data.url) {
           newUrls.push(data.url);
         } else {

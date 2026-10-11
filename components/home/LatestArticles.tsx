@@ -22,7 +22,7 @@ export function LatestArticles({ posts }: LatestArticlesProps) {
               KIẾN THỨC TỪ NGHỆ NHÂN
             </h3>
             <h2 className="font-serif text-3xl md:text-4xl text-primary font-normal mb-4">
-              Bài Viết
+              Blog
             </h2>
             <p className="text-sm text-text-muted max-w-3xl">
               Khám phá nghệ thuật mộc truyền thống, bí quyết nhận biết gỗ quý và kiến thức phong thủy ứng dụng thực tế.
@@ -70,7 +70,7 @@ export function LatestArticles({ posts }: LatestArticlesProps) {
                     </p>
                     
                     <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#B32025] group-hover:text-[#8a181c] transition-colors mt-auto">
-                      <span>Đọc bài viết</span>
+                      <span>Đọc blog</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </div>
@@ -87,7 +87,7 @@ export function LatestArticles({ posts }: LatestArticlesProps) {
               href="/bai-viet"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-[#B32025] hover:text-[#8a181c] transition-colors font-bold"
             >
-              <span>Xem tất cả bài viết</span>
+              <span>Xem tất cả blog</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

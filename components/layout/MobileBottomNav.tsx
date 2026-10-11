@@ -17,7 +17,7 @@ export function MobileBottomNav() {
   const navItems = [
     { label: "Trang chủ", href: "/", icon: Home },
     { label: "Sản phẩm", href: "/san-pham", icon: Package },
-    { label: "Bài viết", href: "/bai-viet", icon: BookOpen },
+    { label: "Blog", href: "/bai-viet", icon: BookOpen },
     { label: "Giới thiệu", href: "/gioi-thieu", icon: Info },
     { label: "Liên hệ", href: "/lien-he", icon: Headphones },
   ];

@@ -12,7 +12,7 @@ import postsData from "@/data/posts.json";
 import { formatDate } from "@/lib/utils";
 
 const tabs = [
-  { id: "", label: "Tất cả bài viết" },
+  { id: "", label: "Tất cả blog" },
   { id: "tin-tuc", label: "Tin tức & Thị trường" },
   { id: "kien-thuc-ve-go", label: "Kiến thức về gỗ" },
   { id: "huong-dan-lua-chon", label: "Hướng dẫn lựa chọn" },
@@ -54,7 +54,7 @@ export default function BlogClient({ initialTab = "", initialPosts }: BlogClient
   return (
     <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
       {/* Breadcrumb */}
-      <Breadcrumb items={[{ label: "Bài viết & Cẩm nang" }]} />
+      <Breadcrumb items={[{ label: "Blog & Cẩm nang" }]} />
 
       {/* Page Header */}
       <motion.div 
@@ -156,7 +156,7 @@ export default function BlogClient({ initialTab = "", initialPosts }: BlogClient
                   href={`/bai-viet/${featuredPost.slug}`}
                   className="inline-flex items-center gap-2 text-xs font-semibold tracking-wide text-primary hover:text-secondary group/link transition-colors"
                 >
-                  <span>Đọc bài viết chi tiết</span>
+                  <span>Đọc blog chi tiết</span>
                   <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/link:translate-x-1.5" />
                 </Link>
               </div>
@@ -168,7 +168,7 @@ export default function BlogClient({ initialTab = "", initialPosts }: BlogClient
         {remainingPosts.length > 0 && (
           <div>
             <h3 className="font-serif text-xl font-bold text-primary mb-6">
-              Bài Viết Mới Nhất
+              Blog Mới Nhất
             </h3>
             <BlogGrid posts={remainingPosts} />
           </div>

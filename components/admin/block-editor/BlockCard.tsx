@@ -118,7 +118,18 @@ export function BlockCard({
       data.append("folder", "blog");
 
       const res = await fetch("/api/admin/upload", { method: "POST", body: data });
-      const json = await res.json();
+
+      if (res.status === 413) {
+        throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
+      }
+
+      let json;
+      try {
+        json = await res.json();
+      } catch (parseError) {
+        throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
+      }
+
       if (res.ok && json.success && json.url) {
         onUpdate({ ...block.data, url: json.url });
         toast.success("Tải ảnh thành công");
@@ -153,7 +164,17 @@ export function BlockCard({
           data.append("folder", "blog");
 
           const res = await fetch("/api/admin/upload", { method: "POST", body: data });
-          const json = await res.json();
+          
+          if (res.status === 413) {
+            throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
+          }
+
+          let json;
+          try {
+            json = await res.json();
+          } catch (parseError) {
+            throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
+          }
 
           if (res.ok && json.success && json.url) {
             if (block.type === "text" && !(block.data.text || "").trim()) {

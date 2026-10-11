@@ -32,7 +32,7 @@ export function AdminSidebar() {
       icon: Package,
     },
     {
-      label: "Bài viết",
+      label: "Blog",
       href: "/admin/bai-viet",
       icon: BookOpen,
     },

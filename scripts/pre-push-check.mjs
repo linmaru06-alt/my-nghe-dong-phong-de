@@ -38,7 +38,7 @@ function runStep(name, command, args) {
   
   const result = spawnSync(command, args, {
     stdio: "inherit",
-    shell: true,
+    shell: false,
   });
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -109,11 +109,22 @@ async function main() {
   const npxCmd = isWindows ? "npx.cmd" : "npx";
   const npmCmd = isWindows ? "npm.cmd" : "npm";
 
-  const tscOk = runStep("TypeScript Type Check (tsc --noEmit)", npxCmd, ["tsc", "--noEmit"]);
+  const tscPath = path.resolve(process.cwd(), "node_modules", "typescript", "bin", "tsc");
+  const nextPath = path.resolve(process.cwd(), "node_modules", "next", "dist", "bin", "next");
+
+  const [tCmd, tArgs] = fs.existsSync(tscPath)
+    ? [process.execPath, [tscPath, "--noEmit"]]
+    : [npxCmd, ["tsc", "--noEmit"]];
+
+  const tscOk = runStep("TypeScript Type Check (tsc --noEmit)", tCmd, tArgs);
   if (!tscOk) process.exit(1);
 
   // 3. Kiểm tra Next.js Build (npm run build)
-  const buildOk = runStep("Next.js Production Build (next build)", npmCmd, ["run", "build"]);
+  const [bCmd, bArgs] = fs.existsSync(nextPath)
+    ? [process.execPath, [nextPath, "build"]]
+    : [npmCmd, ["run", "build"]];
+
+  const buildOk = runStep("Next.js Production Build (next build)", bCmd, bArgs);
   if (!buildOk) process.exit(1);
 
   log("🎉 [HOÀN HẢO] Toàn bộ kiểm tra đều ĐẠT CHUẨN! Tiến hành đẩy mã nguồn lên Git...\n", colors.bold + colors.green);

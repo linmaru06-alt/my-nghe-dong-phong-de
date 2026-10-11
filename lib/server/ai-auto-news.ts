@@ -5,28 +5,28 @@ import Parser from "rss-parser";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getAllPosts, savePosts, type Post } from "@/lib/server/posts";
 import { supabaseAdmin } from "@/lib/supabase";
-import { crawlFullArticle } from "@/lib/server/article-crawler";
+import { crawlFullArticle, isInvalidNewsImage } from "@/lib/server/article-crawler";
 
 const CURATED_WOOD_IMAGES: Record<string, string> = {
   "bach-xanh":
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuCCNKBoBrwOVLNiOqQ8du_TmY5jBOS0MshjNuG1MdshoWGLypsTb-F9wxVkgBG1t6SCw6icr3PLdI-jfAm_AluCifaVI2rgr2Ga33BwtZgSbXGvCUcwmgT-j_h78V4vqykKtMIHQ7Ftofa2WDl8PVK42pBCLIRikOefIvSYD0dxIAwJJTu7HpGGVA6IYeFHNEXVr6bIN_kKOz0s006qv8Yu5OY7nxlbLxr_gPBoHKXfqFjco5OZYRvZAA",
+    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/a7081af3a0b849e610a9-1791214960300.jpg",
   "tu-dan":
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuAAKSe5vnL2SBorGy44O6b058sBu3A6PBVavoMl6Em4Q7FxueSYXQJ-OYz1dBhas22gmAuDK3Ag27pjiPFzYtgrnVGzIjmlPlgLkQGi4EmysuHp7mXhyQgdb6E6nAAAzh7hzRFjhPE6Gn8WN1vhHMDr3-dDeQm_KnpiMptIjTtMwib-7OydRmpsCyVIupIMC_ZLI2FXlduTjXOQmZUAJWj8fBcJz7-pSbPWlaFUg6R4f8fXLzQ-Hibn1Q",
+    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/g8wfj8szsr7j8exnqokiw-akdxrgjassae4djmefnczrnnxfqpihiztdlak6ejy1jn6qm-m9tmz87son1yfovmsg-vlirkphv8gh-2fk1qtjpzxop1ififn8xfn6ltfshsi7woqgnxx0ftix2qbf1-srsz4txzyq7-z4vwcrmluy89t69ymuqc-spo8l6cmq-1791218587580.jpg",
   "sua-do":
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDCLQJSGdzaUzbEkMos_gG-Lv-rr3CSwjE2etFuYUNOfx0eCiXkCoYPmcxswPcSPurehR927s_SWSA194dvIczQefMExkza4lS9aT67RlZln9n-zVT8zSZvMpCxCVW_I2KZZ13sHfsiTCtmqOXHuZguG_AH4Pe3WnkgOHKO6jxPpTQG9Lc1onk9PFr2ErRTff7PoyINdXZCXcTVuOk-edSMohvHfr9aHfIn_z256Ozn0Mhypti_f7jm7A",
+    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/cq-c-bbdtbcxn5vr16fntffgkj1qeuouqy619s8nq-zxoyholisvilttj3nlhmczkpzjdnxcznohysx4emggy8q8hnfgfptip9smacuodxcqooidtj2u9d3ouoblneasm5t8ioosxwghqbyod87l6-2sc6hofucmxswrlxrh7tguakmmipqs6dh6boafo9w-1791218614413.jpg",
   "hoang-dan":
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuAAKSe5vnL2SBorGy44O6b058sBu3A6PBVavoMl6Em4Q7FxueSYXQJ-OYz1dBhas22gmAuDK3Ag27pjiPFzYtgrnVGzIjmlPlgLkQGi4EmysuHp7mXhyQgdb6E6nAAAzh7hzRFjhPE6Gn8WN1vhHMDr3-dDeQm_KnpiMptIjTtMwib-7OydRmpsCyVIupIMC_ZLI2FXlduTjXOQmZUAJWj8fBcJz7-pSbPWlaFUg6R4f8fXLzQ-Hibn1Q",
+    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/tnw-11-1785412271065757119796-1791215192883.jpg",
   "kien-truc":
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuA0ZQTkMxoeFqbUb51lzz1AWErlK8e8YqLdwyuV4VJhgCI6QwEibA2s7vaIeMR-r6rVV3viNAWKTq8y3eR9jq_tmV5BhOHoNtA54qsNxbsxhqUFZ7VbvmKkLCnVafZbWgIq-WfpeK20LradYiSqBqZgFL5XA4LqXodTe4Nk3_30SvhuGdAqdtDwUVuwuLFiPDO-KKfveLVWqHTu1WVMx8dmwtwC3RBJsP69PNC97pbAfZ1m8rq-Zqucew",
+    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/nhadocphusuanhuy1-1790677593122-1791045737268.webp",
   "default":
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuCCNKBoBrwOVLNiOqQ8du_TmY5jBOS0MshjNuG1MdshoWGLypsTb-F9wxVkgBG1t6SCw6icr3PLdI-jfAm_AluCifaVI2rgr2Ga33BwtZgSbXGvCUcwmgT-j_h78V4vqykKtMIHQ7Ftofa2WDl8PVK42pBCLIRikOefIvSYD0dxIAwJJTu7HpGGVA6IYeFHNEXVr6bIN_kKOz0s006qv8Yu5OY7nxlbLxr_gPBoHKXfqFjco5OZYRvZAA",
+    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/images-1--1791215033290.jpg",
 };
 
 /**
  * Ưu tiên 100% ảnh thật từ bài báo gốc. Chỉ dùng ảnh mẫu nếu bài báo hoàn toàn không có ảnh
  */
 function selectSmartThumbnail(item: RawNewsItem, processed: ProcessedArticle): string {
-  if (item.imageUrl && item.imageUrl.startsWith("http")) {
+  if (item.imageUrl && item.imageUrl.startsWith("http") && !isInvalidNewsImage(item.imageUrl)) {
     return item.imageUrl;
   }
   const text = (processed.title + " " + (processed.woodTypesMentioned || []).join(" ")).toLowerCase();
@@ -134,6 +134,9 @@ async function fetchRawNews(sourcesPath: string, maxItemsPerSource = 5): Promise
           } else if (it.content) {
             const match = it.content.match(/<img[^>]+src=["']([^"']+)["']/i);
             if (match) imgUrl = match[1];
+          }
+          if (isInvalidNewsImage(imgUrl)) {
+            imgUrl = "";
           }
           allItems.push({
             title: it.title.trim(),
@@ -480,11 +483,11 @@ export async function runAutoNewsCuration(options: {
         item.content = crawled.fullContent;
         console.log(`[AI Auto-News] 📄 Cào thành công ${crawled.wordCount} từ bài báo gốc.`);
       }
-      if (crawled.permanentImageUrl) {
+      if (crawled.permanentImageUrl && !isInvalidNewsImage(crawled.permanentImageUrl)) {
         item.imageUrl = crawled.permanentImageUrl;
         crawledPermanentImg = crawled.permanentImageUrl;
         console.log(`[AI Auto-News] 🖼️ Ảnh bài báo gốc đã rehost thành công: ${crawled.permanentImageUrl}`);
-      } else if (crawled.leadImage) {
+      } else if (crawled.leadImage && !isInvalidNewsImage(crawled.leadImage)) {
         item.imageUrl = crawled.leadImage;
         crawledLeadImg = crawled.leadImage;
       }
@@ -577,7 +580,7 @@ export async function runAutoNewsCuration(options: {
         thumbnail: articleThumbnail,
         relatedProducts: relatedIds.length > 0 ? relatedIds : ["vt-001", "vt-002"],
         status: autoPublish ? "published" : "draft",
-        publishedAt: new Date().toISOString().split("T")[0],
+        publishedAt: new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().split("T")[0],
         readingTime,
       };
 

@@ -27,6 +27,23 @@ export interface CrawledArticle {
   inArticleImages: { url: string; caption: string }[];
 }
 
+export function isInvalidNewsImage(url: string | null | undefined): boolean {
+  if (!url || typeof url !== "string") return true;
+  const lower = url.toLowerCase();
+  return (
+    lower.includes("google") ||
+    lower.includes("gstatic") ||
+    lower.includes("favicon") ||
+    lower.includes("logo") ||
+    lower.includes("icon") ||
+    lower.includes("avatar") ||
+    lower.includes("placeholder") ||
+    lower.includes("default-thumbnail") ||
+    lower.includes("emafei6jcixnmgrafczc") ||
+    lower.includes("jgosffmzs0jlursgssuy")
+  );
+}
+
 /**
  * Tải và lưu trữ ảnh an toàn lên Cloudinary / Supabase Storage (Chống lỗi 403 Forbidden & Chống chết link)
  */
@@ -34,7 +51,7 @@ export async function rehostImageToCloud(
   imageUrl: string,
   folder: string = "news"
 ): Promise<string> {
-  if (!imageUrl || !imageUrl.startsWith("http")) return imageUrl;
+  if (!imageUrl || !imageUrl.startsWith("http") || isInvalidNewsImage(imageUrl)) return "";
 
   // 1. Ưu tiên 1: Tải trực tiếp lên Cloudinary đám mây (Tối ưu định dạng WebP tự động)
   if (initCloudinary()) {
@@ -136,28 +153,39 @@ export async function crawlFullArticle(targetUrl: string): Promise<CrawledArticl
     }
 
     // 2. Bóc tách ảnh đại diện thật (og:image)
-    const ogImgMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
-      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+    const isSearchWrapper =
+      targetUrl.includes("google.") ||
+      targetUrl.includes("news.google") ||
+      result.realUrl.includes("google.") ||
+      result.realUrl.includes("news.google");
 
-    if (ogImgMatch && ogImgMatch[1] && ogImgMatch[1].startsWith("http")) {
-      result.leadImage = ogImgMatch[1];
+    if (!isSearchWrapper) {
+      const ogImgMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+
+      if (ogImgMatch && ogImgMatch[1] && ogImgMatch[1].startsWith("http")) {
+        const candidate = ogImgMatch[1];
+        if (!isInvalidNewsImage(candidate)) {
+          result.leadImage = candidate;
+        }
+      }
     }
 
     // 3. Bóc tách các ảnh chụp thực tế trong thân bài báo (kèm caption)
     const inArticleImages: { url: string; caption: string }[] = [];
-    const figureRegex = /<figure[^>]*>[\s\S]*?<img[^>]+(?:src|data-src)=["']([^"']+)["'][^>]*?>[\s\S]*?(?:<figcaption[^>]*>([\s\S]*?)<\/figcaption>)?[\s\S]*?<\/figure>/gi;
-    let fm: RegExpExecArray | null;
-    while ((fm = figureRegex.exec(html)) !== null) {
-      const imgUrl = fm[1];
-      const caption = fm[2] ? fm[2].replace(/<[^>]*>/g, "").trim() : "";
-      if (
-        imgUrl &&
-        imgUrl.startsWith("http") &&
-        !imgUrl.includes("avatar") &&
-        !imgUrl.includes("logo") &&
-        !imgUrl.includes("icon")
-      ) {
-        inArticleImages.push({ url: imgUrl, caption });
+    if (!isSearchWrapper) {
+      const figureRegex = /<figure[^>]*>[\s\S]*?<img[^>]+(?:src|data-src)=["']([^"']+)["'][^>]*?>[\s\S]*?(?:<figcaption[^>]*>([\s\S]*?)<\/figcaption>)?[\s\S]*?<\/figure>/gi;
+      let fm: RegExpExecArray | null;
+      while ((fm = figureRegex.exec(html)) !== null) {
+        const imgUrl = fm[1];
+        const caption = fm[2] ? fm[2].replace(/<[^>]*>/g, "").trim() : "";
+        if (
+          imgUrl &&
+          imgUrl.startsWith("http") &&
+          !isInvalidNewsImage(imgUrl)
+        ) {
+          inArticleImages.push({ url: imgUrl, caption });
+        }
       }
     }
     result.inArticleImages = inArticleImages;

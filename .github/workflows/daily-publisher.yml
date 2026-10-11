@@ -29,10 +29,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
@@ -45,9 +45,9 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           if [ -n "${{ github.event.inputs.slot }}" ]; then
-            node scripts/ai-schedule-publisher.mjs --slot=${{ github.event.inputs.slot }}
+            npx tsx scripts/ai-schedule-publisher.mjs --slot=${{ github.event.inputs.slot }}
           else
-            node scripts/ai-schedule-publisher.mjs
+            npx tsx scripts/ai-schedule-publisher.mjs
           fi
 
       - name: Commit & Push New Post If Updated

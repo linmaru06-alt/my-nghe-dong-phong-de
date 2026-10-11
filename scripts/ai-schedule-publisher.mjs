@@ -134,7 +134,7 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json
 }
 `;
 
-  const modelCandidates = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-flash-latest"];
+  const modelCandidates = ["gemini-flash-latest", "gemini-2.0-flash", "gemini-1.5-flash"];
   let result = null;
 
   for (const mName of modelCandidates) {
@@ -154,7 +154,8 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json
         result = parsed;
         break;
       }
-    } catch {
+    } catch (err) {
+      console.warn(`[AI-Publisher] Thử model ${mName} thất bại: ${err.message}`);
       continue;
     }
   }
@@ -177,6 +178,7 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json
   }
 
   const postSlug = slugify(result.title);
+  const vnDateStr = new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().split("T")[0];
   const newPost = {
     id: `pillar-${Date.now()}`,
     slug: postSlug,
@@ -187,7 +189,7 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json
     thumbnail: selectedThumb,
     relatedProducts: ["vt-001", "vt-002"],
     status: "published",
-    publishedAt: new Date().toISOString().split("T")[0],
+    publishedAt: vnDateStr,
     readingTime: Math.max(3, Math.ceil(result.content.length / 500)),
   };
 
@@ -198,7 +200,7 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json
   // Đồng bộ lên Supabase nếu có key
   if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    await supabase.from("posts").upsert({
+    const { error: supaErr } = await supabase.from("posts").upsert({
       id: newPost.id,
       slug: newPost.slug,
       title: newPost.title,
@@ -209,8 +211,14 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json
       status: "published",
       published_at: newPost.publishedAt,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      read_time: newPost.readingTime,
+      related_products: newPost.relatedProducts,
     });
+    if (supaErr) {
+      console.error("[AI-Publisher] ❌ Lỗi Supabase upsert:", supaErr.message);
+    } else {
+      console.log("[AI-Publisher] ✅ Đã đồng bộ bài viết thành công lên Supabase");
+    }
   }
 
   return newPost;

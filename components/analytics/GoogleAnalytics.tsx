@@ -4,8 +4,10 @@ interface GoogleAnalyticsProps {
   gaId?: string;
 }
 
-export default function GoogleAnalytics({ gaId }: GoogleAnalyticsProps) {
-  const measurementId = gaId || process.env.NEXT_PUBLIC_GA_ID;
+const DEFAULT_GA_ID = "G-G47KG0ETHL";
+
+export default function GoogleAnalytics({ gaId = DEFAULT_GA_ID }: GoogleAnalyticsProps) {
+  const measurementId = gaId || process.env.NEXT_PUBLIC_GA_ID || DEFAULT_GA_ID;
 
   if (!measurementId) {
     return null;

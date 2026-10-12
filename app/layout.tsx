@@ -47,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${playfair.variable} ${beVietnam.variable}`}>
       <body className="min-h-screen antialiased flex flex-col bg-bg text-text pb-16 md:pb-0">
-        <GoogleAnalytics />
+        <GoogleAnalytics gaId="G-G47KG0ETHL" />
         <Header />
         <PageTransition>{children}</PageTransition>
         <Footer />

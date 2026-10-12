@@ -141,7 +141,8 @@ const MANDATORY_WOOD_KEYWORDS = [
   "mun sừng", "gỗ trắc", "ngọc am", "huyết long", "trầm hương",
   "cẩm lai", "nu gỗ", "thủ công mỹ nghệ", "làng nghề mộc",
   "điêu khắc gỗ", "vòng tay gỗ", "vòng phong thủy", "bút gỗ",
-  "đồ gỗ", "vương mộc", "tiểu diệp", "gối gỗ", "đũa gỗ", "đệm ô tô hạt gỗ"
+  "đồ gỗ", "vương mộc", "tiểu diệp", "gối gỗ", "đũa gỗ", "đệm ô tô hạt gỗ",
+  "cổ thụ", "cây bách", "khung gỗ", "nhà gỗ", "kiến trúc gỗ", "cây di sản"
 ];
 
 function isWoodRelated(text: string): boolean {
@@ -209,14 +210,11 @@ async function processWithGemini(
 ): Promise<ProcessedArticle | null> {
   const prompt = buildAihotPrompt(item);
 
-  // Danh sách model Google Gemini thế hệ mới nhất
+  // Danh sách model Google Gemini thế hệ mới nhất (ưu tiên model hoạt động ổn định nhất)
   const modelCandidates = [
-    "gemini-2.5-flash",
-    "gemini-1.5-flash",
-    "gemini-3.5-flash-lite",
-    "gemini-3.1-flash-lite",
-    "gemini-3.8-flash",
     "gemini-flash-latest",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
   ];
 
   for (const modelName of modelCandidates) {
@@ -399,7 +397,7 @@ export async function runAutoNewsCuration(options: {
   } catch {}
 
   // 2. Thu thập tin tức từ các nguồn
-  const rawItems = await fetchRawNews(sourcesPath, 8);
+  const rawItems = await fetchRawNews(sourcesPath, 30);
   console.log(`[AI Auto-News] Thu thập được ${rawItems.length} tin thô từ các nguồn.`);
 
   const newPostsToSave: Post[] = [];

@@ -28,6 +28,26 @@ export function generateId(): string {
 }
 
 /**
+ * Loại bỏ triệt để các thẻ HTML (div, span, br, p...),
+ * giải mã thực thể HTML (&nbsp;, &amp;...) và chuẩn hóa khoảng trắng thừa.
+ */
+export function stripHtmlTags(input: string): string {
+  if (!input) return "";
+  return input
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/(?:p|div|h[1-6]|li)>/gi, " ")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
  * Khởi tạo khối mẫu mặc định theo từng loại khối
  */
 export function createDefaultBlock(type: BlockType): EditorBlock {
@@ -182,13 +202,21 @@ export function blocksToMarkdown(blocks: EditorBlock[]): string {
 
   for (const block of blocks) {
     switch (block.type) {
-      case "header":
-        parts.push(`## ${block.data.title || ""}\n\n*${block.data.subtitle || ""}*`);
+      case "header": {
+        const cleanTitle = stripHtmlTags(block.data.title || "");
+        const cleanSubtitle = stripHtmlTags(block.data.subtitle || "");
+        if (cleanTitle) {
+          parts.push(`## ${cleanTitle}${cleanSubtitle ? `\n\n*${cleanSubtitle}*` : ""}`);
+        }
         break;
+      }
 
       case "heading": {
         const hashes = "#".repeat(Number(block.data.level) || 2);
-        parts.push(`${hashes} ${block.data.text || ""}`);
+        const cleanText = stripHtmlTags(block.data.text || "");
+        if (cleanText) {
+          parts.push(`${hashes} ${cleanText}`);
+        }
         break;
       }
 
@@ -390,30 +418,35 @@ export function markdownToBlocks(markdown: string): EditorBlock[] {
     const htmlHeadingMatch = raw.match(/^<h([2-4])[^>]*>([\s\S]*?)<\/h\1>$/i);
     if (htmlHeadingMatch) {
       const level = parseInt(htmlHeadingMatch[1], 10);
-      const text = htmlHeadingMatch[2].replace(/<[^>]*>/g, "").trim();
-      blocks.push({
-        id: generateId(),
-        type: "heading",
-        data: {
-          level,
-          text,
-        },
-      });
+      const text = stripHtmlTags(htmlHeadingMatch[2]);
+      if (text) {
+        blocks.push({
+          id: generateId(),
+          type: "heading",
+          data: {
+            level,
+            text,
+          },
+        });
+      }
       continue;
     }
 
     // 6.2. Markdown Heading (H2, H3, H4)
-    const headingMatch = raw.match(/^(#{2,4})\s+(.+)$/);
+    const headingMatch = raw.match(/^(#{2,4})\s+([\s\S]+)$/);
     if (headingMatch) {
       const level = headingMatch[1].length;
-      blocks.push({
-        id: generateId(),
-        type: "heading",
-        data: {
-          level,
-          text: headingMatch[2].trim(),
-        },
-      });
+      const text = stripHtmlTags(headingMatch[2]);
+      if (text) {
+        blocks.push({
+          id: generateId(),
+          type: "heading",
+          data: {
+            level,
+            text,
+          },
+        });
+      }
       continue;
     }
 

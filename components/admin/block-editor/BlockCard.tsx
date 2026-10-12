@@ -28,7 +28,7 @@ import {
   Phone,
   ShieldCheck,
 } from "lucide-react";
-import { EditorBlock, BlockType } from "@/lib/blockEditor";
+import { EditorBlock, BlockType, stripHtmlTags } from "@/lib/blockEditor";
 import { toast } from "@/components/ui/Toast";
 import { AutoResizeTextarea } from "@/components/ui/AutoResizeTextarea";
 import { RichContentEditable } from "@/components/ui/RichContentEditable";
@@ -256,13 +256,13 @@ export function BlockCard({
           onInsertBelow("text", { text: after });
         }
       } else {
-        // If it's a RichContentEditable (contenteditable div)
-        // We let the browser handle Enter to create <br> or <div> natively inside the block
-        // Block splitting for rich text is complex, so we just let it be a multi-line block
-        // unless they explicitly want a new block, they can click the + button.
-        // Wait, Notion creates a new block on Enter. 
-        // For simplicity, we just allow multi-line in the same block, or they can use Shift+Enter.
-        // Actually, let's just let it be native.
+        // Nếu là khối tiêu đề (heading), bấm Enter sẽ tự động tạo một đoạn văn bản mới bên dưới
+        if (block.type === "heading") {
+          e.preventDefault();
+          onInsertBelow("text", { text: "" });
+          return;
+        }
+        // Đối với khối văn bản thường, để trình duyệt xử lý tự nhiên
       }
     } else if (e.key === "Backspace") {
       let currentText = "";
@@ -466,9 +466,22 @@ export function BlockCard({
             <RichContentEditable
               id={`block-heading-${index}`}
               html={block.data.text || ""}
-              onChange={(val) => onUpdate({ ...block.data, text: val })}
+              onChange={(val) => {
+                const clean = stripHtmlTags(val);
+                onUpdate({ ...block.data, text: clean });
+              }}
               onKeyDown={handleKeyDown as any}
-              onPaste={handlePaste as any}
+              onPaste={(e: any) => {
+                const files = e.clipboardData?.files;
+                if (files && files.length > 0) {
+                  handlePaste(e);
+                  return;
+                }
+                e.preventDefault();
+                const text = e.clipboardData?.getData("text/plain") || "";
+                const clean = text.replace(/[\r\n]+/g, " ").trim();
+                document.execCommand("insertText", false, clean);
+              }}
               onFocus={() => onSelectBlock?.(index)}
               onSelect={() => onSelectBlock?.(index)}
               style={{

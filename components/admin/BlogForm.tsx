@@ -77,7 +77,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [tagInput, setTagInput] = useState("");
 
-  const [saveStatus, setSaveStatus] = useState<string>("ChÆ°a lÆ°u");
+  const [saveStatus, setSaveStatus] = useState<string>("Chưa lưu");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Sync States
@@ -107,7 +107,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       const nextIdx = historyIndex - 1;
       setHistoryIndex(nextIdx);
       setBlocks(history[nextIdx]);
-      setSaveStatus("ChÆ°a lÆ°u");
+      setSaveStatus("Chưa lưu");
       toast.info("ÄĂ£ hoĂ n tĂ¡c (Undo)");
     }
   };
@@ -117,7 +117,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       const nextIdx = historyIndex + 1;
       setHistoryIndex(nextIdx);
       setBlocks(history[nextIdx]);
-      setSaveStatus("ChÆ°a lÆ°u");
+      setSaveStatus("Chưa lưu");
       toast.info("ÄĂ£ lĂ m láº¡i (Redo)");
     }
   };
@@ -125,7 +125,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   // BeforeUnload Warning
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (saveStatus === "ChÆ°a lÆ°u") {
+      if (saveStatus === "Chưa lưu") {
         e.preventDefault();
         e.returnValue = "";
       }
@@ -195,7 +195,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       setLastSaved(new Date());
       setSaveStatus("Báº£n nhĂ¡p");
     } catch (e) {
-      setSaveStatus("ChÆ°a lÆ°u");
+      setSaveStatus("Chưa lưu");
       toast.error("LÆ°u nhĂ¡p tháº¥t báº¡i, vui lĂ²ng thá»­ láº¡i");
     }
   };
@@ -206,7 +206,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       updates.slug = slugify(val);
     }
     setFormData((prev) => ({ ...prev, ...updates }));
-    setSaveStatus("ChÆ°a lÆ°u");
+    setSaveStatus("Chưa lưu");
   };
 
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -298,7 +298,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
               caption: "",
             };
             setBlocks((prev) => [...prev, newBlock]);
-            setSaveStatus("ChÆ°a lÆ°u");
+            setSaveStatus("Chưa lưu");
             toast.success("ÄĂ£ chĂ¨n áº£nh tá»« clipboard vĂ o bĂ i viáº¿t!");
           } else {
             throw new Error(json.error || "KhĂ´ng thá»ƒ táº£i áº£nh");
@@ -325,7 +325,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     setBlocks(newBlocks);
     pushHistory(newBlocks);
     setActiveBlockIndex(targetIdx);
-    setSaveStatus("ChÆ°a lÆ°u");
+    setSaveStatus("Chưa lưu");
     toast.success(`ÄĂ£ thĂªm khá»‘i ${type}`);
   };
 
@@ -343,7 +343,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     setBlocks(newBlocks);
     pushHistory(newBlocks);
     setActiveBlockIndex(targetIdx);
-    setSaveStatus("ChÆ°a lÆ°u");
+    setSaveStatus("Chưa lưu");
     toast.success(`ÄĂ£ chĂ¨n báº£ng biá»ƒu ${rows}x${cols} vĂ o bĂ i viáº¿t`);
   };
 
@@ -392,7 +392,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         setBlocks(newBlocks);
         pushHistory(newBlocks);
         setActiveBlockIndex(targetIdx);
-        setSaveStatus("ChÆ°a lÆ°u");
+        setSaveStatus("Chưa lưu");
         toast.success("ÄĂ£ chĂ¨n áº£nh vĂ o bĂ i viáº¿t!");
       } else {
         throw new Error(json.error || "KhĂ´ng thá»ƒ táº£i áº£nh");
@@ -444,7 +444,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         editableNode.dispatchEvent(new Event('input', { bubbles: true }));
       }
       
-      setSaveStatus("ChÆ°a lÆ°u");
+      setSaveStatus("Chưa lưu");
     } else {
       toast.info("Vui lĂ²ng click vĂ o Ä‘oáº¡n vÄƒn hoáº·c bĂ´i Ä‘en chá»¯ Ä‘á»ƒ Ă¡p dá»¥ng Ä‘á»‹nh dáº¡ng");
     }
@@ -474,7 +474,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       newBlocks[targetIdx] = updated;
       setBlocks(newBlocks);
       pushHistory(newBlocks);
-      setSaveStatus("ChÆ°a lÆ°u");
+      setSaveStatus("Chưa lưu");
       toast.success(`ÄĂ£ Ä‘á»•i thĂ nh ${type === "heading" ? `TiĂªu Ä‘á» H${level || 2}` : "Äoáº¡n vÄƒn"}`);
     } else {
       handleInsertBlockFromToolbar(type, level ? { level, text: "" } : { text: "" });
@@ -526,7 +526,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       newBlocks[targetIdx] = updated;
       setBlocks(newBlocks);
       pushHistory(newBlocks);
-      setSaveStatus("ChÆ°a lÆ°u");
+      setSaveStatus("Chưa lưu");
       toast.success(
         `ÄĂ£ chuyá»ƒn thĂ nh ${
           listType === "checklist"
@@ -544,7 +544,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       setBlocks(newBlocks);
       pushHistory(newBlocks);
       setActiveBlockIndex(newBlocks.length - 1);
-      setSaveStatus("ChÆ°a lÆ°u");
+      setSaveStatus("Chưa lưu");
       toast.success("ÄĂ£ thĂªm danh sĂ¡ch má»›i");
     }
   };
@@ -567,7 +567,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       newBlocks[targetIdx] = updated;
       setBlocks(newBlocks);
       pushHistory(newBlocks);
-      setSaveStatus("ChÆ°a lÆ°u");
+      setSaveStatus("Chưa lưu");
       const alignName =
         align === "center"
           ? "giá»¯a"
@@ -600,7 +600,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       newBlocks[targetIdx] = updated;
       setBlocks(newBlocks);
       pushHistory(newBlocks);
-      setSaveStatus("ChÆ°a lÆ°u");
+      setSaveStatus("Chưa lưu");
     }
   };
 
@@ -608,13 +608,13 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
   const currentActiveBlock = activeBlockIndex !== null && blocks[activeBlockIndex] ? blocks[activeBlockIndex] : null;
   const currentStyle = currentActiveBlock?.type === "heading"
     ? currentActiveBlock.data.level === 3
-      ? "TiĂªu Ä‘á» 2 (H3)"
+      ? "Tiêu đề 2 (H3)"
       : currentActiveBlock.data.level === 4
-      ? "TiĂªu Ä‘á» 3 (H4)"
-      : "TiĂªu Ä‘á» 1 (H2)"
+      ? "Tiêu đề 3 (H4)"
+      : "Tiêu đề 1 (H2)"
     : currentActiveBlock?.type === "quote"
-    ? "TrĂ­ch dáº«n"
-    : "VÄƒn báº£n thÆ°á»ng";
+    ? "Trích dẫn"
+    : "Văn bản thường";
 
   const currentFontSize = currentActiveBlock?.data?.fontSize || 16;
 
@@ -624,7 +624,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       const currentTags = formData.tags || [];
       if (!currentTags.includes(tagInput.trim())) {
         setFormData((prev) => ({ ...prev, tags: [...(prev.tags || []), tagInput.trim()] }));
-        setSaveStatus("ChÆ°a lÆ°u");
+        setSaveStatus("Chưa lưu");
       }
       setTagInput("");
     }
@@ -635,7 +635,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       ...prev,
       tags: (prev.tags || []).filter((t) => t !== tagToRemove),
     }));
-    setSaveStatus("ChÆ°a lÆ°u");
+    setSaveStatus("Chưa lưu");
   };
 
   const validateAndPublish = async () => {
@@ -815,7 +815,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   value={formData.excerpt}
                   onChange={(e) => {
                     setFormData((p) => ({ ...p, excerpt: e.target.value }));
-                    setSaveStatus("ChÆ°a lÆ°u");
+                    setSaveStatus("Chưa lưu");
                   }}
                   placeholder="Äoáº¡n vÄƒn má»Ÿ Ä‘áº§u (Sapo) tĂ³m táº¯t ngáº¯n gá»n Ă½ chĂ­nh cá»§a bĂ i viáº¿t..."
                   className="w-full bg-[#FAF8F5] border border-[#E8DFC8]/60 rounded-lg p-3 text-sm md:text-base font-serif italic text-[#5A4A42] focus:outline-none focus:border-[#C5A059] resize-none overflow-hidden leading-relaxed placeholder:text-[#5F6368]/40"
@@ -841,7 +841,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                 onChange={(newBlocks) => {
                   setBlocks(newBlocks);
                   pushHistory(newBlocks);
-                  setSaveStatus("ChÆ°a lÆ°u");
+                  setSaveStatus("Chưa lưu");
                 }}
               />
             ) : (
@@ -849,7 +849,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                 value={formData.content}
                 onChange={(e) => {
                   setFormData((p) => ({ ...p, content: e.target.value }));
-                  setSaveStatus("ChÆ°a lÆ°u");
+                  setSaveStatus("Chưa lưu");
                 }}
                 className="w-full min-h-[600px] bg-transparent font-mono text-sm leading-relaxed focus:outline-none resize-none p-2 border border-[#DADCE0] rounded-lg"
                 placeholder="Ná»™i dung markdown..."
@@ -977,7 +977,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   value={formData.category}
                   onChange={(e) => {
                     setFormData((p) => ({ ...p, category: e.target.value }));
-                    setSaveStatus("ChÆ°a lÆ°u");
+                    setSaveStatus("Chưa lưu");
                   }}
                   className="w-full bg-[#FAF8F5] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] focus:border-[#1A73E8] outline-none"
                 >
@@ -1021,7 +1021,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   onChange={(e) => {
                     setFormData((prev) => ({ ...prev, readingTime: parseInt(e.target.value) || 1 }));
                     setIsReadingTimeManual(true);
-                    setSaveStatus("ChÆ°a lÆ°u");
+                    setSaveStatus("Chưa lưu");
                   }}
                   className="w-full bg-[#FAF8F5] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] focus:border-[#1A73E8] outline-none"
                 />

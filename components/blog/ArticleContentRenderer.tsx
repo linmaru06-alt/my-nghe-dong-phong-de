@@ -12,14 +12,15 @@ import {
   ExternalLink,
   CheckCircle2,
 } from "lucide-react";
-import { markdownToBlocks, EditorBlock } from "@/lib/blockEditor";
+import { markdownToBlocks, EditorBlock, stripHtmlTags } from "@/lib/blockEditor";
 
 export interface ArticleContentRendererProps {
   content: string;
 }
 
 function slugifyHeading(text: string): string {
-  return text
+  const clean = stripHtmlTags(text);
+  return clean
     .toLowerCase()
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-");
@@ -35,7 +36,10 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
       {blocks.map((block) => {
         switch (block.type) {
           case "header": {
-            const headingId = slugifyHeading(block.data.title || "");
+            const cleanTitle = stripHtmlTags(block.data.title || "");
+            const cleanSubtitle = block.data.subtitle ? stripHtmlTags(block.data.subtitle) : "";
+            if (!cleanTitle) return null;
+            const headingId = slugifyHeading(cleanTitle);
             return (
               <div
                 key={block.id}
@@ -49,11 +53,11 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                   </span>
                 </div>
                 <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#3D2314]">
-                  {block.data.title}
+                  {cleanTitle}
                 </h2>
-                {block.data.subtitle && (
+                {cleanSubtitle && (
                   <p className="mt-2 text-sm md:text-base text-[#5A4A42] font-serif italic">
-                    {block.data.subtitle}
+                    {cleanSubtitle}
                   </p>
                 )}
               </div>
@@ -62,7 +66,9 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
 
           case "heading": {
             const level = Number(block.data.level) || 2;
-            const headingId = slugifyHeading(block.data.text || "");
+            const headingText = stripHtmlTags(block.data.text || "");
+            if (!headingText) return null;
+            const headingId = slugifyHeading(headingText);
             const headingStyle = {
               textAlign: block.data.align || "left",
               fontSize: block.data.fontSize ? `${block.data.fontSize}px` : undefined,
@@ -76,7 +82,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                   style={headingStyle}
                   className="font-serif text-xl sm:text-2xl md:text-3xl font-bold text-[#3D2314] mt-8 md:mt-10 mb-3 md:mb-4 pb-2 border-b border-border/70 scroll-mt-24 leading-snug"
                 >
-                  {block.data.text}
+                  {headingText}
                 </h2>
               );
             }
@@ -88,7 +94,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                   style={headingStyle}
                   className="font-serif text-lg sm:text-xl md:text-2xl font-bold text-[#5C3A21] mt-6 md:mt-8 mb-2.5 md:mb-3 scroll-mt-24 leading-snug"
                 >
-                  {block.data.text}
+                  {headingText}
                 </h3>
               );
             }
@@ -99,7 +105,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                 style={headingStyle}
                 className="font-serif text-base sm:text-lg font-bold text-[#5C3A21] mt-5 md:mt-6 mb-2 scroll-mt-24 leading-snug"
               >
-                {block.data.text}
+                {headingText}
               </h4>
             );
           }
@@ -207,6 +213,9 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
           }
 
           case "quote": {
+            const cleanQuote = stripHtmlTags(block.data.quote || "");
+            const cleanAuthor = block.data.author ? stripHtmlTags(block.data.author) : "";
+            if (!cleanQuote) return null;
             return (
               <blockquote
                 key={block.id}
@@ -214,12 +223,12 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
               >
                 <Quote className="w-8 h-8 text-[#C5A059]/30 absolute top-4 right-4 pointer-events-none" />
                 <p className="font-serif italic text-base md:text-lg text-[#2A160C] leading-relaxed mb-3">
-                  &ldquo;{block.data.quote}&rdquo;
+                  &ldquo;{cleanQuote}&rdquo;
                 </p>
-                {block.data.author && (
+                {cleanAuthor && (
                   <div className="flex items-center gap-2 text-xs md:text-sm font-semibold text-[#C5A059] uppercase tracking-wider">
                     <span>—</span>
-                    <span>{block.data.author}</span>
+                    <span>{cleanAuthor}</span>
                   </div>
                 )}
               </blockquote>

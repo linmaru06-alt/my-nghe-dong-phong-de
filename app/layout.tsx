@@ -37,6 +37,7 @@ import BackToTop from "@/components/ui/BackToTop";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import PageTransition from "@/components/ui/PageTransition";
 import ToastContainer from "@/components/ui/Toast";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 
 export default function RootLayout({
   children,
@@ -46,6 +47,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${playfair.variable} ${beVietnam.variable}`}>
       <body className="min-h-screen antialiased flex flex-col bg-bg text-text pb-16 md:pb-0">
+        <GoogleAnalytics />
         <Header />
         <PageTransition>{children}</PageTransition>
         <Footer />

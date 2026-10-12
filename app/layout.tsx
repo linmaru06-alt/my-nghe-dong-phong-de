@@ -37,7 +37,6 @@ import BackToTop from "@/components/ui/BackToTop";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import PageTransition from "@/components/ui/PageTransition";
 import ToastContainer from "@/components/ui/Toast";
-import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 
 export default function RootLayout({
   children,
@@ -46,8 +45,24 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" className={`${playfair.variable} ${beVietnam.variable}`}>
+      <head>
+        {/* Google tag (gtag.js) */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-G47KG0ETHL"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-G47KG0ETHL');
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-screen antialiased flex flex-col bg-bg text-text pb-16 md:pb-0">
-        <GoogleAnalytics gaId="G-G47KG0ETHL" />
         <Header />
         <PageTransition>{children}</PageTransition>
         <Footer />

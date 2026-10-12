@@ -118,11 +118,60 @@ export async function rehostImageToCloud(
 }
 
 /**
- * Cào toàn văn nội dung và hình ảnh bài báo gốc từ URL
+ * Giải mã URL Google News sang URL trang báo thật bằng tìm kiếm tiêu đề trên mạng
  */
-export async function crawlFullArticle(targetUrl: string): Promise<CrawledArticle> {
+export async function resolveRealArticleUrl(title: string, googleUrl: string): Promise<string> {
+  if (!googleUrl.includes("news.google") && !googleUrl.includes("google.")) {
+    return googleUrl;
+  }
+  if (!title) return googleUrl;
+
+  try {
+    const cleanTitle = title.replace(/\s*-\s*[^-]+$/, "").trim();
+    const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(cleanTitle)}`;
+    const res = await fetch(ddgUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+    });
+    if (res.ok) {
+      const html = await res.text();
+      const udMatch = html.match(/uddg=([^&"']+)/gi);
+      if (udMatch && udMatch.length > 0) {
+        for (const m of udMatch.slice(0, 5)) {
+          const decoded = decodeURIComponent(m.replace("uddg=", ""));
+          if (
+            !decoded.includes("google.") &&
+            !decoded.includes("youtube.") &&
+            !decoded.includes("facebook.") &&
+            !decoded.includes("tiktok.")
+          ) {
+            console.log(`[Crawler] 🔗 Đã giải mã link báo thật từ mạng: ${decoded}`);
+            return decoded;
+          }
+        }
+      }
+    }
+  } catch (err: any) {
+    console.warn(`[Crawler] Lỗi giải mã link báo gốc: ${err.message}`);
+  }
+
+  return googleUrl;
+}
+
+/**
+ * Cào toàn văn nội dung và hình ảnh bài báo gốc từ URL trên mạng
+ */
+export async function crawlFullArticle(targetUrl: string, articleTitle?: string): Promise<CrawledArticle> {
+  // Nếu là link Google News, trước tiên giải mã sang URL báo thật
+  let effectiveUrl = targetUrl;
+  if (targetUrl.includes("google.") || targetUrl.includes("news.google")) {
+    effectiveUrl = await resolveRealArticleUrl(articleTitle || "", targetUrl);
+  }
+
   const result: CrawledArticle = {
-    realUrl: targetUrl,
+    realUrl: effectiveUrl,
     leadImage: null,
     permanentImageUrl: null,
     fullContent: "",
@@ -131,7 +180,7 @@ export async function crawlFullArticle(targetUrl: string): Promise<CrawledArticl
   };
 
   try {
-    const res = await fetch(targetUrl, {
+    const res = await fetch(effectiveUrl, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",

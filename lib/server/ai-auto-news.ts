@@ -7,37 +7,16 @@ import { getAllPosts, savePosts, type Post } from "@/lib/server/posts";
 import { supabaseAdmin } from "@/lib/supabase";
 import { crawlFullArticle, isInvalidNewsImage } from "@/lib/server/article-crawler";
 
-const CURATED_WOOD_IMAGES: Record<string, string> = {
-  "bach-xanh":
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/a7081af3a0b849e610a9-1791214960300.jpg",
-  "tu-dan":
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/g8wfj8szsr7j8exnqokiw-akdxrgjassae4djmefnczrnnxfqpihiztdlak6ejy1jn6qm-m9tmz87son1yfovmsg-vlirkphv8gh-2fk1qtjpzxop1ififn8xfn6ltfshsi7woqgnxx0ftix2qbf1-srsz4txzyq7-z4vwcrmluy89t69ymuqc-spo8l6cmq-1791218587580.jpg",
-  "sua-do":
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/cq-c-bbdtbcxn5vr16fntffgkj1qeuouqy619s8nq-zxoyholisvilttj3nlhmczkpzjdnxcznohysx4emggy8q8hnfgfptip9smacuodxcqooidtj2u9d3ouoblneasm5t8ioosxwghqbyod87l6-2sc6hofucmxswrlxrh7tguakmmipqs6dh6boafo9w-1791218614413.jpg",
-  "hoang-dan":
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/tnw-11-1785412271065757119796-1791215192883.jpg",
-  "kien-truc":
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/nhadocphusuanhuy1-1790677593122-1791045737268.webp",
-  "default":
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/images-1--1791215033290.jpg",
-};
-
 /**
- * Ưu tiên 100% ảnh thật từ bài báo gốc. Chỉ dùng ảnh mẫu nếu bài báo hoàn toàn không có ảnh
+ * 100% Ảnh bài viết PHẢI lấy từ bài báo thật trên mạng.
+ * CẤM TUYỆT ĐỐI dùng ảnh mẫu lưu sẵn trong Supabase.
+ * Nếu bài báo không có ảnh thật trên mạng -> Trả về rỗng để hệ thống BỎ QUA (SKIP).
  */
-function selectSmartThumbnail(item: RawNewsItem, processed: ProcessedArticle): string {
+function selectRealWebThumbnail(item: RawNewsItem): string {
   if (item.imageUrl && item.imageUrl.startsWith("http") && !isInvalidNewsImage(item.imageUrl)) {
     return item.imageUrl;
   }
-  const text = (processed.title + " " + (processed.woodTypesMentioned || []).join(" ")).toLowerCase();
-  if (text.includes("bách xanh") || text.includes("bach xanh")) return CURATED_WOOD_IMAGES["bach-xanh"];
-  if (text.includes("tử đàn") || text.includes("tu dan")) return CURATED_WOOD_IMAGES["tu-dan"];
-  if (text.includes("sưa") || text.includes("sua")) return CURATED_WOOD_IMAGES["sua-do"];
-  if (text.includes("hoàng đàn") || text.includes("hoang dan")) return CURATED_WOOD_IMAGES["hoang-dan"];
-  if (text.includes("nhà cổ") || text.includes("kiến trúc") || text.includes("đốc phủ sứ") || text.includes("cột gỗ")) {
-    return CURATED_WOOD_IMAGES["kien-truc"];
-  }
-  return CURATED_WOOD_IMAGES["default"];
+  return "";
 }
 
 interface NewsSource {
@@ -478,7 +457,7 @@ export async function runAutoNewsCuration(options: {
 
     try {
       console.log(`[AI Auto-News] 🌐 Đang cào toàn văn bài báo gốc từ: ${item.link}`);
-      const crawled = await crawlFullArticle(item.link);
+      const crawled = await crawlFullArticle(item.link, item.title);
       if (crawled.fullContent && crawled.wordCount >= 60) {
         item.content = crawled.fullContent;
         console.log(`[AI Auto-News] 📄 Cào thành công ${crawled.wordCount} từ bài báo gốc.`);
@@ -498,9 +477,16 @@ export async function runAutoNewsCuration(options: {
       console.warn(`[AI Auto-News] Lỗi khi cào bài báo ${item.link}:`, crawlErr.message);
     }
 
+    // BẮT BUỘC 100%: Phải có ảnh thật từ bài báo trên mạng (CẤM TUYỆT ĐỐI dùng ảnh mẫu Supabase)
+    const checkImg = crawledPermanentImg || crawledLeadImg || selectRealWebThumbnail(item);
+    if (!checkImg || isInvalidNewsImage(checkImg)) {
+      console.log(`[AI Auto-News] ⏭️ Bỏ qua do bài báo "${item.title}" KHÔNG TÌM THẤY ẢNH THẬT trên mạng.`);
+      skipped++;
+      continue;
+    }
+
     // KIỂM TRA TRÙNG LẶP LỚP 4: Ảnh đại diện đã từng được dùng cho bài viết khác chưa?
-    const checkImg = crawledPermanentImg || crawledLeadImg || item.imageUrl;
-    if (checkImg && existingThumbnails.has(checkImg)) {
+    if (existingThumbnails.has(checkImg)) {
       console.log(`[AI Auto-News] ⏭️ Bỏ qua do ảnh bài báo này đã từng xuất hiện ở bài viết khác: ${checkImg}`);
       skipped++;
       continue;
@@ -538,7 +524,7 @@ export async function runAutoNewsCuration(options: {
       const wordCount = processed.content.replace(/<[^>]*>/g, "").split(/\s+/).length;
       const readingTime = Math.max(3, Math.ceil(wordCount / 200));
 
-      const articleThumbnail = selectSmartThumbnail(item, processed);
+      const articleThumbnail = checkImg;
       let enrichedContent = processed.content;
 
       // 1. Chèn ảnh đại diện chính vào sau thẻ </h2> đầu tiên

@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, Heart, Sparkles, MapPin, MessageCircle } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
@@ -41,15 +42,48 @@ export default function AboutPage() {
       <div className="container mx-auto px-4 md:px-6">
         <Breadcrumb items={[{ label: "Giới thiệu thương hiệu" }]} />
 
+        {/* Hero Banner Story */}
+        <section className="mt-6 mb-16 md:mb-24 text-center max-w-3xl mx-auto">
+          <span className="text-xs font-bold tracking-widest text-secondary uppercase block mb-3">
+            Hành Trình Thương Hiệu
+          </span>
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-primary leading-tight mb-6">
+            Gìn Giữ Hồn Mộc Thủ Công <br className="hidden sm:inline" />
+            Trong Từng Thớ Gỗ Quý
+          </h1>
+          <p className="text-sm md:text-base text-text-muted leading-relaxed mb-8">
+            Sinh ra từ cái nôi của làng nghề mộc truyền thống, <strong>Mỹ Nghệ Đông Phong</strong> được thành lập với tôn chỉ tôn vinh vẻ đẹp tự nhiên mộc mạc nhưng vương giả của những danh mộc ngàn năm tuổi.
+          </p>
+          <div className="relative aspect-[21/9] w-full rounded-card overflow-hidden shadow-lg border border-border bg-[#2C1A0E]">
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10 flex items-end p-6 md:p-10 text-left">
+              <div className="max-w-md text-white">
+                <span className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold block mb-1">
+                  Độc bản & Tự nhiên
+                </span>
+                <p className="font-serif text-lg md:text-2xl font-bold">
+                  &quot;Không có hai thớ gỗ nào giống hệt nhau trên đời&quot;
+                </p>
+              </div>
+            </div>
+            <Image
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBekTM5DBX99f63WVv_CW702BMPR98TeeTWj4GFuqtbRUQ7iDn1wa3JbzaAirRZW5LypmnE5ypgvl2aJ2iRcps9IyTyVj2HksIkr_R8yizro-pxEr9qnNJPGiNiE0QMpt47ho7vXfqKtCm0kAzLA2H-Uw1p8ELc6sQQWQiXq0ttF_KK70Tq_rzVHSbS5vRakYK36vte0N0YOr3hFZiXv4PM9u_SrCPmo6ca1XxHuCfvf4VSRXa7RzjVeQ"
+              alt="Xưởng mộc Mỹ Nghệ Đông Phong"
+              fill
+              className="object-cover opacity-80"
+              sizes="(max-width: 1024px) 100vw, 80vw"
+            />
+          </div>
+        </section>
+
         {/* Core Values */}
-        <section className="mt-8 mb-16 md:mb-24">
+        <section className="mb-16 md:mb-24">
           <div className="text-center max-w-xl mx-auto mb-12">
             <span className="text-xs font-bold tracking-widest text-secondary uppercase block mb-2">
               Giá Trị Cốt Lõi
             </span>
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-primary">
+            <h2 className="font-serif text-2xl md:text-3xl font-bold text-primary">
               Ba Tôn Chỉ Làm Nghề Bất Biến
-            </h1>
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

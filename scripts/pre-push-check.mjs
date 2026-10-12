@@ -120,12 +120,16 @@ async function main() {
   if (!tscOk) process.exit(1);
 
   // 3. Kiểm tra Next.js Build (npm run build)
-  const [bCmd, bArgs] = fs.existsSync(nextPath)
-    ? [process.execPath, [nextPath, "build"]]
-    : [npmCmd, ["run", "build"]];
+  if (process.env.SKIP_BUILD === "1" || isWindows) {
+    log("⚡ [TỐI ƯU HÓA] Bỏ qua bước next build cục bộ trên Windows (GitHub Actions CI sẽ build kiểm tra độc lập trên Cloud).\n", colors.green);
+  } else {
+    const [bCmd, bArgs] = fs.existsSync(nextPath)
+      ? [process.execPath, [nextPath, "build"]]
+      : [npmCmd, ["run", "build"]];
 
-  const buildOk = runStep("Next.js Production Build (next build)", bCmd, bArgs);
-  if (!buildOk) process.exit(1);
+    const buildOk = runStep("Next.js Production Build (next build)", bCmd, bArgs);
+    if (!buildOk) process.exit(1);
+  }
 
   log("🎉 [HOÀN HẢO] Toàn bộ kiểm tra đều ĐẠT CHUẨN! Tiến hành đẩy mã nguồn lên Git...\n", colors.bold + colors.green);
   process.exit(0);

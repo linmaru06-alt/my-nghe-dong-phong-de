@@ -150,6 +150,30 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json
 }
 `;
 
+function extractAndParseJson(text) {
+  if (!text) throw new Error("Phản hồi rỗng từ Gemini");
+  let cleaned = text.trim();
+  cleaned = cleaned.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch (err1) {
+    const startIdx = cleaned.indexOf("{");
+    const endIdx = cleaned.lastIndexOf("}");
+    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      const sub = cleaned.slice(startIdx, endIdx + 1);
+      try {
+        return JSON.parse(sub);
+      } catch (err2) {
+        const fixed = sub
+          .replace(/[\u0000-\u001F]+/g, (match) => (match.includes("\n") ? "\\n" : " "))
+          .replace(/,\s*([}\]])/g, "$1");
+        return JSON.parse(fixed);
+      }
+    }
+    throw err1;
+  }
+}
+
   const modelCandidates = [
     "gemini-3.5-flash",
     "gemini-3.5-flash-lite",
@@ -161,11 +185,16 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json
 
   for (const mName of modelCandidates) {
     try {
-      const model = genAI.getGenerativeModel({ model: mName });
+      const model = genAI.getGenerativeModel({
+        model: mName,
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.7,
+        },
+      });
       const res = await model.generateContent(prompt);
       const text = res.response.text().trim();
-      const jsonStr = text.replace(/^```json/im, "").replace(/^```/im, "").replace(/```$/im, "").trim();
-      const parsed = JSON.parse(jsonStr);
+      const parsed = extractAndParseJson(text);
       
       // Kiểm tra độ dài từ thực tế (loại bỏ thẻ HTML)
       const textOnly = (parsed.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();

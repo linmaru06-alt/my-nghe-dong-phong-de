@@ -229,13 +229,24 @@ async function processWithGemini(
         return null;
       }
 
-      const jsonStr = text
-        .replace(/^```json/im, "")
-        .replace(/^```/im, "")
-        .replace(/```$/im, "")
-        .trim();
+      let parsed: ProcessedArticle;
+      try {
+        let cleaned = text.replace(/^```json/im, "").replace(/^```/im, "").replace(/```$/im, "").trim();
+        parsed = JSON.parse(cleaned);
+      } catch {
+        const startIdx = text.indexOf("{");
+        const endIdx = text.lastIndexOf("}");
+        if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+          const sub = text.slice(startIdx, endIdx + 1);
+          const fixed = sub
+            .replace(/[\u0000-\u001F]+/g, (m) => (m.includes("\n") ? "\\n" : " "))
+            .replace(/,\s*([}\]])/g, "$1");
+          parsed = JSON.parse(fixed);
+        } else {
+          continue;
+        }
+      }
 
-      const parsed: ProcessedArticle = JSON.parse(jsonStr);
       if (parsed.title && parsed.content && (parsed.relevanceScore || 0) >= 7) {
         return parsed;
       }

@@ -44,62 +44,98 @@
         {
           "level": "Dễ",
           "title": "Hướng dẫn chọn vòng theo Dụng/Hỷ thần",
-          "researchKeywords": ["chọn vòng phong thủy dụng thần hỷ thần", "dụng hỷ thần trong phong thủy gỗ"]
+          "researchKeywords": [
+            "chọn vòng phong thủy dụng thần hỷ thần",
+            "dụng hỷ thần trong phong thủy gỗ"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Phân biệt gỗ thật và giả/tẩm hóa chất",
-          "researchKeywords": ["cách phân biệt vòng gỗ thật giả", "nhận biết gỗ tẩm hóa chất tạo mùi"]
+          "researchKeywords": [
+            "cách phân biệt vòng gỗ thật giả",
+            "nhận biết gỗ tẩm hóa chất tạo mùi"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Ý nghĩa phong thủy số hạt vòng đeo tay",
-          "researchKeywords": ["ý nghĩa số hạt vòng tay phong thủy", "quy tắc sinh lão bệnh tử số hạt"]
+          "researchKeywords": [
+            "ý nghĩa số hạt vòng tay phong thủy",
+            "quy tắc sinh lão bệnh tử số hạt"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Hiện tượng hạt gỗ sậm màu và lên nước theo thời gian",
-          "researchKeywords": ["hạt gỗ lên nước sậm màu bóng đẹp", "gỗ tự nhiên đổi màu khi đeo lâu"]
+          "researchKeywords": [
+            "hạt gỗ lên nước sậm màu bóng đẹp",
+            "gỗ tự nhiên đổi màu khi đeo lâu"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Câu chuyện lịch sử các loại gỗ quý tiến vua",
-          "researchKeywords": ["lịch sử gỗ tử đàn sưa đỏ tiến vua", "nguồn gốc danh mộc hoàng gia"]
+          "researchKeywords": [
+            "lịch sử gỗ tử đàn sưa đỏ tiến vua",
+            "nguồn gốc danh mộc hoàng gia"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Phân biệt gỗ tự nhiên thật và gỗ ép (vân gỗ, trọng lượng, tiếng va chạm)",
-          "researchKeywords": ["phân biệt gỗ tự nhiên và gỗ ép công nghiệp", "cách soi vân gỗ thật"]
+          "researchKeywords": [
+            "phân biệt gỗ tự nhiên và gỗ ép công nghiệp",
+            "cách soi vân gỗ thật"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "Quy trình chế tác một chiếc vòng từ phôi gỗ thô đến thành phẩm bóng mộc",
-          "researchKeywords": ["quy trình tiện hạt vòng gỗ thủ công", "kỹ thuật đánh bóng mộc gỗ quý"]
+          "researchKeywords": [
+            "quy trình tiện hạt vòng gỗ thủ công",
+            "kỹ thuật đánh bóng mộc gỗ quý"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "Cách nhận biết tuổi gỗ và mật độ tinh dầu qua màu sắc và trọng lượng",
-          "researchKeywords": ["nhận biết tuổi gỗ qua thớ và vân", "mật độ tinh dầu trong gỗ bách xanh tử đàn"]
+          "researchKeywords": [
+            "nhận biết tuổi gỗ qua thớ và vân",
+            "mật độ tinh dầu trong gỗ bách xanh tử đàn"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "Hướng dẫn chọn vòng gỗ theo ngũ hành tương sinh tương hợp (Kim, Mộc, Thủy, Hỏa, Thổ)",
-          "researchKeywords": ["chọn vòng gỗ theo ngũ hành mệnh", "màu sắc vòng gỗ hợp mệnh"]
+          "researchKeywords": [
+            "chọn vòng gỗ theo ngũ hành mệnh",
+            "màu sắc vòng gỗ hợp mệnh"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "Phân biệt các loại gỗ quý phổ biến nhất (Trầm hương vs Tử Đàn Tiểu Diệp vs Sưa đỏ)",
-          "researchKeywords": ["so sánh trầm hương và tử đàn", "phân biệt sưa đỏ và tử đàn ấn độ"]
+          "researchKeywords": [
+            "so sánh trầm hương và tử đàn",
+            "phân biệt sưa đỏ và tử đàn ấn độ"
+          ]
         },
         {
           "level": "Khó",
           "title": "Câu chuyện Đông Phong: Tiêu chuẩn khắt khe khi tuyển chọn phôi gỗ già tại xưởng",
-          "researchKeywords": ["tiêu chuẩn tuyển chọn gỗ quý xưởng mộc", "chọn phôi gỗ đặc không rác"]
+          "researchKeywords": [
+            "tiêu chuẩn tuyển chọn gỗ quý xưởng mộc",
+            "chọn phôi gỗ đặc không rác"
+          ]
         },
         {
           "level": "Khó",
           "title": "Bản chất định giá đồ gỗ: Vì sao cùng một loại gỗ nhưng giá vòng chênh lệch từ vài trăm đến tiền triệu",
-          "researchKeywords": ["vì sao giá vòng gỗ chênh lệch", "yếu tố quyết định giá vòng tay gỗ quý"]
+          "researchKeywords": [
+            "vì sao giá vòng gỗ chênh lệch",
+            "yếu tố quyết định giá vòng tay gỗ quý"
+          ]
         }
       ]
     },
@@ -120,72 +156,114 @@
         {
           "level": "Dễ",
           "title": "Độ bền và chất lượng của vòng gỗ quý qua thời gian 5 năm, 10 năm",
-          "researchKeywords": ["độ bền vòng gỗ phong thủy", "vòng gỗ đeo lâu có hỏng không"]
+          "researchKeywords": [
+            "độ bền vòng gỗ phong thủy",
+            "vòng gỗ đeo lâu có hỏng không"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Đeo vòng gỗ có bị dị ứng da không? Cách xử lý cho da nhạy cảm",
-          "researchKeywords": ["đeo vòng gỗ có dị ứng không", "tinh dầu gỗ tự nhiên với da nhạy cảm"]
+          "researchKeywords": [
+            "đeo vòng gỗ có dị ứng không",
+            "tinh dầu gỗ tự nhiên với da nhạy cảm"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Nên chọn vòng trơn mộc mạc hay vòng chạm khắc hoa văn (Kinh Phật, Linh thú)?",
-          "researchKeywords": ["nên đeo vòng gỗ trơn hay khắc", "ý nghĩa vòng gỗ khắc kinh phật"]
+          "researchKeywords": [
+            "nên đeo vòng gỗ trơn hay khắc",
+            "ý nghĩa vòng gỗ khắc kinh phật"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Thời gian lưu hương của vòng gỗ tự nhiên (Bách Xanh, Hoàng Đàn, Trầm Hương) kéo dài bao lâu?",
-          "researchKeywords": ["vòng gỗ thơm được bao lâu", "cách hồi hương cho vòng bách xanh hoàng đàn"]
+          "researchKeywords": [
+            "vòng gỗ thơm được bao lâu",
+            "cách hồi hương cho vòng bách xanh hoàng đàn"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Cách xử lý chuẩn nghệ nhân khi vòng gỗ vô tình dính nước mưa hoặc xà phòng",
-          "researchKeywords": ["cách xử lý vòng gỗ dính nước", "vòng gỗ dính xà phòng phải làm sao"]
+          "researchKeywords": [
+            "cách xử lý vòng gỗ dính nước",
+            "vòng gỗ dính xà phòng phải làm sao"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Độ bền của chất gỗ tự nhiên trước sự thay đổi nhiệt độ và thời tiết nồm ẩm miền Bắc",
-          "researchKeywords": ["vòng gỗ mùa nồm ẩm", "bảo quản đồ gỗ chống nứt nẻ mùa đông"]
+          "researchKeywords": [
+            "vòng gỗ mùa nồm ẩm",
+            "bảo quản đồ gỗ chống nứt nẻ mùa đông"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Hướng dẫn đo chu vi cổ tay chuẩn xác bằng thước dây hoặc sợi chỉ (Chu vi + 1–1.5cm)",
-          "researchKeywords": ["hướng dẫn đo cổ tay chọn size vòng", "bảng quy đổi size cổ tay ra hạt vòng"]
+          "researchKeywords": [
+            "hướng dẫn đo cổ tay chọn size vòng",
+            "bảng quy đổi size cổ tay ra hạt vòng"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Cẩm nang bảo quản vòng gỗ: 5 nguyên tắc vàng giúp vòng luôn sáng bóng như mới",
-          "researchKeywords": ["cách bảo quản vòng tay gỗ", "nguyên tắc giữ vòng gỗ bóng đẹp"]
+          "researchKeywords": [
+            "cách bảo quản vòng tay gỗ",
+            "nguyên tắc giữ vòng gỗ bóng đẹp"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "5 cách nhận biết chính xác vòng gỗ thật tự nhiên và gỗ ép bột giá rẻ trên mạng",
-          "researchKeywords": ["cách nhận biết gỗ ép bột và gỗ thịt", "so sánh gỗ dăm ép và gỗ tự nhiên"]
+          "researchKeywords": [
+            "cách nhận biết gỗ ép bột và gỗ thịt",
+            "so sánh gỗ dăm ép và gỗ tự nhiên"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "Tính chuyên nghiệp và lịch lãm khi đeo vòng gỗ nơi công sở: Xu hướng tối giản hiện đại",
-          "researchKeywords": ["đeo vòng phong thủy nơi công sở", "phối vòng gỗ với đồ âu vest"]
+          "researchKeywords": [
+            "đeo vòng phong thủy nơi công sở",
+            "phối vòng gỗ với đồ âu vest"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "Vòng gỗ có bị phai màu ra cổ tay áo trắng không? Sự thật về nhựa gỗ tự nhiên",
-          "researchKeywords": ["vòng gỗ có phai màu ra áo không", "cách xử lý vòng gỗ tử đàn mới ra màu"]
+          "researchKeywords": [
+            "vòng gỗ có phai màu ra áo không",
+            "cách xử lý vòng gỗ tử đàn mới ra màu"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "Đeo vòng gỗ làm quà tặng: Những điều kiêng kỵ và chuẩn mực tinh tế cần biết",
-          "researchKeywords": ["tặng vòng phong thủy có kiêng gì không", "nghệ thuật tặng quà vòng gỗ"]
+          "researchKeywords": [
+            "tặng vòng phong thủy có kiêng gì không",
+            "nghệ thuật tặng quà vòng gỗ"
+          ]
         },
         {
           "level": "Khó",
           "title": "Đeo lâu dây xâu vòng có bị dão hay đứt không? Cách thay dây chun co giãn tại nhà đơn giản",
-          "researchKeywords": ["dây xâu vòng hạt có dễ đứt không", "cách xâu lại chuỗi hạt vòng tay"]
+          "researchKeywords": [
+            "dây xâu vòng hạt có dễ đứt không",
+            "cách xâu lại chuỗi hạt vòng tay"
+          ]
         },
         {
           "level": "Khó",
           "title": "Vạch trần: Vì sao vòng gỗ trên mạng có nơi chỉ bán 20k–50k nhưng quảng cáo gỗ sưa, trầm hương?",
-          "researchKeywords": ["sự thật vòng gỗ giá rẻ 50k", "vòng gỗ giả tẩm hóa chất trên sàn tmdt"]
+          "researchKeywords": [
+            "sự thật vòng gỗ giá rẻ 50k",
+            "vòng gỗ giả tẩm hóa chất trên sàn tmdt"
+          ]
         }
       ]
     },
@@ -207,72 +285,330 @@
         {
           "level": "Dễ",
           "title": "Gợi ý chọn màu sắc và chất gỗ theo bản mệnh chuẩn phong thủy ngũ hành",
-          "researchKeywords": ["bảng tra mệnh ngũ hành chọn màu gỗ", "mệnh mộc hỏa kim thủy thổ đeo gỗ gì"]
+          "researchKeywords": [
+            "bảng tra mệnh ngũ hành chọn màu gỗ",
+            "mệnh mộc hỏa kim thủy thổ đeo gỗ gì"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Chọn kích thước hạt (8mm, 10mm, 12mm, 14mm, 16mm) theo vóc dáng và tính chất công việc",
-          "researchKeywords": ["chọn size hạt vòng tay nam nữ", "cỡ hạt 10mm 12mm 14mm hợp ai"]
+          "researchKeywords": [
+            "chọn size hạt vòng tay nam nữ",
+            "cỡ hạt 10mm 12mm 14mm hợp ai"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Tư vấn chọn chuỗi vòng theo phong cách cá nhân: Doanh nhân, nghệ sĩ hay người hướng nội",
-          "researchKeywords": ["chọn vòng gỗ theo phong cách", "phong cách đeo vòng gỗ quý"]
+          "researchKeywords": [
+            "chọn vòng gỗ theo phong cách",
+            "phong cách đeo vòng gỗ quý"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Gợi ý set vòng đôi ý nghĩa cho cặp đôi và vợ chồng: Gắn kết bình an",
-          "researchKeywords": ["vòng đôi phong thủy gỗ quý", "set quà tặng cặp đôi vòng gỗ"]
+          "researchKeywords": [
+            "vòng đôi phong thủy gỗ quý",
+            "set quà tặng cặp đôi vòng gỗ"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Chọn chất gỗ theo cơ địa mồ hôi: Mồ hôi dầu, mồ hôi muối nên đeo loại nào?",
-          "researchKeywords": ["mồ hôi muối nên đeo vòng gỗ gì", "cơ địa mồ hôi dầu đeo vòng bách xanh tử đàn"]
+          "researchKeywords": [
+            "mồ hôi muối nên đeo vòng gỗ gì",
+            "cơ địa mồ hôi dầu đeo vòng bách xanh tử đàn"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Tư vấn chọn vòng gỗ chuẩn xịn trong tầm giá 200k – 500k cho người mới chơi",
-          "researchKeywords": ["vòng gỗ phong thủy giá 300k", "vòng gỗ cho người mới chơi"]
+          "researchKeywords": [
+            "vòng gỗ phong thủy giá 300k",
+            "vòng gỗ cho người mới chơi"
+          ]
         },
         {
           "level": "Dễ",
           "title": "Vòng Bách Xanh mộc Mộc Châu phù hợp với ai? Đánh giá chi tiết từ nghệ nhân",
-          "researchKeywords": ["vòng bách xanh mộc châu hợp ai", "đặc điểm vòng bách xanh chớp thơm"]
+          "researchKeywords": [
+            "vòng bách xanh mộc châu hợp ai",
+            "đặc điểm vòng bách xanh chớp thơm"
+          ]
         },
         {
           "level": "Dễ",
           "title": "3 lý do người thành đạt luôn sở hữu ít nhất một chuỗi Tử Đàn Tiểu Diệp Ấn Độ",
-          "researchKeywords": ["ý nghĩa vòng tử đàn tiểu diệp", "tại sao tử đàn là vua của các loài gỗ"]
+          "researchKeywords": [
+            "ý nghĩa vòng tử đàn tiểu diệp",
+            "tại sao tử đàn là vua của các loài gỗ"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "Tư vấn chọn vòng có hiệu ứng gỗ độc lạ: Vân chớp, vân nu, vân hoa hay tuyết phát quang",
-          "researchKeywords": ["vân nu chớp bách xanh", "gỗ có hiệu ứng tuyết hoàng đàn"]
+          "researchKeywords": [
+            "vân nu chớp bách xanh",
+            "gỗ có hiệu ứng tuyết hoàng đàn"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "Tư vấn 3 mẫu vòng theo 3 cấp độ tài chính và mức độ sưu tầm gỗ",
-          "researchKeywords": ["phân khúc vòng gỗ sơ cấp trung cấp cao cấp", "bộ sưu tập vòng gỗ quý"]
+          "researchKeywords": [
+            "phân khúc vòng gỗ sơ cấp trung cấp cao cấp",
+            "bộ sưu tập vòng gỗ quý"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "So sánh 3 mẫu vòng cho 3 nhu cầu: Cầu bình an, thu hút tài lộc hay định tâm thư giãn",
-          "researchKeywords": ["vòng gỗ cầu tài lộc bình an", "vòng trầm tĩnh tâm"]
+          "researchKeywords": [
+            "vòng gỗ cầu tài lộc bình an",
+            "vòng trầm tĩnh tâm"
+          ]
         },
         {
           "level": "Trung bình",
           "title": "So sánh vòng Sưa đỏ ảnh chụp studio và thực tế khi đeo trên tay sau 3 tháng",
-          "researchKeywords": ["vòng sưa đỏ thực tế khi đeo", "sự biến chuyển màu vòng sưa đỏ"]
+          "researchKeywords": [
+            "vòng sưa đỏ thực tế khi đeo",
+            "sự biến chuyển màu vòng sưa đỏ"
+          ]
         },
         {
           "level": "Khó",
           "title": "Hương thơm Trầm Tốc và Bách Xanh giúp giải tỏa căng thẳng, ngủ sâu giấc như thế nào?",
-          "researchKeywords": ["mùi hương gỗ quý giảm stress", "tác dụng của tinh dầu trầm bách xanh"]
+          "researchKeywords": [
+            "mùi hương gỗ quý giảm stress",
+            "tác dụng của tinh dầu trầm bách xanh"
+          ]
         },
         {
           "level": "Khó",
           "title": "Bóc tách họa tiết vân và giá trị cốt lõi của 3 phân khúc vòng: 250k – 450k – 850k",
-          "researchKeywords": ["so sánh vòng gỗ 250k và 850k", "giá trị thớ gỗ nu chớp và gỗ thân"]
+          "researchKeywords": [
+            "so sánh vòng gỗ 250k và 850k",
+            "giá trị thớ gỗ nu chớp và gỗ thân"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Mệnh Thủy đeo vòng gỗ gì đón tài hút lộc? Bí quyết chọn gỗ chuẩn từ nghệ nhân Đông Phong",
+          "researchKeywords": [
+            "mệnh thủy đeo vòng gỗ gì",
+            "vòng gỗ phong thủy mệnh thủy hút tài lộc"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Người mệnh Thủy có nên đeo đồ gỗ không? Giải mã quy luật ngũ hành từ chuyên gia mộc",
+          "researchKeywords": [
+            "mệnh thủy có nên đeo đồ gỗ",
+            "ngũ hành mệnh thủy và gỗ"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Vì sao gỗ Mun Sừng Khánh Hòa đen tuyền là bảo vật bản mệnh số 1 của người mệnh Thủy?",
+          "researchKeywords": [
+            "gỗ mun sừng hợp mệnh thủy",
+            "vòng mun sừng đen tuyền phong thủy"
+          ]
+        },
+        {
+          "level": "Khó",
+          "title": "Tử Đàn Tiểu Diệp Ấn Độ: Năng lượng Vương Mộc ánh sao kim sa tương sinh người mệnh Thủy ra sao?",
+          "researchKeywords": [
+            "tử đàn tiểu diệp hợp mệnh thủy",
+            "gỗ tử đàn ấn độ phong thủy"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Trầm Hương tự nhiên và người mệnh Thủy: Năng lượng tàng thủy giúp kích hoạt linh khí tài lộc",
+          "researchKeywords": [
+            "trầm hương hợp mệnh thủy",
+            "trầm hương tự nhiên phong thủy tài lộc"
+          ]
+        },
+        {
+          "level": "Khó",
+          "title": "Tuổi Nhâm Tuất 1982 & Quý Hợi 1983 (Đại Hải Thủy) hợp chất gỗ quý nào nhất để công danh thăng tiến?",
+          "researchKeywords": [
+            "tuổi nhâm tuất 1982 hợp gỗ gì",
+            "tuổi quý hợi 1983 đeo vòng gỗ gì"
+          ]
+        },
+        {
+          "level": "Khó",
+          "title": "Tuổi Bính Tý 1996 & Đinh Sửu 1997 (Giản Hạ Thủy): Lời khuyên chọn chuỗi hạt khai thông bế tắc sự nghiệp",
+          "researchKeywords": [
+            "tuổi bính tý 1996 hợp vòng gỗ",
+            "tuổi đinh sửu 1997 phong thủy gỗ"
+          ]
+        },
+        {
+          "level": "Khó",
+          "title": "Tuổi Giáp Dần 1974 & Ất Mão 1975 (Đại Khê Thủy): Chọn vòng gỗ quý dưỡng tâm an nhiên và củng cố nội lực",
+          "researchKeywords": [
+            "tuổi giáp dần 1974 hợp gỗ gì",
+            "tuổi ất mão 1975 đeo vòng phong thủy"
+          ]
+        },
+        {
+          "level": "Khó",
+          "title": "Tuổi Giáp Thân 2004 (Tuyền Trung Thủy): Gợi ý vòng gỗ phong thủy mang lại may mắn khi khởi nghiệp",
+          "researchKeywords": [
+            "tuổi giáp thân 2004 hợp vòng gỗ",
+            "vòng phong thủy cho người trẻ khởi nghiệp"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Bảng tra trọn bộ năm sinh mệnh Thủy và chất gỗ quý tương hợp từ xưởng mộc Đông Phong",
+          "researchKeywords": [
+            "bảng tra năm sinh mệnh thủy",
+            "năm sinh mệnh thủy hợp gỗ gì"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Doanh nhân mệnh Thủy nên chọn bút ký gỗ Mun Sừng đen hay Nu Huyết Long để ký kết hanh thông?",
+          "researchKeywords": [
+            "bút ký gỗ mun sừng",
+            "bút gỗ phong thủy doanh nhân mệnh thủy"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Bi lăn tay gỗ Mun Sừng đen bóng: Liệu pháp dưỡng khớp và điều hòa khí huyết cho người mệnh Thủy",
+          "researchKeywords": [
+            "bi lăn tay gỗ mun sừng",
+            "bi gỗ lăn tay dưỡng khớp"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Gối gỗ Bách Xanh tự nhiên: Bí quyết giúp người mệnh Thủy dứt điểm mất ngủ và tĩnh dưỡng tinh thần",
+          "researchKeywords": [
+            "gối gỗ bách xanh",
+            "gối gỗ trị mất ngủ"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Đệm khoác ô tô hạt gỗ cho bác tài mệnh Thủy: Vững vàng tay lái, vạn dặm bình an",
+          "researchKeywords": [
+            "đệm ghế ô tô hạt gỗ",
+            "đệm lót ô tô hạt gỗ phong thủy"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Nghệ thuật chọn quà tặng sếp mệnh Thủy: Top vật phẩm gỗ quý tinh tế toát lên đẳng cấp",
+          "researchKeywords": [
+            "quà tặng sếp mệnh thủy",
+            "quà tặng gỗ quý cao cấp"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Mệnh Thủy đeo gỗ Bách Xanh Mộc Châu có tốt không? Góc nhìn Thủy sinh Mộc dưỡng phúc lành",
+          "researchKeywords": [
+            "mệnh thủy đeo bách xanh được không",
+            "thủy sinh mộc trong phong thủy"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Vạch trần 3 sai lầm tai hại người mệnh Thủy thường mắc phải khi mua vòng gỗ phong thủy giá rẻ",
+          "researchKeywords": [
+            "sai lầm khi mua vòng gỗ phong thủy",
+            "cách chọn vòng gỗ thật tránh hàng giả"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Thổ khắc Thủy: Người mệnh Thủy có cần kiêng tuyệt đối các dòng gỗ màu vàng đất?",
+          "researchKeywords": [
+            "mệnh thủy có kiêng gỗ màu vàng",
+            "thổ khắc thủy trong chọn gỗ"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Vòng gỗ phong thủy mệnh Thủy sau khi lên nước sậm màu có làm thay đổi năng lượng bản mệnh?",
+          "researchKeywords": [
+            "vòng gỗ lên nước sậm màu",
+            "vòng gỗ đổi màu có sao không"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Làm ăn kinh doanh: Người mệnh Thủy đeo vòng gỗ gì để giữ tiền của và gặp quý nhân trợ lực?",
+          "researchKeywords": [
+            "mệnh thủy kinh doanh đeo vòng gì",
+            "vòng gỗ chiêu tài cho người làm ăn"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Phụ nữ mệnh Thủy nên chọn vòng tay hạt gỗ size bao nhiêu để vừa thanh lịch vừa vượng khí?",
+          "researchKeywords": [
+            "nữ mệnh thủy đeo vòng size bao nhiêu",
+            "cách chọn size vòng tay gỗ nữ"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Nam giới mệnh Thủy nên đeo chuỗi hạt Mun Sừng hay Tử Đàn để toát lên khí chất lãnh đạo?",
+          "researchKeywords": [
+            "nam mệnh thủy đeo vòng gỗ gì",
+            "chuỗi hạt gỗ cho nam lãnh đạo"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Chuỗi hạt phong thủy đắc lực cho người mệnh Thủy làm trong ngành tài chính, ngân hàng và bất động sản",
+          "researchKeywords": [
+            "vòng phong thủy ngành tài chính",
+            "vòng gỗ cho người làm ngân hàng"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Cách nhận biết vòng gỗ Mun Sừng tự nhiên thật cho người mệnh Thủy, tránh mua nhầm gỗ ép nhuộm màu",
+          "researchKeywords": [
+            "cách nhận biết gỗ mun sừng thật",
+            "phân biệt vòng gỗ thật giả"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Bí quyết lau mộc và bảo dưỡng chuỗi hạt gỗ của người mệnh Thủy để càng đeo càng bóng gương",
+          "researchKeywords": [
+            "cách lau mộc vòng gỗ",
+            "bảo dưỡng vòng tay gỗ bóng đẹp"
+          ]
+        },
+        {
+          "level": "Trung bình",
+          "title": "Ý nghĩa số hạt vòng tay phong thủy cho người mệnh Thủy: Cách đếm chuẩn cung Sinh theo tuổi",
+          "researchKeywords": [
+            "ý nghĩa số hạt vòng phong thủy",
+            "cách đếm hạt vòng theo cung sinh"
+          ]
+        },
+        {
+          "level": "Dễ",
+          "title": "Hành trình trải nghiệm: Khách hàng mệnh Thủy chia sẻ sự thay đổi sau 1 năm đeo chuỗi hạt Tử Đàn Đông Phong",
+          "researchKeywords": [
+            "review vòng tử đàn đông phong",
+            "trải nghiệm đeo vòng gỗ tử đàn"
+          ]
         }
       ]
     }

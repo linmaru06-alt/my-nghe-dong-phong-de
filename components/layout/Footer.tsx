@@ -87,6 +87,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/cong-cu/tra-cuu-menh-go" className="hover:text-[#C5A059] transition-colors text-[#C5A059]">
+                  ✦ Tra cứu mệnh gỗ phong thủy
+                </Link>
+              </li>
+              <li>
                 <Link href="/gioi-thieu" className="hover:text-white transition-colors">
                   Về thương hiệu Đông Phong
                 </Link>

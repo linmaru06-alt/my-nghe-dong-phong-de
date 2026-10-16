@@ -222,6 +222,15 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </div>
 
               <Link
+                href="/cong-cu/tra-cuu-menh-go"
+                onClick={onClose}
+                className="flex items-center justify-between px-5 py-3.5 text-sm font-medium text-[#C5A059] bg-[#C5A059]/10 hover:bg-[#C5A059]/20 transition-colors"
+              >
+                <span className="font-semibold">✦ Tra cứu mệnh gỗ</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#C5A059] text-white">Mới</span>
+              </Link>
+
+              <Link
                 href="/gioi-thieu"
                 onClick={onClose}
                 className="flex items-center justify-between px-5 py-3.5 text-sm font-medium text-text hover:text-primary hover:bg-bg transition-colors"

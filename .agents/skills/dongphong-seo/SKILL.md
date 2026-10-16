@@ -106,3 +106,17 @@ Quy định áp dụng cho toàn bộ bài viết trên web và hệ thống xu�
    - 100% hình ảnh bài viết là **ảnh chụp thật được tìm kiếm tự động từ các trang web, bài viết nghiên cứu chuyên ngành đồ gỗ uy tín trên mạng internet** (khớp theo từng chất gỗ: Hoàng đàn, Tử đàn, Sưa đỏ, Bách xanh, Mun sừng...).
    - **Tuyệt đối cấm sử dụng ảnh do AI tạo** (Midjourney, DALL-E, Stable Diffusion).
    - **Không sử dụng kho ảnh cố định trùng lặp** để mỗi bài viết đều có hình ảnh thực tế độc bản, sắc nét.
+
+### 5.3. Định Hướng Nội Dung Tâm Linh & Phong Thủy Thực Chiến
+1. **Trừ tà, kỵ gió độc, định tâm an thần:** Khai thác sâu công năng của các dòng linh mộc tích tụ dương khí (Trầm Hương, Bách Xanh, Hoàng Đàn, Huyết Long) trong việc đẩy lùi trược khí, chống bóng đè, an thần giúp ngủ sâu giấc.
+2. **Hộ mệnh thương trường & Chiêu tài:** Định hướng vật phẩm cho giới kinh doanh, đàm phán, ký hợp đồng; giải thích cơ chế chiêu cảm quý nhân và bảo vệ gia chủ khỏi tiểu nhân gièm pha.
+3. **Quy tắc số hạt Sinh - Lão - Bệnh - Tử:** Hướng dẫn đếm hạt chuẩn phong thủy (chia 4 dư 1 rơi vào cung Sinh) và ý nghĩa chuỗi 108 hạt đoạn trừ 108 phiền não trong Phật giáo.
+4. **Quy tắc Tay Trái Nạp Phúc — Tay Phải Hộ Mệnh:** Khi đi đàm phán, gặp đối tác, đi chùa thì đeo tay trái (chiêu tài lộc); khi đi qua vùng đất dữ, đám tang, bệnh viện thì đeo tay phải (trừ uế khí).
+5. **Hóa giải năm hạn & Sự cố tâm linh:** Hóa giải vận xui trong năm Tam Tai, Thái Tuế; giải thích hiện tượng vòng đứt dây là linh mộc "đỡ hộ kiếp nạn".
+
+### 5.4. Phong Cách Biên Soạn: Dễ Hiểu — Phân Tích Mạch Lạc — Có Chiều Sâu
+- **Dễ hiểu:** Ngôn từ trong sáng, chuẩn xác, giải thích những vấn đề kỹ thuật và phong thủy phức tạp thành đơn giản.
+- **Phân tích logic:** Mổ xẻ nguyên nhân, cơ chế tự nhiên (tại sao gỗ lên tuyết, tại sao gỗ chìm nước, tại sao phôi già có giá trị cao).
+- **Tuyệt đối không:** Văn mẫu hàn lâm sách vở, không lý thuyết suông, không kể lể dông dài chuyện phiếm.
+- **Tuyệt đối nghiêm cấm thẻ bảng `<table>`:** Sử dụng danh sách `<ul><li>` có in đậm từ khóa `<strong>` ở đầu mỗi ý hoặc đoạn văn phân tích tương phản.
+

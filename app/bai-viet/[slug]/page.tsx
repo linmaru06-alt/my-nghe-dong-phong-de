@@ -99,12 +99,44 @@ export default async function BlogDetailPage({ params }: PageProps) {
     },
   };
 
+  // Tự động bóc tách các câu hỏi FAQ (h3) và câu trả lời (p) để tối ưu AI Search (Perplexity, ChatGPT, Google AI Overviews)
+  const faqRegex = /<h3[^>]*>([\s\S]*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/gi;
+  const faqItems: Array<{ question: string; answer: string }> = [];
+  let match;
+  while ((match = faqRegex.exec(post.content || "")) !== null) {
+    const q = match[1].replace(/<[^>]*>/g, "").trim();
+    const a = match[2].replace(/<[^>]*>/g, "").trim();
+    if (q && a && !q.toLowerCase().includes("lời tâm sự")) {
+      faqItems.push({ question: q, answer: a });
+    }
+  }
+
+  const schemas: any[] = [blogSchema];
+
+  if (faqItems.length > 0) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqItems.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.answer,
+        },
+      })),
+    });
+  }
+
   return (
     <main className="flex-1 w-full">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }}
-      />
+      {schemas.map((s, idx) => (
+        <script
+          key={idx}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
+        />
+      ))}
       <BlogDetailClient post={post} />
     </main>
   );

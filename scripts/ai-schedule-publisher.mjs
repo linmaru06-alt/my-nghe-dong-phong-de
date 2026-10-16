@@ -66,10 +66,12 @@ function getCurrentSlot() {
     return parseInt(slotArg.split("=")[1], 10);
   }
 
-  const hour = new Date().getHours();
-  // Khung 1: 06:00 - 12:00 (Sáng sớm: Tin tức & Thị trường)
-  if (hour < 12) return 1;
-  // Khung 2: Sau 12:00 (Đặc biệt 20:30 Tối: Cẩm nang Content Pillar chuyên sâu luân phiên)
+  // Chuyển đổi chính xác sang múi giờ Việt Nam (UTC+7)
+  const vnDate = new Date(Date.now() + 7 * 60 * 60 * 1000);
+  const vnHour = vnDate.getUTCHours();
+  // Khung 1: Buổi sáng (06:00 - 14:00 VN) -> Slot 1 (Tin tức thị trường)
+  if (vnHour >= 6 && vnHour < 14) return 1;
+  // Khung 2: Buổi chiều & tối (14:00 - 24:00 hoặc trước 06:00 VN) -> Slot 2 (Content Pillar chuyên sâu)
   return 2;
 }
 
@@ -79,6 +81,20 @@ function getCurrentSlot() {
 async function generatePillarArticle(category, targetPillar) {
   if (!GEMINI_API_KEY) {
     throw new Error("Thiếu GEMINI_API_KEY trong .env.local");
+  }
+
+  // Tự động giải quyết category luân phiên nếu nhận "auto-rotate"
+  if (category === "auto-rotate") {
+    const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
+    const posts = JSON.parse(postsRaw);
+    const rotationPool = ["kien-thuc-ve-go", "bao-quan-san-pham", "huong-dan-lua-chon"];
+    const counts = rotationPool.map((cat) => ({
+      cat,
+      count: posts.filter((p) => p.category === cat).length,
+    }));
+    counts.sort((a, b) => a.count - b.count);
+    category = counts[0].cat;
+    console.log(`[Content-Pillar] Đang chọn chuyên mục luân phiên: ${category}`);
   }
 
   const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
@@ -134,7 +150,13 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json
 }
 `;
 
-  const modelCandidates = ["gemini-flash-latest", "gemini-2.0-flash", "gemini-1.5-flash"];
+  const modelCandidates = [
+    "gemini-3.5-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
+    "gemini-3.8-flash",
+    "gemini-flash-latest",
+  ];
   let result = null;
 
   for (const mName of modelCandidates) {
@@ -262,7 +284,19 @@ async function main() {
     // Gọi cơ chế cào tin cũ với bộ lọc gỗ quý nghiêm ngặt
     const { runAutoNewsCuration } = await import("../lib/server/ai-auto-news.ts");
     const res = await runAutoNewsCuration({ autoPublish: true, maxArticles: 1 });
-    console.log(`✅ Kết quả: Đã xuất bản ${res.publishedCount} bài tin tức thị trường.`);
+    
+    if (res.publishedCount > 0) {
+      console.log(`✅ Kết quả: Đã xuất bản ${res.publishedCount} bài tin tức thị trường.`);
+    } else {
+      console.log(`⚠️ Không tìm thấy bài báo mới nào đạt tiêu chuẩn lọc ảnh & chủ đề gỗ hôm nay.`);
+      console.log(`🔄 [TỰ ĐỘNG CHUYỂN ĐỔI DỰ PHÒNG] Kích hoạt Động cơ Content Pillar để luôn đảm bảo có bài viết chất lượng xuất bản...`);
+      const newPost = await generatePillarArticle("auto-rotate", "Cẩm Nang Chuyên Sâu Đồ Gỗ (Dự Phòng)");
+      console.log(`✅ Đã xuất bản thành công bài viết chuyên sâu dự phòng:`);
+      console.log(`   - Tiêu đề: ${newPost.title}`);
+      console.log(`   - Đường dẫn: /bai-viet/${newPost.slug}`);
+      console.log(`   - Chuyên mục: ${newPost.category}`);
+      console.log(`   - Ảnh minh họa (Thật 100%): ${newPost.thumbnail}`);
+    }
   } else {
     console.log(`\n[Slot ${slot}] Đang lấy chủ đề gốc từ Content Pillar & nghiên cứu web...`);
     const newPost = await generatePillarArticle(targetCategory, currentSlotConfig.name);

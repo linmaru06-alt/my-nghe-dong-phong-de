@@ -174,12 +174,14 @@ HÃY TUÂN THỦ NGHIÊM NGẶT CÁC BỘ QUY TẮC CỐT LÕI ĐỂ BIÊN SOẠ
 - Khai thác tối đa các chi tiết, số liệu, năm tháng, con người, địa danh và sự kiện thực tế có trong bài báo gốc.
 - Phân tích dưới góc nhìn chuyên sâu của một nghệ nhân mộc truyền thống am hiểu tường tận về các loại gỗ quý (Tử đàn, Sưa đỏ, Bách xanh, Hoàng đàn, Mun sừng, Trắc...).
 
-【QUY TẮC 2: CẤU TRÚC 5 PHẦN CHUẨN MỰC (ĐỊNH DẠNG HTML)】
-Bài viết bắt buộc phải có đủ 5 phần với các thẻ <h2>, <p>, <ul>, <li>, <blockquote>:
+【QUY TẮC 2: CẤU TRÚC PHÂN TÍCH CHUYÊN SÂU — KHÔNG DÙNG BẢNG (ĐỊNH DẠNG HTML)】
+- VĂN PHONG: Dễ hiểu, phân tích mạch lạc, có chiều sâu cơ chế tự nhiên. Tuyệt đối không dùng từ ngữ hàn lâm sách vở khô cứng, cũng không kể lể dông dài.
+- TUYỆT ĐỐI NGHIÊM CẤM DÙNG THẺ BẢNG HTML (<table>)! Mọi sự so sánh, đối chiếu đều phải dùng danh sách (<ul><li>) có in đậm <strong> ở đầu mỗi ý hoặc đoạn văn phân tích tương phản.
+Bài viết có các phần với thẻ <h2>, <h3>, <p>, <ul>, <li>, <strong>, <blockquote>:
 1. <h2> mở đầu: Trực diện 50 - 70 từ (chuẩn GEO Answer-First) giải thích ngay cốt lõi sự kiện/tác phẩm.
-2. <h2>: Nguồn gốc, niên đại lịch sử và câu chuyện thực tế từ bài báo.
-3. <h2>: Góc nhìn nghệ nhân mộc: Bóc tách chất gỗ, tom gỗ, thớ gỗ, đường vân, mộng thắt cổ truyền và lý do gỗ trường tồn qua thời gian.
-4. <h2>: Giá trị phong thủy, năng lượng vượng khí và hương thơm tự nhiên của gỗ quý đối với không gian sống của gia chủ.
+2. <h2>: Nguồn gốc, niên đại lịch sử và bối cảnh thực tế từ bài báo.
+3. <h2>: Góc nhìn chuyên sâu: Bóc tách chất gỗ, tôm gỗ, thớ gỗ, đường vân, tỷ trọng và lý do gỗ trường tồn qua thời gian.
+4. <h2>: Giá trị phong thủy, cơ chế hương thơm tự nhiên và tác động đối với đời sống gia chủ.
 5. <h2>: Lời khuyên dưỡng gỗ & gìn giữ tinh hoa từ Mỹ Nghệ Đông Phong (cách giữ vân, bảo quản tự nhiên, nói không với hóa chất độc hại).
 
 【QUY TẮC 3: ĐÁNH GIÁ ĐỘ PHÙ HỢP CỰC KỲ KHẮT KHE】

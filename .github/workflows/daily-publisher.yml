@@ -52,11 +52,19 @@ jobs:
 
       - name: Commit & Push New Post If Updated
         run: |
-          git config --global user.name "Dong Phong Auto Bot"
-          git config --global user.email "bot@mynghedongphong.vn"
+          set -e
+          git config user.name "Dong Phong Auto Bot"
+          git config user.email "bot@mynghedongphong.vn"
           git add data/posts.json
-          if ! git diff --quiet || ! git diff --staged --quiet; then
-            git commit -m "chore(auto-news): tu dong xuat ban bai viet moi [skip ci]"
-            git pull --rebase origin main
-            git push origin main
+          echo "--- git status ---"
+          git status --short
+          if git diff --staged --quiet; then
+            echo "Khong co thay doi nao trong data/posts.json — bo qua commit."
+            exit 0
           fi
+          git commit -m "chore(auto-news): tu dong xuat ban bai viet moi [skip ci]"
+          echo "--- pull --rebase ---"
+          git pull --rebase --autostash origin main
+          echo "--- push ---"
+          git push origin main
+

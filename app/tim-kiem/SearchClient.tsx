@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, Package, BookOpen, MessageCircle } from "lucide-react";
+import { Search, Package, BookOpen, MessageCircle, Tag } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import ProductGrid from "@/components/product/ProductGrid";
 import BlogGrid from "@/components/blog/BlogGrid";
@@ -11,6 +11,7 @@ import productsData from "@/data/products.json";
 import postsData from "@/data/posts.json";
 import categoriesData from "@/data/categories.json";
 import settingsData from "@/data/settings.json";
+import { POPULAR_HASHTAGS } from "@/lib/utils/tags";
 
 import type { Product } from "@/lib/server/products";
 import type { Post } from "@/lib/server/posts";
@@ -19,6 +20,15 @@ export interface SearchClientProps {
   initialQuery?: string;
   initialProducts?: Product[];
   initialPosts?: Post[];
+}
+
+function removeVietnameseTones(str: string): string {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase();
 }
 
 export default function SearchClient({
@@ -38,32 +48,42 @@ export default function SearchClient({
     setSearchInput(initialQuery);
   }, [initialQuery]);
 
-  const trimmed = (initialQuery || searchInput).trim().toLowerCase();
+  const trimmed = (initialQuery || searchInput).trim();
+  const normQuery = useMemo(() => removeVietnameseTones(trimmed), [trimmed]);
 
   // Search logic
   const matchedProducts = useMemo(() => {
-    if (!trimmed) return [];
+    if (!normQuery) return [];
     return productsList.filter(
       (p) =>
         p.status === "published" &&
-        (p.name.toLowerCase().includes(trimmed) ||
-          p.code.toLowerCase().includes(trimmed) ||
-          p.woodType.toLowerCase().includes(trimmed) ||
-          p.description.toLowerCase().includes(trimmed))
+        (removeVietnameseTones(p.name).includes(normQuery) ||
+          removeVietnameseTones(p.code).includes(normQuery) ||
+          removeVietnameseTones(p.woodType).includes(normQuery) ||
+          removeVietnameseTones(p.description || "").includes(normQuery))
     );
-  }, [trimmed, productsList]);
+  }, [normQuery, productsList]);
 
   const matchedPosts = useMemo(() => {
-    if (!trimmed) return [];
+    if (!normQuery) return [];
     return postsList.filter(
       (p) =>
         p.status === "published" &&
-        (p.title.toLowerCase().includes(trimmed) ||
-          p.excerpt.toLowerCase().includes(trimmed) ||
-          p.content.toLowerCase().includes(trimmed))
+        (removeVietnameseTones(p.title).includes(normQuery) ||
+          removeVietnameseTones(p.excerpt || "").includes(normQuery) ||
+          (p.tags && p.tags.some((t: string) => removeVietnameseTones(t).includes(normQuery))) ||
+          removeVietnameseTones((p.content || "").slice(0, 2000)).includes(normQuery))
     );
-  }, [trimmed, postsList]);
+  }, [normQuery, postsList]);
 
+  // Tự động chuyển tab thông minh nếu chỉ có kết quả ở 1 bên
+  useEffect(() => {
+    if (matchedProducts.length === 0 && matchedPosts.length > 0) {
+      setActiveTab("posts");
+    } else if (matchedProducts.length > 0 && matchedPosts.length === 0) {
+      setActiveTab("products");
+    }
+  }, [matchedProducts.length, matchedPosts.length]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +120,7 @@ export default function SearchClient({
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Nhập tên vòng tay, bút ký, loại gỗ (Tử Đàn, Sưa...)..."
+            placeholder="Nhập tên vòng tay, bút ký, loại gỗ (Tử Đàn, Sưa, Hoàng Đàn, Bách Xanh...)..."
             className="w-full bg-surface border border-border rounded-btn pl-11 pr-24 py-3 text-base text-text focus:outline-none focus:border-primary shadow-sm"
           />
           <Search className="w-5 h-5 text-text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -111,6 +131,23 @@ export default function SearchClient({
             Tìm kiếm
           </button>
         </form>
+
+        {/* Chủ đề & Hashtag phổ biến */}
+        <div className="flex flex-wrap items-center gap-2 mt-4 pt-2">
+          <span className="text-xs text-[#5A4A42] font-semibold flex items-center gap-1">
+            <Tag className="w-3.5 h-3.5 text-[#C5A059]" />
+            Hashtags phổ biến:
+          </span>
+          {POPULAR_HASHTAGS.map((item) => (
+            <Link
+              key={item.name}
+              href={`/tim-kiem?q=${encodeURIComponent(item.query)}`}
+              className="px-2.5 py-1 rounded-full text-xs font-medium bg-[#FAF6F0] text-[#3D2314] border border-[#E8DFC8] hover:bg-[#C5A059] hover:text-white hover:border-[#C5A059] transition-all duration-200 shadow-2xs"
+            >
+              #{item.name}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Tabs Filter */}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BlogDetailClient from "./BlogDetailClient";
 import { getAllPosts, getPostBySlug } from "@/lib/server/posts";
+import { extractTagsFromContent } from "@/lib/utils/tags";
 
 export const dynamicParams = true;
 export const revalidate = 0;
@@ -29,10 +30,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const thumb = post.thumbnail || "/images/placeholder.svg";
   const postUrl = `https://mynghedongphong.vn/bai-viet/${post.slug}`;
   const metaDesc = post.excerpt?.slice(0, 160) || `${post.title} - Kiến thức đồ gỗ quý phong thủy thủ công Mỹ Nghệ Đông Phong.`;
+  const tags = extractTagsFromContent(post.title, post.content, post.tags);
 
   return {
     title: `${post.title} | Mỹ Nghệ Đông Phong`,
     description: metaDesc,
+    keywords: tags.join(", "),
     alternates: {
       canonical: postUrl,
     },
@@ -68,7 +71,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Schema.org BlogPosting chuẩn Google & tăng độ uy tín E-E-A-T
+  const tags = extractTagsFromContent(post.title, post.content, post.tags);
+
+  // Schema.org BlogPosting chuẩn Google & tăng độ uy tín E-E-A-T & AI Engine Entities
   const blogSchema = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -76,6 +81,11 @@ export default async function BlogDetailPage({ params }: PageProps) {
     description: post.excerpt || post.title,
     image: post.thumbnail ? [post.thumbnail] : ["https://mynghedongphong.vn/images/logo.png"],
     datePublished: post.publishedAt || new Date().toISOString(),
+    keywords: tags.join(", "),
+    about: tags.map((tag) => ({
+      "@type": "Thing",
+      name: tag,
+    })),
     author: {
       "@type": "Person",
       name: "Nghệ nhân Đông Phong",

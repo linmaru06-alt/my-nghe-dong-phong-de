@@ -132,7 +132,7 @@ export default function FengshuiToolClient() {
                   Nạp Âm: {result.napAm}
                 </div>
                 <p className="text-base md:text-lg text-[#E8DFC8] font-serif italic leading-relaxed">
-                  "{result.napAmMeaning}"
+                  &ldquo;{result.napAmMeaning}&rdquo;
                 </p>
               </div>
 

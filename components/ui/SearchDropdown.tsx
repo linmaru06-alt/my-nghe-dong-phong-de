@@ -9,7 +9,7 @@ import { Search, X, ArrowRight, BookOpen, Package, Sparkles, Tag } from "lucide-
 import { useProductsStore } from "@/lib/useProducts";
 import { usePostsStore } from "@/lib/usePosts";
 import { formatPrice } from "@/lib/formatPrice";
-
+import { POPULAR_HASHTAGS } from "@/lib/utils/tags";
 
 export interface SearchDropdownProps {
   isOpen: boolean;
@@ -48,17 +48,6 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
     </span>
   );
 }
-
-const QUICK_TAGS = [
-  "Vòng tay Tử Đàn",
-  "Bách Xanh",
-  "Gỗ Sưa Đỏ",
-  "Bút Ký Huyết Long",
-  "Bi Lăn Cẩm",
-  "Gối Gỗ Sưa",
-  "Đũa Mun Sừng",
-  "Đệm Ô Tô",
-];
 
 export function SearchDropdown({ isOpen, onClose }: SearchDropdownProps) {
   const [query, setQuery] = useState("");
@@ -117,10 +106,17 @@ export function SearchDropdown({ isOpen, onClose }: SearchDropdownProps) {
       .filter((p) => {
         if (p.status === "draft") return false;
         const titleNorm = removeVietnameseTones(p.title);
-        const excerptNorm = removeVietnameseTones(p.excerpt);
-        return titleNorm.includes(normalizedQuery) || excerptNorm.includes(normalizedQuery);
+        const excerptNorm = removeVietnameseTones(p.excerpt || "");
+        const tagsNorm = p.tags ? removeVietnameseTones(p.tags.join(" ")) : "";
+        const contentNorm = removeVietnameseTones((p.content || "").slice(0, 1500));
+        return (
+          titleNorm.includes(normalizedQuery) ||
+          excerptNorm.includes(normalizedQuery) ||
+          tagsNorm.includes(normalizedQuery) ||
+          contentNorm.includes(normalizedQuery)
+        );
       })
-      .slice(0, 3);
+      .slice(0, 4);
   }, [posts, normalizedQuery]);
 
 
@@ -194,18 +190,18 @@ export function SearchDropdown({ isOpen, onClose }: SearchDropdownProps) {
                 <div className="py-6 text-center">
                   <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#5C3A21] uppercase tracking-wider mb-3">
                     <Sparkles className="w-4 h-4 text-[#C5A059]" />
-                    <span>Gợi ý tìm kiếm nhanh</span>
+                    <span>Chủ đề & Hashtag tìm kiếm nhanh</span>
                   </div>
                   <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
-                    {QUICK_TAGS.map((tag) => (
+                    {POPULAR_HASHTAGS.map((item) => (
                       <button
-                        key={tag}
+                        key={item.name}
                         type="button"
-                        onClick={() => setQuery(tag)}
+                        onClick={() => setQuery(item.query)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-white/80 border border-[#C5A059]/30 text-[#3D2314] hover:border-[#C5A059] hover:bg-[#C5A059]/15 transition-all shadow-2xs active:scale-95"
                       >
                         <Tag className="w-3 h-3 text-[#C5A059]" />
-                        <span>{tag}</span>
+                        <span>#{item.name}</span>
                       </button>
                     ))}
                   </div>
@@ -292,6 +288,18 @@ export function SearchDropdown({ isOpen, onClose }: SearchDropdownProps) {
                             <p className="text-xs text-[#5A4A42] line-clamp-1 mt-1">
                               <HighlightMatch text={post.excerpt} query={trimmed} />
                             </p>
+                            {post.tags && post.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {post.tags.slice(0, 3).map((tag: string) => (
+                                  <span
+                                    key={tag}
+                                    className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#FAF6F0] border border-[#C5A059]/30 text-[#5C3A21]"
+                                  >
+                                    #{tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </Link>
                         ))}
                       </div>

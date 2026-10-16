@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Be_Vietnam_Pro } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -47,20 +48,18 @@ export default function RootLayout({
     <html lang="vi" className={`${playfair.variable} ${beVietnam.variable}`}>
       <head>
         {/* Google tag (gtag.js) */}
-        <script
-          async
+        <Script
+          strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-G47KG0ETHL"
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-G47KG0ETHL');
-            `,
-          }}
-        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-G47KG0ETHL');
+          `}
+        </Script>
       </head>
       <body className="min-h-screen antialiased flex flex-col bg-bg text-text pb-16 md:pb-0">
         <Header />

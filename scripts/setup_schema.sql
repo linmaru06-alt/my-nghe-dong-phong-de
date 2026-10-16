@@ -72,6 +72,7 @@ ALTER TABLE posts ADD COLUMN IF NOT EXISTS related_products TEXT[] DEFAULT ARRAY
 ALTER TABLE posts ADD COLUMN IF NOT EXISTS author_name TEXT DEFAULT 'Nghệ nhân Đông Phong';
 ALTER TABLE posts ADD COLUMN IF NOT EXISTS read_time INT DEFAULT 5;
 ALTER TABLE posts ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'published';
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT ARRAY[]::TEXT[];
 
 -- 5. Bảng liên kết Bài viết và Sản phẩm (Quan hệ Nhiều - Nhiều Móc nối)
 CREATE TABLE IF NOT EXISTS product_posts (

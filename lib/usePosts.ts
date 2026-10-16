@@ -10,6 +10,7 @@ export interface Post {
   content: string;
   thumbnail: string;
   relatedProducts?: string[];
+  tags?: string[];
   status: "published" | "draft";
   publishedAt: string;
   readingTime: number;

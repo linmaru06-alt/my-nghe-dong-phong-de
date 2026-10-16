@@ -2,12 +2,13 @@
 
 import React, { useMemo } from "react";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Tag } from "lucide-react";
 import ReadingProgress from "@/components/ui/ReadingProgress";
 import ProductCard from "@/components/product/ProductCard";
 import postsData from "@/data/posts.json";
 import productsData from "@/data/products.json";
 import { ArticleContentRenderer } from "@/components/blog/ArticleContentRenderer";
+import { extractTagsFromContent } from "@/lib/utils/tags";
 
 export interface BlogDetailClientProps {
   post?: any;
@@ -38,6 +39,12 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
       .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
       .filter((p) => p.id !== post.id)
       .slice(0, 5);
+  }, [post]);
+
+  // Hashtags / Từ khóa thực thể
+  const tags = useMemo(() => {
+    if (!post) return [];
+    return extractTagsFromContent(post.title, post.content, post.tags);
   }, [post]);
 
   const getCategoryName = (cat: string) => {
@@ -107,6 +114,30 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
             <div className="prose prose-lg max-w-none text-[#333] prose-headings:font-bold prose-headings:text-[#111] prose-a:text-[#337ab7] hover:prose-a:underline prose-li:marker:text-[#666]">
               <ArticleContentRenderer content={post.content} />
             </div>
+
+            {/* Chủ đề & Hashtag tra cứu thông minh */}
+            {tags.length > 0 && (
+              <div className="mt-10 pt-6 border-t border-[#E8DFC8]">
+                <div className="flex items-center gap-2 mb-3.5">
+                  <Tag className="w-4 h-4 text-[#C5A059]" />
+                  <span className="text-xs uppercase font-bold tracking-wider text-[#5A4A42]">
+                    Chủ đề & Từ khóa liên quan
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <Link
+                      key={tag}
+                      href={`/tim-kiem?q=${encodeURIComponent(tag)}`}
+                      className="group inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium bg-[#FAF6F0] text-[#3D2314] border border-[#E8DFC8] hover:bg-[#C5A059] hover:text-white hover:border-[#C5A059] transition-all duration-200 shadow-2xs"
+                    >
+                      <span className="text-[#C5A059] group-hover:text-white font-bold">#</span>
+                      <span>{tag}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </article>
 
           {/* Sidebar */}

@@ -27,6 +27,7 @@ export interface Post {
   content: string;
   thumbnail: string;
   relatedProducts?: string[];
+  tags?: string[];
   status: "published" | "draft";
   publishedAt: string;
   readingTime: number;
@@ -77,6 +78,7 @@ export async function getAllPosts(): Promise<Post[]> {
           content: item.content || "",
           thumbnail: item.thumbnail || "",
           relatedProducts: item.related_products || item.relatedProducts || [],
+          tags: item.tags || [],
           status: item.status || "published",
           publishedAt: item.published_at || item.publishedAt || item.created_at || new Date().toISOString().split("T")[0],
           readingTime: item.read_time || item.readingTime || 5,
@@ -190,15 +192,16 @@ export async function savePosts(posts: Post[]): Promise<{ success: boolean; tota
         status: b.status || "published",
         published_at: b.publishedAt || new Date().toISOString().split("T")[0],
         related_products: b.relatedProducts || [],
+        tags: b.tags || [],
       }));
 
       const { error: supaErr } = await supabaseAdmin.from("posts").upsert(fullPayload, { onConflict: "id" });
 
       if (supaErr) {
-        // Nếu lỗi PGRST204 do thiếu cột published_at hoặc related_products trong CSDL cũ
+        // Nếu lỗi PGRST204 do thiếu cột published_at, related_products hoặc tags trong CSDL cũ
         if (
           supaErr.code === "PGRST204" ||
-          (supaErr.message && (supaErr.message.includes("published_at") || supaErr.message.includes("related_products") || supaErr.message.includes("column")))
+          (supaErr.message && (supaErr.message.includes("published_at") || supaErr.message.includes("related_products") || supaErr.message.includes("tags") || supaErr.message.includes("column")))
         ) {
           console.warn("[Posts Server Layer] Supabase thiếu cột mở rộng, kích hoạt Fallback lưu cấu trúc chuẩn:", supaErr.message);
           const fallbackPayload = posts.map((b) => ({

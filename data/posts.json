@@ -13,7 +13,14 @@
     ],
     "status": "published",
     "publishedAt": "2026-10-16",
-    "readingTime": 8
+    "readingTime": 8,
+    "tags": [
+      "Hoàng Đàn Tuyết",
+      "Mệnh Kim",
+      "Chiêu Tài Vượng Khí",
+      "Trừ Tà Hộ Thân",
+      "Vòng Tay Phong Thủy"
+    ]
   },
   {
     "id": "pillar-1792135123396",
@@ -29,7 +36,14 @@
     ],
     "status": "published",
     "publishedAt": "2026-10-16",
-    "readingTime": 9
+    "readingTime": 9,
+    "tags": [
+      "Dụng Thần Hỷ Thần",
+      "Sinh Lão Bệnh Tử",
+      "Trừ Tà Hộ Thân",
+      "Tử Đàn Tiểu Diệp",
+      "Vòng Tay Phong Thủy"
+    ]
   },
   {
     "id": "pillar-1792134842198",
@@ -45,7 +59,14 @@
     ],
     "status": "published",
     "publishedAt": "2026-10-16",
-    "readingTime": 5
+    "readingTime": 5,
+    "tags": [
+      "Mệnh Kim",
+      "Hoàng Đàn Tuyết",
+      "Tử Đàn Tiểu Diệp",
+      "Sưa Đỏ Bắc Bộ",
+      "Vòng Tay Phong Thủy"
+    ]
   },
   {
     "id": "pillar-1792134721031",
@@ -61,7 +82,10 @@
     ],
     "status": "published",
     "publishedAt": "2026-10-16",
-    "readingTime": 4
+    "readingTime": 4,
+    "tags": [
+      "Lên Nước Patina"
+    ]
   },
   {
     "id": "ai-1791818626493-518",
@@ -78,7 +102,11 @@
     ],
     "status": "published",
     "publishedAt": "2026-10-12",
-    "readingTime": 5
+    "readingTime": 5,
+    "tags": [
+      "Đồ Gỗ Quý",
+      "Mỹ Nghệ Đông Phong"
+    ]
   },
   {
     "id": "post-1791811535731",
@@ -91,7 +119,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-12T00:00:00+00:00",
-    "readingTime": 19
+    "readingTime": 19,
+    "tags": [
+      "Mun Sừng Khánh Hòa",
+      "Vòng Tay Phong Thủy"
+    ]
   },
   {
     "id": "ai-1791675447353-358",
@@ -108,7 +140,13 @@
     ],
     "status": "published",
     "publishedAt": "2026-10-11T00:00:00+00:00",
-    "readingTime": 6
+    "readingTime": 6,
+    "tags": [
+      "Hoàng Đàn Tuyết",
+      "Tử Đàn Tiểu Diệp",
+      "Sưa Đỏ Bắc Bộ",
+      "Gỗ Trắc Đỏ Đen"
+    ]
   },
   {
     "id": "pillar-1791734453654",
@@ -124,7 +162,14 @@
     ],
     "status": "published",
     "publishedAt": "2026-10-11T00:00:00+00:00",
-    "readingTime": 10
+    "readingTime": 10,
+    "tags": [
+      "Hoàng Đàn Tuyết",
+      "Tử Đàn Tiểu Diệp",
+      "Sưa Đỏ Bắc Bộ",
+      "Bách Xanh Mộc Châu",
+      "Lên Nước Patina"
+    ]
   },
   {
     "id": "ai-1791675463723-931",
@@ -141,7 +186,13 @@
     ],
     "status": "published",
     "publishedAt": "2026-10-11T00:00:00+00:00",
-    "readingTime": 5
+    "readingTime": 5,
+    "tags": [
+      "Hoàng Đàn Tuyết",
+      "Tử Đàn Tiểu Diệp",
+      "Sưa Đỏ Bắc Bộ",
+      "Bách Xanh Mộc Châu"
+    ]
   },
   {
     "id": "post-1791535501206",
@@ -154,7 +205,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-09T00:00:00+00:00",
-    "readingTime": 3
+    "readingTime": 3,
+    "tags": [
+      "Đồ Gỗ Quý",
+      "Mỹ Nghệ Đông Phong"
+    ]
   },
   {
     "id": "ai-1791475460508-108",
@@ -171,7 +226,11 @@
     ],
     "status": "published",
     "publishedAt": "2026-10-08T00:00:00+00:00",
-    "readingTime": 7
+    "readingTime": 7,
+    "tags": [
+      "Đồ Gỗ Quý",
+      "Mỹ Nghệ Đông Phong"
+    ]
   },
   {
     "id": "ai-1791220856141-294",
@@ -184,7 +243,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 6
+    "readingTime": 6,
+    "tags": [
+      "Mun Sừng Khánh Hòa",
+      "Gỗ Trắc Đỏ Đen"
+    ]
   },
   {
     "id": "post-1791218513719",
@@ -197,7 +260,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 3
+    "readingTime": 3,
+    "tags": [
+      "Đồ Gỗ Quý",
+      "Mỹ Nghệ Đông Phong"
+    ]
   },
   {
     "id": "ai-1791157062561-198",
@@ -210,7 +277,10 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 3
+    "readingTime": 3,
+    "tags": [
+      "Hoàng Đàn Tuyết"
+    ]
   },
   {
     "id": "ai-1791070651180-793",
@@ -223,7 +293,10 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 2
+    "readingTime": 2,
+    "tags": [
+      "Bách Xanh Mộc Châu"
+    ]
   },
   {
     "id": "ai-1791041564926-118",
@@ -236,7 +309,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 2
+    "readingTime": 2,
+    "tags": [
+      "Đồ Gỗ Quý",
+      "Mỹ Nghệ Đông Phong"
+    ]
   },
   {
     "id": "bv-005",
@@ -249,7 +326,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 4
+    "readingTime": 4,
+    "tags": [
+      "Mun Sừng Khánh Hòa",
+      "Gỗ Trắc Đỏ Đen"
+    ]
   },
   {
     "id": "bv-003",
@@ -262,7 +343,13 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 6
+    "readingTime": 6,
+    "tags": [
+      "Hoàng Đàn Tuyết",
+      "Mun Sừng Khánh Hòa",
+      "Huyết Long Thấu Quang",
+      "Bút Ký Phong Thủy"
+    ]
   },
   {
     "id": "bv-002",
@@ -275,7 +362,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 4
+    "readingTime": 4,
+    "tags": [
+      "Vòng Tay Phong Thủy",
+      "Lên Nước Patina"
+    ]
   },
   {
     "id": "bv-001",
@@ -288,7 +379,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 5
+    "readingTime": 5,
+    "tags": [
+      "Sinh Lão Bệnh Tử",
+      "Vòng Tay Phong Thủy"
+    ]
   },
   {
     "id": "bv-004",
@@ -301,7 +396,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 5
+    "readingTime": 5,
+    "tags": [
+      "Đồ Gỗ Quý",
+      "Mỹ Nghệ Đông Phong"
+    ]
   },
   {
     "id": "bv-006",
@@ -314,6 +413,11 @@
     "relatedProducts": [],
     "status": "published",
     "publishedAt": "2026-10-08T11:10:53.814522+00:00",
-    "readingTime": 6
+    "readingTime": 6,
+    "tags": [
+      "Vòng Tay Phong Thủy",
+      "Bút Ký Phong Thủy",
+      "Bi Lăn Tay Dưỡng Sinh"
+    ]
   }
 ]

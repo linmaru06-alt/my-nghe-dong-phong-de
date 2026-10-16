@@ -71,6 +71,84 @@ const KNOWN_TAG_DICTIONARY: Array<{
     category: "wood",
     aliases: ["cam lai", "nu cẩm"],
   },
+  {
+    keyword: "đàn hương",
+    displayName: "Đàn Hương Trắng Ấn Độ",
+    category: "wood",
+    aliases: ["dan huong", "sandalwood", "bạch đàn hương"],
+  },
+  {
+    keyword: "african blackwood",
+    displayName: "Mun Đen Châu Phi",
+    category: "wood",
+    aliases: ["mun den chau phi", "mpingo", "gỗ đắt nhất thế giới"],
+  },
+  {
+    keyword: "bog oak",
+    displayName: "Gỗ Cổ Đại Đầm Lầy",
+    category: "wood",
+    aliases: ["sồi đầm lầy", "go dam lay", "bog oak châu âu"],
+  },
+  {
+    keyword: "lignum vitae",
+    displayName: "Gỗ Thiết Mộc Nam Mỹ",
+    category: "wood",
+    aliases: ["thiet moc nam my", "gỗ nặng nhất thế giới", "gỗ cứng nhất thế giới"],
+  },
+  {
+    keyword: "snakewood",
+    displayName: "Gỗ Da Rắn Snakewood",
+    category: "wood",
+    aliases: ["go da ran", "da trăn", "gỗ da trăn"],
+  },
+  {
+    keyword: "brazilian rosewood",
+    displayName: "Cẩm Lai Brazil",
+    category: "wood",
+    aliases: ["cam lai brazil", "cẩm lai nam mỹ", "dalbergia nigra"],
+  },
+  {
+    keyword: "bocote",
+    displayName: "Gỗ Mắt Hổ Bocote",
+    category: "wood",
+    aliases: ["go mat ho", "bocote mexico"],
+  },
+  {
+    keyword: "cocobolo",
+    displayName: "Gỗ Cocobolo Trung Mỹ",
+    category: "wood",
+    aliases: ["go cocobolo", "cocobolo"],
+  },
+  {
+    keyword: "hinoki",
+    displayName: "Bách Nhật Bản Hinoki",
+    category: "wood",
+    aliases: ["go hinoki", "bách nhật", "gỗ thần đạo"],
+  },
+  {
+    keyword: "teak",
+    displayName: "Gỗ Teak Miến Điện",
+    category: "wood",
+    aliases: ["go teak", "giá tỵ", "teak mộc", "gỗ du thuyền"],
+  },
+  {
+    keyword: "óc chó",
+    displayName: "Óc Chó Đen Bắc Mỹ",
+    category: "wood",
+    aliases: ["oc cho", "black walnut", "gỗ óc chó"],
+  },
+  {
+    keyword: "hóa thạch",
+    displayName: "Gỗ Hóa Thạch Triệu Năm",
+    category: "wood",
+    aliases: ["go hoa thach", "gỗ hóa ngọc", "petrified wood"],
+  },
+  {
+    keyword: "tuyết tùng",
+    displayName: "Tuyết Tùng Lebanon",
+    category: "wood",
+    aliases: ["tuyet tung", "lebanon cedar", "gỗ solomon"],
+  },
 
   // Bản mệnh & Phong thủy
   {

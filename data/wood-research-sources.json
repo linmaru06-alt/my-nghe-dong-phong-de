@@ -1,66 +1,61 @@
 {
-  "version": "1.0",
-  "description": "Danh bạ các nguồn tài liệu, trang web chuyên khảo và diễn đàn uy tín về gỗ quý, lâm sản và phong thủy tại Việt Nam",
+  "version": "2.0",
+  "description": "Danh bạ các nguồn tài liệu, cơ sở dữ liệu giải phẫu lâm nghiệp, cơ quan bảo tồn quốc tế (IUCN, CITES) và chuyên khảo đồ gỗ quý Việt Nam & Thế Giới",
   "sources": [
+    {
+      "name": "The Wood Database (Eric Meier)",
+      "url": "https://www.wood-database.com",
+      "specialty": "Cơ sở dữ liệu giải phẫu và định danh gỗ lớn nhất thế giới: độ cứng Janka, tỷ trọng sấy khô, mức độ co ngót và phân loại CITES"
+    },
+    {
+      "name": "IUCN Red List of Threatened Species",
+      "url": "https://www.iucnredlist.org",
+      "specialty": "Danh lục Đỏ quốc tế đánh giá tình trạng bảo tồn và mức độ nguy cấp của các loài thực vật rừng toàn cầu"
+    },
+    {
+      "name": "CITES Appendices (Công ước buôn bán quốc tế động thực vật nguy cấp)",
+      "url": "https://cites.org",
+      "specialty": "Phụ lục phân loại kiểm soát buôn bán quốc tế các loài gỗ quý (Phụ lục I cấm thương mại, Phụ lục II kiểm soát gắt gao)"
+    },
+    {
+      "name": "USDA Forest Products Laboratory (FPL - Hoa Kỳ)",
+      "url": "https://www.fpl.fs.usda.gov",
+      "specialty": "Nghiên cứu cơ lý tính, cấu trúc tế bào và kỹ thuật xử lý sấy dưỡng mộc hàng đầu thế giới"
+    },
+    {
+      "name": "Royal Botanic Gardens, Kew (London, Anh Quốc)",
+      "url": "https://www.kew.org",
+      "specialty": "Vườn thực vật hoàng gia Kew - Cơ quan thẩm định mẫu gỗ cổ vật, di sản và phân loại chi thực vật hàng đầu lịch sử"
+    },
+    {
+      "name": "InsideWood Database (North Carolina State University)",
+      "url": "https://insidewood.lib.ncsu.edu",
+      "specialty": "Thư viện vi cấu trúc giải phẫu thớ gỗ phục vụ giám định khoa học chính xác 100%"
+    },
     {
       "name": "Viện Khoa Học Lâm Nghiệp Việt Nam (VAFS)",
       "url": "https://vafs.gov.vn",
-      "specialty": "Nghiên cứu khoa học, định danh danh mộc, tỷ trọng, đặc tính giải phẫu thớ gỗ"
+      "specialty": "Nghiên cứu khoa học, định danh danh mộc bản địa Việt Nam, tỷ trọng và cấu tạo thớ gỗ Đông Dương"
     },
     {
       "name": "Báo Nông Nghiệp Việt Nam - Chuyên đề Lâm Nghiệp",
       "url": "https://nongnghiep.vn/lam-nghiep",
-      "specialty": "Chính sách bảo tồn, nguồn giống cây gỗ quý bản địa (Sưa, Hoàng đàn, Bách xanh)"
+      "specialty": "Chính sách bảo tồn, nguồn giống cây gỗ quý bản địa (Sưa, Hoàng đàn, Bách xanh, Ngọc am)"
     },
     {
-      "name": "Gỗ Phương Đông",
+      "name": "Gỗ Phương Đông Research",
       "url": "https://gophuongdong.com",
-      "specialty": "Kiến thức chuyên sâu về gỗ quý, thớ gỗ, mùi hương và công dụng"
+      "specialty": "Kiến thức chuyên sâu về gỗ quý phương Đông, thớ gỗ, mùi hương và công dụng tâm linh"
     },
     {
       "name": "Đồ Gỗ Quang Thích",
       "url": "https://dogoquangthich.com",
-      "specialty": "Kinh nghiệm phân biệt gỗ Sưa, Tử Đàn, Huyết Long, Bách Xanh thật giả"
+      "specialty": "Kinh nghiệm thực chiến phân biệt phôi gỗ Sưa, Tử Đàn, Huyết Long, Bách Xanh thật giả"
     },
     {
-      "name": "Mộc Trầm Hương",
-      "url": "https://moctramhuong.vn",
-      "specialty": "Kiến thức về trầm tốc, trầm chìm nước, tinh dầu thơm và hạt vòng"
-    },
-    {
-      "name": "Govi Furniture Research",
-      "url": "https://govi.vn",
-      "specialty": "Bài viết hướng dẫn nhận diện các loại gỗ quý và quy chuẩn độ bền"
-    },
-    {
-      "name": "Nội Thất Viễn Đông",
-      "url": "https://noithatviendong.com",
-      "specialty": "Đặc tính sinh thái và vùng phân bố của Bách Xanh Mộc Châu, Trầm Hương"
-    },
-    {
-      "name": "Việt Hương Trầm",
-      "url": "https://viethuongtram.vn",
-      "specialty": "Kiến thức phong thủy ngũ hành, định tâm thư giãn từ tinh dầu tự nhiên"
-    },
-    {
-      "name": "Phong Thủy Huyết Long",
-      "url": "https://phongthuyhuyetlong.com",
-      "specialty": "Hiệu ứng thấu quang, vân nu gỗ Huyết Long và Bách Xanh chìm"
-    },
-    {
-      "name": "Diễn đàn Otofun - Box Kinh Nghiệm Chơi Đồ Gỗ",
-      "url": "https://otofun.net",
-      "specialty": "Kinh nghiệm thực chiến của người chơi gỗ sành sỏi, phản ánh thị trường thật"
-    },
-    {
-      "name": "Tạp chí Gỗ & Lâm Sản Việt Nam",
+      "name": "Tạp chí Gỗ & Lâm Sản Việt Nam (Viforest)",
       "url": "https://goviet.org.vn",
-      "specialty": "Thị trường xuất khẩu gỗ thủ công mỹ nghệ, làng nghề mộc truyền thống"
-    },
-    {
-      "name": "Cổng thông tin Làng nghề Việt Nam",
-      "url": "https://langnghevietnam.vn",
-      "specialty": "Lịch sử các làng nghề mộc cổ truyền (Đồng Kỵ, La Xuyên, Chàng Sơn, Canh Nậu)"
+      "specialty": "Thị trường nhập khẩu gỗ nguyên liệu quý thế giới và xuất khẩu thủ công mỹ nghệ"
     }
   ]
 }

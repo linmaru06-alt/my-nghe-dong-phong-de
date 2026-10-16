@@ -290,7 +290,17 @@ async function main() {
     } else {
       console.log(`⚠️ Không tìm thấy bài báo mới nào đạt tiêu chuẩn lọc ảnh & chủ đề gỗ hôm nay.`);
       console.log(`🔄 [TỰ ĐỘNG CHUYỂN ĐỔI DỰ PHÒNG] Kích hoạt Động cơ Content Pillar để luôn đảm bảo có bài viết chất lượng xuất bản...`);
-      const newPost = await generatePillarArticle("auto-rotate", "Cẩm Nang Chuyên Sâu Đồ Gỗ (Dự Phòng)");
+      console.log(`⚠️ Không tìm thấy bài báo mới nào đạt tiêu chuẩn lọc ảnh & chủ đề gỗ hôm nay.`);
+      console.log(`🔄 [TỰ ĐỘNG CHUYỂN ĐỔI DỰ PHÒNG] Kích hoạt Động cơ Content Pillar để luôn đảm bảo có bài viết chất lượng xuất bản...`);
+      // "auto-rotate" chỉ là tên ảo trong lịch — phải đổi sang chuyên mục thật trước khi gọi generatePillarArticle
+      const postsRaw2 = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
+      const posts2 = JSON.parse(postsRaw2);
+      const rotationPool = ["kien-thuc-ve-go", "bao-quan-san-pham", "huong-dan-lua-chon"];
+      const counts = rotationPool.map((cat) => ({ cat, count: posts2.filter((p) => p.category === cat).length }));
+      counts.sort((a, b) => a.count - b.count);
+      const fallbackCategory = counts[0].cat;
+      console.log(`[Fallback] Chọn chuyên mục dự phòng: ${fallbackCategory}`);
+      const newPost = await generatePillarArticle(fallbackCategory, "Cẩm Nang Chuyên Sâu Đồ Gỗ (Dự Phòng)");
       console.log(`✅ Đã xuất bản thành công bài viết chuyên sâu dự phòng:`);
       console.log(`   - Tiêu đề: ${newPost.title}`);
       console.log(`   - Đường dẫn: /bai-viet/${newPost.slug}`);

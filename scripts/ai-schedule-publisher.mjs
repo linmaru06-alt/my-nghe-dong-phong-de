@@ -453,6 +453,18 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
   // TÌM KIẾM ẢNH THẬT TRÊN MẠNG DỰA THEO CHỦ ĐỀ VÀ LOẠI GỖ (KHÔNG DÙNG SUPABASE CỐ ĐỊNH)
   const selectedThumb = await findRealWebImage(result.title, result.woodTypesMentioned || []);
 
+  // Chèn trực tiếp ảnh thật vào thân bài viết (sau đoạn mở đầu)
+  let finalContent = result.content;
+  if (selectedThumb && !finalContent.includes("<img")) {
+    const heroFigure = `\n<figure class="my-6 md:my-8 rounded-2xl overflow-hidden border border-[#E8DFC8]/60 shadow-sm bg-[#FAF6F0] text-center"><img src="${selectedThumb}" alt="${result.title}" class="w-full max-h-[500px] object-cover object-center mx-auto" /><figcaption class="text-center text-xs md:text-sm text-[#5A4A42] py-2.5 px-4 italic font-serif border-t border-[#E8DFC8]/40">Ảnh chụp cận cảnh thớ gỗ tự nhiên — Tư liệu nghiên cứu chuyên ngành đồ gỗ quý</figcaption></figure>\n`;
+    const firstPIdx = finalContent.indexOf("</p>");
+    if (firstPIdx !== -1) {
+      finalContent = finalContent.slice(0, firstPIdx + 4) + heroFigure + finalContent.slice(firstPIdx + 4);
+    } else {
+      finalContent = heroFigure + finalContent;
+    }
+  }
+
   const postSlug = slugify(result.title);
   const vnDateStr = new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().split("T")[0];
   const newPost = {
@@ -461,7 +473,7 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     title: result.title,
     category: category,
     excerpt: result.excerpt,
-    content: result.content,
+    content: finalContent,
     thumbnail: selectedThumb,
     relatedProducts: ["vt-001", "vt-002"],
     status: "published",

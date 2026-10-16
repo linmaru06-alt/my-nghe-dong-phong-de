@@ -88,6 +88,22 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
               <div className="w-12 h-[3px] bg-[#ddd] mb-6 md:mb-8"></div>
             </header>
 
+            {/* Featured Hero Image (Ảnh chụp thật từ tư liệu nghiên cứu chuyên ngành) */}
+            {post.thumbnail && (
+              <figure className="mb-8 rounded-2xl overflow-hidden border border-[#E8DFC8]/60 shadow-sm bg-[#FAF6F0]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={post.thumbnail}
+                  alt={post.title}
+                  className="w-full max-h-[500px] object-cover object-center"
+                  loading="eager"
+                />
+                <figcaption className="text-center text-xs md:text-sm text-[#5A4A42] py-2.5 px-4 bg-[#FAF6F0] italic font-serif border-t border-[#E8DFC8]/40">
+                  Ảnh chụp cận cảnh phôi mộc tự nhiên — Nguồn tư liệu chuyên ngành gỗ quý Đông Phong
+                </figcaption>
+              </figure>
+            )}
+
             <div className="prose prose-lg max-w-none text-[#333] prose-headings:font-bold prose-headings:text-[#111] prose-a:text-[#337ab7] hover:prose-a:underline prose-li:marker:text-[#666]">
               <ArticleContentRenderer content={post.content} />
             </div>

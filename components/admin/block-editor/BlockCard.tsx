@@ -54,19 +54,19 @@ export interface BlockCardProps {
 }
 
 const SLASH_MENU_ITEMS: { type: BlockType; label: string; icon: any; data?: any }[] = [
-  { type: "text", label: "Äoáº¡n vÄƒn (Normal)", icon: AlignLeft },
-  { type: "heading", label: "TiĂªu Ä‘á» lá»›n (H2)", icon: HeadingIcon, data: { level: 2 } },
-  { type: "heading", label: "TiĂªu Ä‘á» phá»¥ (H3)", icon: HeadingIcon, data: { level: 3 } },
-  { type: "image", label: "HĂ¬nh áº£nh (Ctrl+V Ä‘á»ƒ dĂ¡n)", icon: ImageIcon },
-  { type: "table", label: "Báº£ng biá»ƒu (Table)", icon: TableIcon },
-  { type: "list", label: "Danh sĂ¡ch kiá»ƒm tra (Checklist)", icon: CheckSquare, data: { listType: "checklist", items: [{ checked: false, text: "" }] } },
-  { type: "list", label: "Danh sĂ¡ch dáº¥u cháº¥m (Bullet)", icon: ListIcon, data: { listType: "bullet", items: [""] } },
-  { type: "list", label: "Danh sĂ¡ch Ä‘Ă¡nh sá»‘ (1, 2, 3)", icon: ListIcon, data: { listType: "numbered", items: [""] } },
-  { type: "quote", label: "TrĂ­ch dáº«n nghá»‡ nhĂ¢n", icon: QuoteIcon },
-  { type: "section", label: "Khá»‘i ná»•i báº­t phong thá»§y", icon: Box },
-  { type: "layout", label: "Bá»‘ cá»¥c 2 cá»™t song song", icon: Columns },
-  { type: "button", label: "NĂºt báº¥m Zalo / Hotline", icon: MousePointerClick },
-  { type: "divider", label: "ÄÆ°á»ng káº» ngang phĂ¢n cĂ¡ch", icon: Minus },
+  { type: "text", label: "Đoạn văn (Normal)", icon: AlignLeft },
+  { type: "heading", label: "Tiêu đề lớn (H2)", icon: HeadingIcon, data: { level: 2 } },
+  { type: "heading", label: "Tiêu đề phụ (H3)", icon: HeadingIcon, data: { level: 3 } },
+  { type: "image", label: "Hình ảnh (Ctrl+V để dán)", icon: ImageIcon },
+  { type: "table", label: "Bảng biểu (Table)", icon: TableIcon },
+  { type: "list", label: "Danh sách kiểm tra (Checklist)", icon: CheckSquare, data: { listType: "checklist", items: [{ checked: false, text: "" }] } },
+  { type: "list", label: "Danh sách dấu chấm (Bullet)", icon: ListIcon, data: { listType: "bullet", items: [""] } },
+  { type: "list", label: "Danh sách đánh số (1, 2, 3)", icon: ListIcon, data: { listType: "numbered", items: [""] } },
+  { type: "quote", label: "Trích dẫn nghệ nhân", icon: QuoteIcon },
+  { type: "section", label: "Khối nổi bật phong thủy", icon: Box },
+  { type: "layout", label: "Bố cục 2 cột song song", icon: Columns },
+  { type: "button", label: "Nút bấm Zalo / Hotline", icon: MousePointerClick },
+  { type: "divider", label: "Đường kẻ ngang phân cách", icon: Minus },
 ];
 
 export function BlockCard({
@@ -102,12 +102,12 @@ export function BlockCard({
   // Upload image handler
   const handleUploadImageFile = async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      toast.error("Vui lĂ²ng chá»n tá»‡p hĂ¬nh áº£nh");
+      toast.error("Vui lòng chọn tệp hình ảnh");
       return;
     }
 
     if (file.size > 8 * 1024 * 1024) {
-      toast.error("áº¢nh quĂ¡ lá»›n", "Vui lĂ²ng chá»n áº£nh dÆ°á»›i 8MB");
+      toast.error("Ảnh quá lớn", "Vui lòng chọn ảnh dưới 8MB");
       return;
     }
 
@@ -120,24 +120,24 @@ export function BlockCard({
       const res = await fetch("/api/admin/upload", { method: "POST", body: data });
 
       if (res.status === 413) {
-        throw new Error("áº¢nh quĂ¡ lá»›n (vÆ°á»£t quĂ¡ giá»›i háº¡n mĂ¡y chá»§)");
+        throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
       }
 
       let json;
       try {
         json = await res.json();
       } catch (parseError) {
-        throw new Error(`Lá»—i mĂ¡y chá»§ (${res.status}): KhĂ´ng thá»ƒ Ä‘á»c pháº£n há»“i`);
+        throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
       }
 
       if (res.ok && json.success && json.url) {
         onUpdate({ ...block.data, url: json.url });
-        toast.success("Táº£i áº£nh thĂ nh cĂ´ng");
+        toast.success("Tải ảnh thành công");
       } else {
-        throw new Error(json.error || "KhĂ´ng thá»ƒ táº£i áº£nh");
+        throw new Error(json.error || "Không thể tải ảnh");
       }
     } catch (err: any) {
-      toast.error("Lá»—i táº£i áº£nh", err.message);
+      toast.error("Lỗi tải ảnh", err.message);
     } finally {
       setIsUploading(false);
     }
@@ -155,7 +155,7 @@ export function BlockCard({
         const file = item.getAsFile();
         if (!file) return;
 
-        toast.info("Äang tá»± Ä‘á»™ng táº£i áº£nh tá»« Clipboard...");
+        toast.info("Đang tự động tải ảnh từ Clipboard...");
         setIsUploading(true);
 
         try {
@@ -166,28 +166,28 @@ export function BlockCard({
           const res = await fetch("/api/admin/upload", { method: "POST", body: data });
           
           if (res.status === 413) {
-            throw new Error("áº¢nh quĂ¡ lá»›n (vÆ°á»£t quĂ¡ giá»›i háº¡n mĂ¡y chá»§)");
+            throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
           }
 
           let json;
           try {
             json = await res.json();
           } catch (parseError) {
-            throw new Error(`Lá»—i mĂ¡y chá»§ (${res.status}): KhĂ´ng thá»ƒ Ä‘á»c pháº£n há»“i`);
+            throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
           }
 
           if (res.ok && json.success && json.url) {
             if (block.type === "text" && !(block.data.text || "").trim()) {
-              onChangeType("image", { url: json.url, alt: "áº¢nh minh há»a bĂ i viáº¿t", caption: "" });
+              onChangeType("image", { url: json.url, alt: "Ảnh minh họa bài viết", caption: "" });
             } else {
-              onInsertBelow("image", { url: json.url, alt: "áº¢nh minh há»a bĂ i viáº¿t", caption: "" });
+              onInsertBelow("image", { url: json.url, alt: "Ảnh minh họa bài viết", caption: "" });
             }
-            toast.success("ÄĂ£ dĂ¡n vĂ  táº£i áº£nh thĂ nh cĂ´ng!");
+            toast.success("Đã dán và tải ảnh thành công!");
           } else {
-            throw new Error(json.error || "KhĂ´ng thá»ƒ táº£i áº£nh lĂªn mĂ¡y chá»§");
+            throw new Error(json.error || "Không thể tải ảnh lên máy chủ");
           }
         } catch (err: any) {
-          toast.error("Lá»—i khi dĂ¡n áº£nh", err.message);
+          toast.error("Lỗi khi dán ảnh", err.message);
         } finally {
           setIsUploading(false);
         }
@@ -345,7 +345,7 @@ export function BlockCard({
           type="button"
           onClick={() => onInsertBelow("text")}
           className="p-1 rounded hover:bg-black/5 text-[#5F6368] hover:text-[#1F1F1F] transition-colors"
-          title="ThĂªm Ä‘oáº¡n vÄƒn bĂªn dÆ°á»›i (Enter)"
+          title="Thêm đoạn văn bên dưới (Enter)"
         >
           <Plus className="w-3.5 h-3.5" />
         </button>
@@ -360,7 +360,7 @@ export function BlockCard({
               setShowOptions(!showOptions);
             }}
             className="p-1 rounded hover:bg-black/5 text-[#5F6368] hover:text-[#1F1F1F] transition-colors cursor-grab active:cursor-grabbing"
-            title="KĂ©o tháº£ di chuyá»ƒn khá»‘i / TĂ¹y chá»n"
+            title="Kéo thả di chuyển khối / Tùy chọn"
           >
             <GripVertical className="w-3.5 h-3.5" />
           </div>
@@ -371,7 +371,7 @@ export function BlockCard({
               className="absolute top-full left-0 mt-1 w-48 bg-white border border-[#DADCE0] rounded-lg shadow-xl z-50 py-1 text-xs"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="px-3 py-1 font-semibold text-[#5F6368] uppercase text-[10px]">TĂ¹y chá»n khá»‘i</div>
+              <div className="px-3 py-1 font-semibold text-[#5F6368] uppercase text-[10px]">Tùy chọn khối</div>
               <button
                 type="button"
                 onClick={() => {
@@ -380,7 +380,7 @@ export function BlockCard({
                 }}
                 className="w-full text-left px-3 py-1.5 hover:bg-[#F1F3F4] flex items-center gap-2 text-[#1F1F1F]"
               >
-                <Copy className="w-3.5 h-3.5" /> NhĂ¢n Ä‘Ă´i khá»‘i
+                <Copy className="w-3.5 h-3.5" /> Nhân đôi khối
               </button>
               <button
                 type="button"
@@ -390,7 +390,7 @@ export function BlockCard({
                 }}
                 className="w-full text-left px-3 py-1.5 hover:bg-[#F1F3F4] flex items-center gap-2 text-[#1F1F1F]"
               >
-                <AlignLeft className="w-3.5 h-3.5" /> Chuyá»ƒn thĂ nh VÄƒn báº£n
+                <AlignLeft className="w-3.5 h-3.5" /> Chuyển thành Văn bản
               </button>
               <button
                 type="button"
@@ -400,7 +400,7 @@ export function BlockCard({
                 }}
                 className="w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50 flex items-center gap-2"
               >
-                <Trash2 className="w-3.5 h-3.5" /> XĂ³a khá»‘i nĂ y
+                <Trash2 className="w-3.5 h-3.5" /> Xóa khối này
               </button>
             </div>
           )}
@@ -432,7 +432,7 @@ export function BlockCard({
             {showSlashMenu && (
               <div className="absolute top-full left-0 mt-1 w-72 bg-white border border-[#DADCE0] rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto p-1 text-xs">
                 <div className="px-3 py-1.5 text-[10px] font-bold text-[#5F6368] uppercase border-b border-[#ECEFF3] mb-1">
-                  ChĂ¨n pháº§n tá»­ nhanh
+                  Chèn phần tử nhanh
                 </div>
                 {filteredMenuItems.map((item, i) => {
                   const Icon = item.icon;
@@ -496,26 +496,26 @@ export function BlockCard({
           </div>
         )}
 
-        {/* 3. IMAGE BLOCK (Hiá»ƒn thá»‹ thuáº§n tĂºy hĂ¬nh áº£nh, khĂ´ng thá»«a thĂ£i) */}
+        {/* 3. IMAGE BLOCK (Hiển thị thuần túy hình ảnh, không thừa thãi) */}
         {block.type === "image" && (
           <div className="my-4 group/image-block relative">
             {block.data.url ? (
               <div className="relative flex flex-col items-center">
-                {/* Khung chá»©a áº£nh tá»± nhiĂªn, vá»«a váº·n khá»• giáº¥y */}
+                {/* Khung chứa ảnh tự nhiên, vừa vặn khổ giấy */}
                 <div className="relative max-w-full rounded-lg overflow-hidden border border-[#E8DFC8]/40 shadow-xs bg-white">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={block.data.url}
-                    alt={block.data.alt || "áº¢nh minh há»a bĂ i viáº¿t"}
+                    alt={block.data.alt || "Ảnh minh họa bài viết"}
                     className="max-h-[650px] w-auto max-w-full object-contain mx-auto rounded-lg select-none"
                     loading="lazy"
                   />
 
-                  {/* NĂºt thao tĂ¡c nhanh chá»‰ hiá»‡n khi rĂª chuá»™t lĂªn áº£nh */}
+                  {/* Nút thao tác nhanh chỉ hiện khi rê chuột lên ảnh */}
                   <div className="absolute top-2.5 right-2.5 opacity-0 group-hover/image-block:opacity-100 transition-opacity flex items-center gap-1.5 bg-black/60 backdrop-blur-xs p-1 rounded-lg shadow-md">
                     <label
                       className="p-1.5 text-white/90 hover:text-white hover:bg-white/20 rounded cursor-pointer transition-colors"
-                      title="Thay Ä‘á»•i áº£nh khĂ¡c"
+                      title="Thay đổi ảnh khác"
                     >
                       <ImageIcon className="w-4 h-4" />
                       <input
@@ -533,14 +533,14 @@ export function BlockCard({
                       type="button"
                       onClick={onDelete}
                       className="p-1.5 text-white/90 hover:text-red-400 hover:bg-white/20 rounded transition-colors"
-                      title="XĂ³a áº£nh"
+                      title="Xóa ảnh"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                {/* ChĂº thĂ­ch áº£nh tá»‘i giáº£n (chá»‰ hiá»‡n náº¿u ngÆ°á»i dĂ¹ng cĂ³ nháº­p caption) */}
+                {/* Chú thích ảnh tối giản (chỉ hiện nếu người dùng có nhập caption) */}
                 {block.data.caption && (
                   <p className="mt-2 text-center text-xs text-[#5F6368] italic font-serif">
                     {block.data.caption}
@@ -548,15 +548,15 @@ export function BlockCard({
                 )}
               </div>
             ) : (
-              /* Khung táº£i áº£nh gá»n nháº¹ khi chÆ°a cĂ³ áº£nh */
+              /* Khung tải ảnh gọn nhẹ khi chưa có ảnh */
               <label className="cursor-pointer w-full py-8 border-2 border-dashed border-[#DADCE0] hover:border-[#C5A059] rounded-xl flex flex-col items-center justify-center bg-[#FAF8F5]/60 hover:bg-[#FAF8F5] transition-all">
                 {isUploading ? (
                   <Loader2 className="w-7 h-7 animate-spin text-[#1A73E8]" />
                 ) : (
                   <ImageIcon className="w-8 h-8 text-[#70757A] mb-2" />
                 )}
-                <span className="text-xs font-semibold text-[#1F1F1F]">Click Ä‘á»ƒ chá»n áº£nh tá»« mĂ¡y tĂ­nh</span>
-                <span className="text-[11px] text-[#5F6368] mt-0.5">(Hoáº·c copy áº£nh vĂ  báº¥m Ctrl + V)</span>
+                <span className="text-xs font-semibold text-[#1F1F1F]">Click để chọn ảnh từ máy tính</span>
+                <span className="text-[11px] text-[#5F6368] mt-0.5">(Hoặc copy ảnh và bấm Ctrl + V)</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -579,22 +579,22 @@ export function BlockCard({
             <div className="bg-[#EDF2FA] px-3 py-2 border-b border-[#DADCE0] flex flex-wrap items-center justify-between gap-2 text-xs">
               <span className="font-semibold text-[#1F1F1F] flex items-center gap-1.5">
                 <TableIcon className="w-4 h-4 text-[#1A73E8]" />
-                Báº£ng biá»ƒu chuáº©n Google Docs
+                Bảng biểu chuẩn Google Docs
               </span>
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => {
-                    const headers = block.data.headers || ["TiĂªu Ä‘á» 1", "TiĂªu Ä‘á» 2"];
+                    const headers = block.data.headers || ["Tiêu đề 1", "Tiêu đề 2"];
                     const rows = block.data.rows || [["", ""]];
                     const newRow = new Array(headers.length).fill("");
                     onUpdate({ ...block.data, rows: [...rows, newRow] });
                   }}
                   className="flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-[#F1F3F4] text-[#1A73E8] border border-[#DADCE0] rounded font-medium shadow-2xs"
-                  title="ThĂªm hĂ ng má»›i"
+                  title="Thêm hàng mới"
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
-                  <span>+ HĂ ng</span>
+                  <span>+ Hàng</span>
                 </button>
 
                 <button
@@ -604,30 +604,30 @@ export function BlockCard({
                     if (rows.length > 1) {
                       onUpdate({ ...block.data, rows: rows.slice(0, -1) });
                     } else {
-                      toast.info("Báº£ng cáº§n cĂ³ Ă­t nháº¥t 1 hĂ ng dá»¯ liá»‡u");
+                      toast.info("Bảng cần có ít nhất 1 hàng dữ liệu");
                     }
                   }}
                   className="flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-red-50 text-red-600 border border-[#DADCE0] rounded font-medium shadow-2xs"
-                  title="XĂ³a hĂ ng cuá»‘i"
+                  title="Xóa hàng cuối"
                 >
                   <MinusCircle className="w-3.5 h-3.5" />
-                  <span>- HĂ ng</span>
+                  <span>- Hàng</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => {
-                    const headers = block.data.headers || ["TiĂªu Ä‘á» 1"];
+                    const headers = block.data.headers || ["Tiêu đề 1"];
                     const rows = block.data.rows || [[""]];
-                    const newHeaders = [...headers, `Cá»™t ${headers.length + 1}`];
+                    const newHeaders = [...headers, `Cột ${headers.length + 1}`];
                     const newRows = rows.map((r: string[]) => [...r, ""]);
                     onUpdate({ ...block.data, headers: newHeaders, rows: newRows });
                   }}
                   className="flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-[#F1F3F4] text-[#1A73E8] border border-[#DADCE0] rounded font-medium shadow-2xs"
-                  title="ThĂªm cá»™t má»›i"
+                  title="Thêm cột mới"
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
-                  <span>+ Cá»™t</span>
+                  <span>+ Cột</span>
                 </button>
 
                 <button
@@ -640,14 +640,14 @@ export function BlockCard({
                       const newRows = rows.map((r: string[]) => r.slice(0, -1));
                       onUpdate({ ...block.data, headers: newHeaders, rows: newRows });
                     } else {
-                      toast.info("Báº£ng cáº§n cĂ³ Ă­t nháº¥t 1 cá»™t");
+                      toast.info("Bảng cần có ít nhất 1 cột");
                     }
                   }}
                   className="flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-red-50 text-red-600 border border-[#DADCE0] rounded font-medium shadow-2xs"
-                  title="XĂ³a cá»™t cuá»‘i"
+                  title="Xóa cột cuối"
                 >
                   <MinusCircle className="w-3.5 h-3.5" />
-                  <span>- Cá»™t</span>
+                  <span>- Cột</span>
                 </button>
               </div>
             </div>
@@ -667,7 +667,7 @@ export function BlockCard({
                             newH[hIdx] = e.target.value;
                             onUpdate({ ...block.data, headers: newH });
                           }}
-                          placeholder={`Cá»™t ${hIdx + 1}`}
+                          placeholder={`Cột ${hIdx + 1}`}
                           className="w-full bg-transparent text-white font-serif font-bold uppercase text-[11px] focus:outline-none focus:bg-white/20 px-1 py-0.5 rounded"
                         />
                       </th>
@@ -687,7 +687,7 @@ export function BlockCard({
                               newRows[rIdx][cIdx] = e.target.value;
                               onUpdate({ ...block.data, rows: newRows });
                             }}
-                            placeholder="Nháº­p ná»™i dung Ă´..."
+                            placeholder="Nhập nội dung ô..."
                             className="w-full bg-transparent text-[#1F1610] focus:outline-none focus:bg-[#EDF2FA] px-1 py-0.5 rounded"
                           />
                         </td>
@@ -721,7 +721,7 @@ export function BlockCard({
                         onUpdate({ ...block.data, items: next });
                       }}
                       className="mt-1 text-[#1A73E8] hover:text-[#041E49] transition-colors"
-                      title={isChecked ? "Bá» chá»n" : "TĂ­ch hoĂ n thĂ nh"}
+                      title={isChecked ? "Bỏ chọn" : "Tích hoàn thành"}
                     >
                       {isChecked ? <CheckSquare className="w-4 h-4 text-emerald-600" /> : <Square className="w-4 h-4 text-[#70757A]" />}
                     </button>
@@ -730,7 +730,7 @@ export function BlockCard({
                       {i + 1}.
                     </span>
                   ) : (
-                    <span className="text-base text-[#C5A059] mt-0.5 select-none">â€¢</span>
+                    <span className="text-base text-[#C5A059] mt-0.5 select-none">•</span>
                   )}
 
                   {/* Editable line */}
@@ -762,7 +762,7 @@ export function BlockCard({
                         }
                       }
                     }}
-                    placeholder="Má»¥c danh sĂ¡ch..."
+                    placeholder="Mục danh sách..."
                     className={`flex-1 bg-transparent border-none p-0 text-[16px] leading-[1.7] focus:outline-none focus:ring-0 resize-none overflow-hidden placeholder:text-[#5F6368]/40 ${
                       isChecked ? "line-through text-[#5F6368] opacity-70" : "text-[#1F1610]"
                     }`}
@@ -780,16 +780,16 @@ export function BlockCard({
               value={block.data.quote || ""}
               onChange={(e) => onUpdate({ ...block.data, quote: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="Nháº­p cĂ¢u trĂ­ch dáº«n cá»§a nghá»‡ nhĂ¢n..."
+              placeholder="Nhập câu trích dẫn của nghệ nhân..."
               className="w-full bg-transparent border-none p-0 text-[17px] italic font-serif text-[#2A160C] focus:outline-none focus:ring-0 resize-none overflow-hidden placeholder:text-[#5F6368]/40 leading-relaxed"
             />
             <div className="flex items-center gap-2 pt-1 border-t border-[#E8DFC8]/60">
-              <span className="text-xs text-[#C5A059] font-bold">â€”</span>
+              <span className="text-xs text-[#C5A059] font-bold">—</span>
               <input
                 type="text"
                 value={block.data.author || ""}
                 onChange={(e) => onUpdate({ ...block.data, author: e.target.value })}
-                placeholder="TĂªn nghá»‡ nhĂ¢n / tĂ¡c giáº£ trĂ­ch dáº«n..."
+                placeholder="Tên nghệ nhân / tác giả trích dẫn..."
                 className="w-full sm:w-64 bg-transparent border-b border-[#C5A059]/40 text-xs font-semibold text-[#3D2314] focus:outline-none focus:border-[#3D2314] py-0.5"
               />
             </div>
@@ -805,7 +805,7 @@ export function BlockCard({
                 type="text"
                 value={block.data.title || ""}
                 onChange={(e) => onUpdate({ ...block.data, title: e.target.value })}
-                placeholder="TiĂªu Ä‘á» há»™p Ä‘iá»ƒm nháº¥n phong thá»§y..."
+                placeholder="Tiêu đề hộp điểm nhấn phong thủy..."
                 className="w-full bg-transparent text-sm md:text-base font-serif font-bold text-[#3D2314] focus:outline-none"
               />
             </div>
@@ -813,7 +813,7 @@ export function BlockCard({
               value={block.data.content || ""}
               onChange={(e) => onUpdate({ ...block.data, content: e.target.value })}
               onKeyDown={handleKeyDown}
-              placeholder="Ná»™i dung kiáº¿n thá»©c quan trá»ng vá» gá»— quĂ½..."
+              placeholder="Nội dung kiến thức quan trọng về gỗ quý..."
               className="w-full bg-transparent border-none p-0 text-sm text-[#2A160C] focus:outline-none focus:ring-0 resize-none overflow-hidden leading-relaxed"
             />
           </div>
@@ -827,7 +827,7 @@ export function BlockCard({
                 type="text"
                 value={block.data.label || ""}
                 onChange={(e) => onUpdate({ ...block.data, label: e.target.value })}
-                placeholder="TĂªn nĂºt báº¥m (VĂ­ dá»¥: Nháº¯n Zalo Nháº­n BĂ¡o GiĂ¡)..."
+                placeholder="Tên nút bấm (Ví dụ: Nhắn Zalo Nhận Báo Giá)..."
                 className="bg-white border border-[#DADCE0] rounded px-3 py-1.5 text-xs font-bold text-[#1F1F1F] text-center w-72 focus:outline-none focus:border-[#1A73E8]"
               />
               <select
@@ -835,16 +835,16 @@ export function BlockCard({
                 onChange={(e) => onUpdate({ ...block.data, buttonStyle: e.target.value })}
                 className="bg-white border border-[#DADCE0] rounded px-2 py-1.5 text-xs text-[#1F1F1F] focus:outline-none"
               >
-                <option value="zalo">Kiá»ƒu Zalo (Xanh dÆ°Æ¡ng)</option>
-                <option value="hotline">Kiá»ƒu Hotline (Äá»)</option>
-                <option value="primary">Kiá»ƒu NĂ¢u gá»— ÄĂ´ng Phong</option>
+                <option value="zalo">Kiểu Zalo (Xanh dương)</option>
+                <option value="hotline">Kiểu Hotline (Đỏ)</option>
+                <option value="primary">Kiểu Nâu gỗ Đông Phong</option>
               </select>
             </div>
             <input
               type="text"
               value={block.data.url || ""}
               onChange={(e) => onUpdate({ ...block.data, url: e.target.value })}
-              placeholder="ÄÆ°á»ng dáº«n liĂªn káº¿t (URL)..."
+              placeholder="Đường dẫn liên kết (URL)..."
               className="w-80 bg-white border border-[#DADCE0] rounded px-3 py-1 text-xs text-[#5F6368] text-center font-mono focus:outline-none"
             />
           </div>
@@ -854,7 +854,7 @@ export function BlockCard({
         {block.type === "divider" && (
           <div className="my-6 relative flex items-center justify-center select-none py-2">
             <div className="w-full border-t border-[#DADCE0]" />
-            <span className="absolute px-3 bg-white text-[#C5A059] text-xs font-serif">â– â– â–</span>
+            <span className="absolute px-3 bg-white text-[#C5A059] text-xs font-serif">❖ ❖ ❖</span>
           </div>
         )}
 
@@ -866,13 +866,13 @@ export function BlockCard({
                 type="text"
                 value={block.data.leftTitle || ""}
                 onChange={(e) => onUpdate({ ...block.data, leftTitle: e.target.value })}
-                placeholder="TiĂªu Ä‘á» cá»™t trĂ¡i..."
+                placeholder="Tiêu đề cột trái..."
                 className="w-full bg-transparent font-serif font-bold text-sm text-[#3D2314] border-b border-[#E1E5EA] pb-1 focus:outline-none"
               />
               <AutoResizeTextarea
                 value={block.data.leftContent || ""}
                 onChange={(e) => onUpdate({ ...block.data, leftContent: e.target.value })}
-                placeholder="Ná»™i dung cá»™t trĂ¡i..."
+                placeholder="Nội dung cột trái..."
                 className="w-full bg-transparent border-none p-0 text-xs text-[#2A160C] focus:outline-none resize-none leading-relaxed"
               />
             </div>
@@ -881,13 +881,13 @@ export function BlockCard({
                 type="text"
                 value={block.data.rightTitle || ""}
                 onChange={(e) => onUpdate({ ...block.data, rightTitle: e.target.value })}
-                placeholder="TiĂªu Ä‘á» cá»™t pháº£i..."
+                placeholder="Tiêu đề cột phải..."
                 className="w-full bg-transparent font-serif font-bold text-sm text-[#3D2314] border-b border-[#E1E5EA] pb-1 focus:outline-none"
               />
               <AutoResizeTextarea
                 value={block.data.rightContent || ""}
                 onChange={(e) => onUpdate({ ...block.data, rightContent: e.target.value })}
-                placeholder="Ná»™i dung cá»™t pháº£i..."
+                placeholder="Nội dung cột phải..."
                 className="w-full bg-transparent border-none p-0 text-xs text-[#2A160C] focus:outline-none resize-none leading-relaxed"
               />
             </div>
@@ -904,13 +904,13 @@ export function BlockCard({
               type="text"
               value={block.data.title || ""}
               onChange={(e) => onUpdate({ ...block.data, title: e.target.value })}
-              placeholder="TiĂªu Ä‘á» Lá»i káº¿t & Cam káº¿t cháº¥t lÆ°á»£ng..."
+              placeholder="Tiêu đề Lời kết & Cam kết chất lượng..."
               className="w-full text-center bg-transparent font-serif font-bold text-lg text-[#3D2314] focus:outline-none"
             />
             <AutoResizeTextarea
               value={block.data.content || ""}
               onChange={(e) => onUpdate({ ...block.data, content: e.target.value })}
-              placeholder="Ná»™i dung cam káº¿t gá»— quĂ½ tá»± nhiĂªn..."
+              placeholder="Nội dung cam kết gỗ quý tự nhiên..."
               className="w-full bg-transparent border-none p-0 text-xs md:text-sm text-[#5A4A42] text-center focus:outline-none resize-none leading-relaxed"
             />
           </div>

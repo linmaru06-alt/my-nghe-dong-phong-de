@@ -64,7 +64,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       thumbnail: "",
       readingTime: 1,
       status: "draft",
-      tags: ["Äá»“ gá»— phong thá»§y", "Gá»— quĂ½ tá»± nhiĂªn", "Má»¹ Nghá»‡ ÄĂ´ng Phong"],
+      tags: ["Đồ gỗ phong thủy", "Gỗ quý tự nhiên", "Mỹ Nghệ Đông Phong"],
     }
   );
 
@@ -108,7 +108,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       setHistoryIndex(nextIdx);
       setBlocks(history[nextIdx]);
       setSaveStatus("Chưa lưu");
-      toast.info("ÄĂ£ hoĂ n tĂ¡c (Undo)");
+      toast.info("Đã hoàn tác (Undo)");
     }
   };
 
@@ -118,7 +118,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       setHistoryIndex(nextIdx);
       setBlocks(history[nextIdx]);
       setSaveStatus("Chưa lưu");
-      toast.info("ÄĂ£ lĂ m láº¡i (Redo)");
+      toast.info("Đã làm lại (Redo)");
     }
   };
 
@@ -178,7 +178,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
   const handleAutoSave = async (currentContent: string) => {
     if (!formData.title) return;
-    setSaveStatus("Äang lÆ°u...");
+    setSaveStatus("Đang lưu...");
     try {
       const payload = {
         ...formData,
@@ -193,10 +193,10 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         }
       }
       setLastSaved(new Date());
-      setSaveStatus("Báº£n nhĂ¡p");
+      setSaveStatus("Bản nháp");
     } catch (e) {
       setSaveStatus("Chưa lưu");
-      toast.error("LÆ°u nhĂ¡p tháº¥t báº¡i, vui lĂ²ng thá»­ láº¡i");
+      toast.error("Lưu nháp thất bại, vui lòng thử lại");
     }
   };
 
@@ -214,7 +214,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     if (!file) return;
 
     if (file.size > 8 * 1024 * 1024) {
-      toast.error("áº¢nh quĂ¡ lá»›n", "Vui lĂ²ng chá»n áº£nh dÆ°á»›i 8MB");
+      toast.error("Ảnh quá lớn", "Vui lòng chọn ảnh dưới 8MB");
       return;
     }
 
@@ -227,24 +227,24 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       const res = await fetch("/api/admin/upload", { method: "POST", body: data });
 
       if (res.status === 413) {
-        throw new Error("áº¢nh quĂ¡ lá»›n (vÆ°á»£t quĂ¡ giá»›i háº¡n mĂ¡y chá»§)");
+        throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
       }
 
       let json;
       try {
         json = await res.json();
       } catch (parseError) {
-        throw new Error(`Lá»—i mĂ¡y chá»§ (${res.status}): KhĂ´ng thá»ƒ Ä‘á»c pháº£n há»“i`);
+        throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
       }
 
       if (res.ok && json.success && json.url) {
         setFormData((prev) => ({ ...prev, thumbnail: json.url }));
-        toast.success("Táº£i áº£nh bĂ¬a thĂ nh cĂ´ng");
+        toast.success("Tải ảnh bìa thành công");
       } else {
-        throw new Error(json.error || "Lá»—i mĂ¡y chá»§");
+        throw new Error(json.error || "Lỗi máy chủ");
       }
     } catch (err: any) {
-      toast.error("Lá»—i táº£i áº£nh bĂ¬a", err.message);
+      toast.error("Lỗi tải ảnh bìa", err.message);
     } finally {
       setIsUploadingThumb(false);
       e.target.value = "";
@@ -271,7 +271,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         const file = item.getAsFile();
         if (!file) return;
 
-        toast.info("Äang tá»± Ä‘á»™ng táº£i áº£nh tá»« Clipboard...");
+        toast.info("Đang tự động tải ảnh từ Clipboard...");
         try {
           const data = new FormData();
           data.append("file", file);
@@ -280,31 +280,31 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           const res = await fetch("/api/admin/upload", { method: "POST", body: data });
 
           if (res.status === 413) {
-            throw new Error("áº¢nh quĂ¡ lá»›n (vÆ°á»£t quĂ¡ giá»›i háº¡n mĂ¡y chá»§)");
+            throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
           }
 
           let json;
           try {
             json = await res.json();
           } catch (parseError) {
-            throw new Error(`Lá»—i mĂ¡y chá»§ (${res.status}): KhĂ´ng thá»ƒ Ä‘á»c pháº£n há»“i`);
+            throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
           }
 
           if (res.ok && json.success && json.url) {
             const newBlock = createDefaultBlock("image");
             newBlock.data = {
               url: json.url,
-              alt: "áº¢nh minh há»a bĂ i viáº¿t",
+              alt: "Ảnh minh họa bài viết",
               caption: "",
             };
             setBlocks((prev) => [...prev, newBlock]);
             setSaveStatus("Chưa lưu");
-            toast.success("ÄĂ£ chĂ¨n áº£nh tá»« clipboard vĂ o bĂ i viáº¿t!");
+            toast.success("Đã chèn ảnh từ clipboard vào bài viết!");
           } else {
-            throw new Error(json.error || "KhĂ´ng thá»ƒ táº£i áº£nh");
+            throw new Error(json.error || "Không thể tải ảnh");
           }
         } catch (err: any) {
-          toast.error("Lá»—i khi dĂ¡n áº£nh", err.message);
+          toast.error("Lỗi khi dán ảnh", err.message);
         }
         return;
       }
@@ -326,12 +326,12 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     pushHistory(newBlocks);
     setActiveBlockIndex(targetIdx);
     setSaveStatus("Chưa lưu");
-    toast.success(`ÄĂ£ thĂªm khá»‘i ${type}`);
+    toast.success(`Đã thêm khối ${type}`);
   };
 
   // Insert Table via Toolbar
   const handleInsertTableFromToolbar = (rows: number = 3, cols: number = 3) => {
-    const headers = Array.from({ length: cols }, (_, i) => `Cá»™t ${i + 1}`);
+    const headers = Array.from({ length: cols }, (_, i) => `Cột ${i + 1}`);
     const tableRows = Array.from({ length: Math.max(1, rows - 1) }, () => Array.from({ length: cols }, () => ""));
     const newBlock = createDefaultBlock("table");
     newBlock.data = { headers, rows: tableRows };
@@ -344,7 +344,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     pushHistory(newBlocks);
     setActiveBlockIndex(targetIdx);
     setSaveStatus("Chưa lưu");
-    toast.success(`ÄĂ£ chĂ¨n báº£ng biá»ƒu ${rows}x${cols} vĂ o bĂ i viáº¿t`);
+    toast.success(`Đã chèn bảng biểu ${rows}x${cols} vào bài viết`);
   };
 
   // Image Upload triggered from Docs Toolbar
@@ -353,11 +353,11 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
     if (!file) return;
 
     if (file.size > 8 * 1024 * 1024) {
-      toast.error("áº¢nh quĂ¡ lá»›n", "Vui lĂ²ng chá»n áº£nh dÆ°á»›i 8MB");
+      toast.error("Ảnh quá lớn", "Vui lòng chọn ảnh dưới 8MB");
       return;
     }
 
-    toast.info("Äang táº£i áº£nh lĂªn mĂ¡y chá»§...");
+    toast.info("Đang tải ảnh lên máy chủ...");
     try {
       const data = new FormData();
       data.append("file", file);
@@ -366,21 +366,21 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       const res = await fetch("/api/admin/upload", { method: "POST", body: data });
       
       if (res.status === 413) {
-        throw new Error("áº¢nh quĂ¡ lá»›n (vÆ°á»£t quĂ¡ giá»›i háº¡n mĂ¡y chá»§)");
+        throw new Error("Ảnh quá lớn (vượt quá giới hạn máy chủ)");
       }
 
       let json;
       try {
         json = await res.json();
       } catch (parseError) {
-        throw new Error(`Lá»—i mĂ¡y chá»§ (${res.status}): KhĂ´ng thá»ƒ Ä‘á»c pháº£n há»“i`);
+        throw new Error(`Lỗi máy chủ (${res.status}): Không thể đọc phản hồi`);
       }
 
       if (res.ok && json.success && json.url) {
         const newBlock = createDefaultBlock("image");
         newBlock.data = {
           url: json.url,
-          alt: "áº¢nh minh há»a bĂ i viáº¿t",
+          alt: "Ảnh minh họa bài viết",
           caption: "",
         };
 
@@ -393,12 +393,12 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         pushHistory(newBlocks);
         setActiveBlockIndex(targetIdx);
         setSaveStatus("Chưa lưu");
-        toast.success("ÄĂ£ chĂ¨n áº£nh vĂ o bĂ i viáº¿t!");
+        toast.success("Đã chèn ảnh vào bài viết!");
       } else {
-        throw new Error(json.error || "KhĂ´ng thá»ƒ táº£i áº£nh");
+        throw new Error(json.error || "Không thể tải ảnh");
       }
     } catch (err: any) {
-      toast.error("Lá»—i táº£i áº£nh", err.message);
+      toast.error("Lỗi tải ảnh", err.message);
     } finally {
       e.target.value = "";
     }
@@ -423,7 +423,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         document.execCommand("hiliteColor", false, value || "transparent");
         document.execCommand("backColor", false, value || "transparent");
       } else if (format === "link") {
-        const url = prompt("Nháº­p Ä‘Æ°á»ng dáº«n liĂªn káº¿t:", "https://");
+        const url = prompt("Nhập đường dẫn liên kết:", "https://");
         if (url) {
           document.execCommand("createLink", false, url);
         }
@@ -446,7 +446,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       
       setSaveStatus("Chưa lưu");
     } else {
-      toast.info("Vui lĂ²ng click vĂ o Ä‘oáº¡n vÄƒn hoáº·c bĂ´i Ä‘en chá»¯ Ä‘á»ƒ Ă¡p dá»¥ng Ä‘á»‹nh dáº¡ng");
+      toast.info("Vui lòng click vào đoạn văn hoặc bôi đen chữ để áp dụng định dạng");
     }
   };
 
@@ -475,7 +475,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       setBlocks(newBlocks);
       pushHistory(newBlocks);
       setSaveStatus("Chưa lưu");
-      toast.success(`ÄĂ£ Ä‘á»•i thĂ nh ${type === "heading" ? `TiĂªu Ä‘á» H${level || 2}` : "Äoáº¡n vÄƒn"}`);
+      toast.success(`Đã đổi thành ${type === "heading" ? `Tiêu đề H${level || 2}` : "Đoạn văn"}`);
     } else {
       handleInsertBlockFromToolbar(type, level ? { level, text: "" } : { text: "" });
     }
@@ -528,12 +528,12 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       pushHistory(newBlocks);
       setSaveStatus("Chưa lưu");
       toast.success(
-        `ÄĂ£ chuyá»ƒn thĂ nh ${
+        `Đã chuyển thành ${
           listType === "checklist"
-            ? "Danh sĂ¡ch tĂ­ch chá»n"
+            ? "Danh sách tích chọn"
             : listType === "numbered"
-            ? "Danh sĂ¡ch Ä‘Ă¡nh sá»‘"
-            : "Danh sĂ¡ch dáº¥u cháº¥m"
+            ? "Danh sách đánh số"
+            : "Danh sách dấu chấm"
         }`
       );
     } else {
@@ -545,7 +545,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       pushHistory(newBlocks);
       setActiveBlockIndex(newBlocks.length - 1);
       setSaveStatus("Chưa lưu");
-      toast.success("ÄĂ£ thĂªm danh sĂ¡ch má»›i");
+      toast.success("Đã thêm danh sách mới");
     }
   };
 
@@ -570,13 +570,13 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
       setSaveStatus("Chưa lưu");
       const alignName =
         align === "center"
-          ? "giá»¯a"
+          ? "giữa"
           : align === "right"
-          ? "pháº£i"
+          ? "phải"
           : align === "justify"
-          ? "Ä‘á»u 2 bĂªn"
-          : "trĂ¡i";
-      toast.success(`ÄĂ£ cÄƒn ${alignName}`);
+          ? "đều 2 bên"
+          : "trái";
+      toast.success(`Đã căn ${alignName}`);
     }
   };
 
@@ -640,18 +640,18 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
   const validateAndPublish = async () => {
     const errors: { field: string; id: string }[] = [];
-    if (!formData.title.trim()) errors.push({ field: "TiĂªu Ä‘á» bĂ i viáº¿t", id: "input-title" });
-    if (!formData.slug.trim()) errors.push({ field: "ÄÆ°á»ng dáº«n (Slug)", id: "input-slug" });
-    if (!formData.thumbnail) errors.push({ field: "áº¢nh bĂ¬a bĂ i viáº¿t", id: "input-thumbnail" });
+    if (!formData.title.trim()) errors.push({ field: "Tiêu đề bài viết", id: "input-title" });
+    if (!formData.slug.trim()) errors.push({ field: "Đường dẫn (Slug)", id: "input-slug" });
+    if (!formData.thumbnail) errors.push({ field: "Ảnh bìa bài viết", id: "input-thumbnail" });
 
     const finalContent = editorMode === "visual" ? blocksToMarkdown(blocks) : formData.content;
-    if (!finalContent.trim()) errors.push({ field: "Ná»™i dung bĂ i viáº¿t", id: "input-content" });
+    if (!finalContent.trim()) errors.push({ field: "Nội dung bài viết", id: "input-content" });
 
     if (errors.length > 0) {
       const firstError = errors[0];
       toast.error(
-        "KhĂ´ng thá»ƒ Ä‘Äƒng bĂ i",
-        `Vui lĂ²ng bá»• sung: ${errors.map((e) => e.field).join(", ")}`,
+        "Không thể đăng bài",
+        `Vui lòng bổ sung: ${errors.map((e) => e.field).join(", ")}`,
         5000
       );
       if (firstError.id === "input-slug") {
@@ -682,20 +682,20 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
         isSuccess = await addPost(postPayload as any);
       }
 
-      setSaveStatus("ÄĂ£ lÆ°u lĂºc " + new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }));
+      setSaveStatus("Đã lưu lúc " + new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }));
 
       if (isSuccess) {
-        toast.success("ÄĂ£ xuáº¥t báº£n bĂ i viáº¿t thĂ nh cĂ´ng lĂªn trang web!");
+        toast.success("Đã xuất bản bài viết thành công lên trang web!");
       } else {
         toast.warning(
-          "ÄĂ£ lÆ°u an toĂ n trĂªn mĂ¡y cá»¥c bá»™",
-          "MĂ¡y chá»§ pháº£n há»“i cháº­m hoáº·c Ä‘ang Ä‘á»“ng bá»™. Dá»¯ liá»‡u bĂ i viáº¿t Ä‘Ă£ Ä‘Æ°á»£c báº£o vá»‡ trĂªn trĂ¬nh duyá»‡t cá»§a báº¡n."
+          "Đã lưu an toàn trên máy cục bộ",
+          "Máy chủ phản hồi chậm hoặc đang đồng bộ. Dữ liệu bài viết đã được bảo vệ trên trình duyệt của bạn."
         );
       }
 
       router.push("/admin/bai-viet");
     } catch (error: any) {
-      toast.error("Lá»—i khi Ä‘Äƒng bĂ i", error.message);
+      toast.error("Lỗi khi đăng bài", error.message);
       setIsSaving(false);
     }
   };
@@ -744,7 +744,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
 
       {/* 3. WORKSPACE CANVAS (Single Pageless Paper Sheet) */}
       <div className="flex-1 overflow-y-auto relative flex justify-center py-6 px-3 sm:px-6">
-        {/* THE SINGLE PAGELESS DOCUMENT SHEET (Tá» giáº¥y duy nháº¥t - Co giĂ£n vĂ´ táº­n) */}
+        {/* THE SINGLE PAGELESS DOCUMENT SHEET (Tờ giấy duy nhất - Co giãn vô tận) */}
         <div
           onPaste={handleDocumentPaste}
           style={{
@@ -755,10 +755,10 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           className="w-full max-w-[850px] bg-white shadow-[0_1px_3px_rgba(60,64,67,0.15),0_4px_8px_rgba(60,64,67,0.1)] rounded-sm min-h-[1100px] flex flex-col justify-between transition-all px-8 sm:px-14 md:px-18 py-10 md:py-14"
         >
           {/* ============================================================== */}
-          {/* PHáº¦N 1: HEADER (Äáº§u trang tĂ i liá»‡u)                           */}
+          {/* PHẦN 1: HEADER (Đầu trang tài liệu)                           */}
           {/* ============================================================== */}
           <header className="space-y-6 pb-8 border-b border-[#E1E5EA]">
-            {/* áº¢nh bĂ¬a bĂ i viáº¿t (Cover Image) */}
+            {/* Ảnh bìa bài viết (Cover Image) */}
             <div
               id="input-thumbnail"
               onDragOver={(e) => e.preventDefault()}
@@ -767,10 +767,10 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
             >
               {formData.thumbnail ? (
                 <>
-                  <Image src={formData.thumbnail} alt="áº¢nh bĂ¬a bĂ i viáº¿t" fill className="object-cover" priority />
+                  <Image src={formData.thumbnail} alt="Ảnh bìa bài viết" fill className="object-cover" priority />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/cover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                     <label className="px-3.5 py-1.5 bg-white/90 hover:bg-white text-[#1F1F1F] rounded-full text-xs font-semibold cursor-pointer shadow transition-all">
-                      Äá»•i áº£nh bĂ¬a
+                      Đổi ảnh bìa
                       <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailUpload} disabled={isUploadingThumb} />
                     </label>
                     <button
@@ -778,7 +778,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                       onClick={() => setFormData((p) => ({ ...p, thumbnail: "" }))}
                       className="px-3.5 py-1.5 bg-red-600/90 hover:bg-red-600 text-white rounded-full text-xs font-semibold shadow transition-all"
                     >
-                      XĂ³a bĂ¬a
+                      Xóa bìa
                     </button>
                   </div>
                 </>
@@ -789,27 +789,27 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   ) : (
                     <ImageIcon className="w-8 h-8 text-[#70757A] mb-1.5" />
                   )}
-                  <span className="text-xs font-semibold text-[#1F1F1F]">+ ThĂªm áº£nh bĂ¬a bĂ i viáº¿t (Cover)</span>
-                  <span className="text-[11px] text-[#5F6368] mt-0.5">KĂ©o tháº£ áº£nh hoáº·c click Ä‘á»ƒ táº£i lĂªn tá»« mĂ¡y tĂ­nh</span>
+                  <span className="text-xs font-semibold text-[#1F1F1F]">+ Thêm ảnh bìa bài viết (Cover)</span>
+                  <span className="text-[11px] text-[#5F6368] mt-0.5">Kéo thả ảnh hoặc click để tải lên từ máy tính</span>
                   <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailUpload} disabled={isUploadingThumb} />
                 </label>
               )}
             </div>
 
-            {/* TiĂªu Ä‘á» H1 lá»›n (Article Title) */}
+            {/* Tiêu đề H1 lớn (Article Title) */}
             <div>
               <AutoResizeTextarea
                 id="input-title"
                 value={formData.title}
                 onChange={(e) => handleTitleChange(e.target.value)}
-                placeholder="TiĂªu Ä‘á» bĂ i viáº¿t..."
+                placeholder="Tiêu đề bài viết..."
                 className="w-full bg-transparent text-[32px] sm:text-[38px] md:text-[44px] font-serif font-bold text-[#3D2314] focus:outline-none placeholder:text-[#5F6368]/30 resize-none overflow-hidden block leading-[1.25] tracking-tight transition-shadow"
               />
             </div>
 
-            {/* Dáº£i Metadata: Sapo */}
+            {/* Dải Metadata: Sapo */}
             <div className="space-y-4 pt-2">
-              {/* Sapo / TĂ³m táº¯t má»Ÿ Ä‘áº§u bĂ i viáº¿t */}
+              {/* Sapo / Tóm tắt mở đầu bài viết */}
               <div>
                 <AutoResizeTextarea
                   value={formData.excerpt}
@@ -817,7 +817,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                     setFormData((p) => ({ ...p, excerpt: e.target.value }));
                     setSaveStatus("Chưa lưu");
                   }}
-                  placeholder="Äoáº¡n vÄƒn má»Ÿ Ä‘áº§u (Sapo) tĂ³m táº¯t ngáº¯n gá»n Ă½ chĂ­nh cá»§a bĂ i viáº¿t..."
+                  placeholder="Đoạn văn mở đầu (Sapo) tóm tắt ngắn gọn ý chính của bài viết..."
                   className="w-full bg-[#FAF8F5] border border-[#E8DFC8]/60 rounded-lg p-3 text-sm md:text-base font-serif italic text-[#5A4A42] focus:outline-none focus:border-[#C5A059] resize-none overflow-hidden leading-relaxed placeholder:text-[#5F6368]/40"
                 />
               </div>
@@ -825,7 +825,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           </header>
 
           {/* ============================================================== */}
-          {/* PHáº¦N 2: BODY (Ná»™i dung chĂ­nh â€” Co giĂ£n vĂ´ táº­n theo sá»‘ lÆ°á»£ng chá»¯)*/}
+          {/* PHẦN 2: BODY (Nội dung chính — Co giãn vô tận theo số lượng chữ)*/}
           {/* ============================================================== */}
           <main className="flex-1 py-8" id="input-content">
             {editorMode === "visual" ? (
@@ -852,25 +852,25 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   setSaveStatus("Chưa lưu");
                 }}
                 className="w-full min-h-[600px] bg-transparent font-mono text-sm leading-relaxed focus:outline-none resize-none p-2 border border-[#DADCE0] rounded-lg"
-                placeholder="Ná»™i dung markdown..."
+                placeholder="Nội dung markdown..."
               />
             )}
           </main>
 
           {/* ============================================================== */}
-          {/* PHáº¦N 3: FOOTER (ChĂ¢n trang bĂ¡m Ä‘Ă¡y tĂ i liá»‡u)                   */}
+          {/* PHẦN 3: FOOTER (Chân trang bám đáy tài liệu)                   */}
           {/* ============================================================== */}
           <footer className="pt-8 mt-10 border-t border-[#E1E5EA] space-y-6">
-            {/* Lá»i káº¿t & Cam káº¿t cháº¥t lÆ°á»£ng gá»— ÄĂ´ng Phong */}
+            {/* Lời kết & Cam kết chất lượng gỗ Đông Phong */}
             <div className="p-6 rounded-xl border border-[#E8DFC8] bg-[#FAF8F5] text-center space-y-2.5">
               <div className="w-8 h-8 mx-auto rounded-full bg-[#C5A059]/20 flex items-center justify-center text-[#C5A059]">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <h4 className="font-serif font-bold text-base md:text-lg text-[#3D2314]">
-                Má»¹ Nghá»‡ ÄĂ´ng Phong â€” Giá»¯ Há»“n Gá»— QuĂ½
+                Mỹ Nghệ Đông Phong — Giữ Hồn Gỗ Quý
               </h4>
               <p className="text-xs md:text-sm text-[#5A4A42] max-w-xl mx-auto leading-relaxed">
-                100% gá»— tá»± nhiĂªn nguyĂªn khá»‘i tuyá»ƒn chá»n ká»¹ lÆ°á»¡ng. Cháº¿ tĂ¡c thá»§ cĂ´ng giá»¯ trá»n váº¹n hÆ°Æ¡ng tháº£o má»™c vĂ  sáº¯c nÆ°á»›c tá»± nhiĂªn.
+                100% gỗ tự nhiên nguyên khối tuyển chọn kỹ lưỡng. Chế tác thủ công giữ trọn vẹn hương thảo mộc và sắc nước tự nhiên.
               </p>
               <div className="flex items-center justify-center gap-4 pt-2">
                 <a
@@ -880,7 +880,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0068FF] text-white rounded-full text-xs font-semibold hover:bg-[#0052cc] transition-colors"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
-                  <span>TÆ° váº¥n qua Zalo</span>
+                  <span>Tư vấn qua Zalo</span>
                 </a>
                 <a
                   href="tel:0968888972"
@@ -892,11 +892,11 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
               </div>
             </div>
 
-            {/* Tháº» Tags SEO */}
+            {/* Thẻ Tags SEO */}
             <div className="flex flex-wrap items-center gap-2 pt-2">
               <span className="text-xs font-semibold text-[#5F6368] flex items-center gap-1">
                 <Tag className="w-3.5 h-3.5" />
-                Tháº» tá»« khĂ³a:
+                Thẻ từ khóa:
               </span>
               {(formData.tags || []).map((tag, idx) => (
                 <span
@@ -908,7 +908,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
                     className="hover:text-red-600 transition-colors p-0.5"
-                    title="XĂ³a tháº» nĂ y"
+                    title="Xóa thẻ này"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -919,21 +919,21 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleAddTag}
-                placeholder="+ ThĂªm tag vĂ  áº¥n Enter..."
+                placeholder="+ Thêm tag và ấn Enter..."
                 className="bg-transparent border-b border-[#DADCE0] text-xs px-2 py-0.5 focus:outline-none focus:border-[#1A73E8]"
               />
             </div>
           </footer>
         </div>
 
-        {/* 4. SLIDE-OUT SETTINGS DRAWER (Khi click vĂ o biá»ƒu tÆ°á»£ng bĂ¡nh rÄƒng) */}
+        {/* 4. SLIDE-OUT SETTINGS DRAWER (Khi click vào biểu tượng bánh răng) */}
         {showSettings && (
           <div className="w-80 border-l border-[#DADCE0] bg-white shadow-2xl fixed right-0 inset-y-0 z-50 overflow-y-auto p-6 transition-all flex flex-col justify-between">
             <div className="space-y-6">
               <div className="flex items-center justify-between pb-3 border-b border-[#ECEFF3]">
                 <h3 className="text-sm font-bold text-[#1F1F1F] uppercase tracking-wider flex items-center gap-1.5">
                   <Settings className="w-4 h-4 text-[#C5A059]" />
-                  CĂ i Ä‘áº·t bĂ i viáº¿t
+                  Cài đặt bài viết
                 </h3>
                 <button
                   type="button"
@@ -944,9 +944,9 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                 </button>
               </div>
 
-              {/* Cháº¿ Ä‘á»™ soáº¡n tháº£o */}
+              {/* Chế độ soạn thảo */}
               <div>
-                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Cháº¿ Ä‘á»™ soáº¡n tháº£o</label>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Chế độ soạn thảo</label>
                 <div className="grid grid-cols-2 gap-2 bg-[#F1F3F4] p-1 rounded-lg">
                   <button
                     type="button"
@@ -955,7 +955,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                       editorMode === "visual" ? "bg-white text-[#1A73E8] shadow-xs" : "text-[#5F6368]"
                     }`}
                   >
-                    Trá»±c quan
+                    Trực quan
                   </button>
                   <button
                     type="button"
@@ -970,9 +970,9 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                 </div>
               </div>
 
-              {/* ChuyĂªn má»¥c */}
+              {/* Chuyên mục */}
               <div>
-                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">ChuyĂªn má»¥c</label>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Chuyên mục</label>
                 <select
                   value={formData.category}
                   onChange={(e) => {
@@ -981,37 +981,37 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                   }}
                   className="w-full bg-[#FAF8F5] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] focus:border-[#1A73E8] outline-none"
                 >
-                  <option value="kien-thuc-ve-go">Kiáº¿n Thá»©c Vá» Gá»—</option>
-                  <option value="vat-pham-phong-thuy">Váº­t Pháº©m Phong Thá»§y</option>
-                  <option value="nghe-thuat-che-tac">Nghá»‡ Thuáº­t Cháº¿ TĂ¡c</option>
-                  <option value="tin-tuc-su-kien">Tin Tá»©c XÆ°á»Ÿng ÄĂ´ng Phong</option>
+                  <option value="kien-thuc-ve-go">Kiến Thức Về Gỗ</option>
+                  <option value="vat-pham-phong-thuy">Vật Phẩm Phong Thủy</option>
+                  <option value="nghe-thuat-che-tac">Nghệ Thuật Chế Tác</option>
+                  <option value="tin-tuc-su-kien">Tin Tức Xưởng Đông Phong</option>
                 </select>
               </div>
 
-              {/* TĂ¡c giáº£ */}
+              {/* Tác giả */}
               <div>
-                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">TĂ¡c giáº£</label>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Tác giả</label>
                 <input
                   type="text"
-                  value="Nghá»‡ nhĂ¢n ÄĂ´ng Phong"
+                  value="Nghệ nhân Đông Phong"
                   disabled
                   className="w-full bg-[#F1F3F4] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#5F6368] cursor-not-allowed outline-none"
                 />
               </div>
 
-              {/* Thá»i gian Ä‘á»c */}
+              {/* Thời gian đọc */}
               <div>
                 <label className="text-xs font-semibold text-[#5F6368] mb-1.5 flex justify-between">
-                  <span>Thá»i gian Ä‘á»c (phĂºt)</span>
+                  <span>Thời gian đọc (phút)</span>
                   <button
                     type="button"
                     onClick={() => {
                       setIsReadingTimeManual(false);
-                      toast.success("ÄĂ£ báº­t tá»± Ä‘á»™ng tĂ­nh thá»i gian Ä‘á»c");
+                      toast.success("Đã bật tự động tính thời gian đọc");
                     }}
                     className="text-[11px] text-[#1A73E8] hover:underline flex items-center gap-0.5"
                   >
-                    <Wand2 className="w-3 h-3" /> Tá»± Ä‘á»™ng
+                    <Wand2 className="w-3 h-3" /> Tự động
                   </button>
                 </label>
                 <input
@@ -1030,17 +1030,17 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
               {/* Slug URL */}
               <div>
                 <label className="text-xs font-semibold text-[#5F6368] mb-1.5 flex justify-between">
-                  <span>ÄÆ°á»ng dáº«n (Slug URL)</span>
+                  <span>Đường dẫn (Slug URL)</span>
                   <button
                     type="button"
                     onClick={() => {
                       setFormData((p) => ({ ...p, slug: slugify(p.title) }));
                       setIsSlugManual(false);
-                      toast.success("ÄĂ£ táº¡o láº¡i slug theo tiĂªu Ä‘á»");
+                      toast.success("Đã tạo lại slug theo tiêu đề");
                     }}
                     className="text-[11px] text-[#1A73E8] hover:underline flex items-center gap-0.5"
                   >
-                    <Wand2 className="w-3 h-3" /> Tá»± Ä‘á»™ng
+                    <Wand2 className="w-3 h-3" /> Tự động
                   </button>
                 </label>
                 <input
@@ -1055,9 +1055,9 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                 />
               </div>
 
-              {/* NgĂ y xuáº¥t báº£n */}
+              {/* Ngày xuất bản */}
               <div>
-                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">NgĂ y hiá»ƒn thá»‹ bĂ i viáº¿t</label>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Ngày hiển thị bài viết</label>
                 <input
                   type="date"
                   value={(formData as any).publishedAt || new Date().toISOString().split("T")[0]}
@@ -1066,16 +1066,16 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                 />
               </div>
 
-              {/* Tráº¡ng thĂ¡i bĂ i viáº¿t */}
+              {/* Trạng thái bài viết */}
               <div>
-                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Tráº¡ng thĂ¡i phĂ¡t hĂ nh</label>
+                <label className="text-xs font-semibold text-[#5F6368] mb-1.5 block">Trạng thái phát hành</label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value as any }))}
                   className="w-full bg-[#FAF8F5] border border-[#DADCE0] rounded px-3 py-1.5 text-xs text-[#1F1F1F] focus:border-[#1A73E8] outline-none"
                 >
-                  <option value="draft">Báº£n nhĂ¡p (ChÆ°a cĂ´ng khai)</option>
-                  <option value="published">ÄĂ£ Ä‘Äƒng (CĂ´ng khai trĂªn web)</option>
+                  <option value="draft">Bản nháp (Chưa công khai)</option>
+                  <option value="published">Đã đăng (Công khai trên web)</option>
                 </select>
               </div>
             </div>
@@ -1086,7 +1086,7 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
                 onClick={() => setShowSettings(false)}
                 className="w-full py-2 bg-[#F1F3F4] hover:bg-[#E5E9EC] text-[#1F1F1F] text-xs font-semibold rounded-lg transition-colors"
               >
-                ÄĂ³ng cĂ i Ä‘áº·t
+                Đóng cài đặt
               </button>
             </div>
           </div>
@@ -1099,19 +1099,19 @@ export function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
           <div className="flex items-center justify-between px-6 py-3 border-b border-[#DADCE0] bg-white shadow-xs">
             <div className="text-sm font-bold text-[#3D2314] flex items-center gap-2">
               <Eye className="w-4 h-4 text-[#C5A059]" />
-              <span>Cháº¿ Ä‘á»™ xem trÆ°á»›c bĂ i viáº¿t</span>
+              <span>Chế độ xem trước bài viết</span>
             </div>
             <button
               onClick={() => setShowPreview(false)}
               className="px-4 py-1.5 bg-[#EDF2FA] text-[#1F1F1F] hover:bg-[#DDE3EA] rounded-full text-xs font-semibold transition-colors"
             >
-              ÄĂ³ng xem trÆ°á»›c
+              Đóng xem trước
             </button>
           </div>
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-[760px] mx-auto px-6 py-12 space-y-6">
               <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#3D2314] leading-tight">
-                {formData.title || "ChÆ°a cĂ³ tiĂªu Ä‘á»"}
+                {formData.title || "Chưa có tiêu đề"}
               </h1>
               {formData.thumbnail && (
                 <div className="relative w-full aspect-[21/9] rounded-xl overflow-hidden shadow-md">

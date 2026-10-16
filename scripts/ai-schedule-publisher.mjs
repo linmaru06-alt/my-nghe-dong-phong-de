@@ -1,13 +1,20 @@
 /**
  * scripts/ai-schedule-publisher.mjs
- * Hệ thống tự động xuất bản bài viết theo 4 Khung Giờ Vàng — Mỹ Nghệ Đông Phong
+ * Hệ thống xuất bản bài viết tự động theo 3 Khung Giờ Vàng — Mỹ Nghệ Đông Phong
+ * Áp dụng tiêu chuẩn Copywriting đỉnh cao (Marketing Skills & GEO Search):
  * 
- * - Khung 1 (07:30): Tin tức & Thị trường (Quét từ khóa hot trên Google News / báo chí uy tín)
- * - Khung 2 (11:30): Kiến thức về gỗ (Dựa trên Content Pillar + Nghiên cứu chuyên sâu)
- * - Khung 3 (16:30): Bảo quản sản phẩm (Dựa trên Content Pillar + Giải đáp nỗi lo)
- * - Khung 4 (20:30): Hướng dẫn lựa chọn (Dựa trên Content Pillar + Tư vấn phong thủy & Chuyển đổi)
+ * - Ca 1 (07:30 VN): Bảo quản sản phẩm & Kỹ thuật mộc (bao-quan-san-pham)
+ * - Ca 2 (11:30 VN): Kiến thức danh mộc & Nhận biết thật - giả (kien-thuc-ve-go)
+ * - Ca 3 (20:30 VN): Cẩm nang Phong thủy Ngũ Hành theo năm sinh & nghề nghiệp (huong-dan-lua-chon)
  * 
- * QUY TẮC BẮT BUỘC: 100% Ảnh chụp thật, TUYỆT ĐỐI KHÔNG TẠO ẢNH BẰNG AI!
+ * NGUYÊN TẮC CỐT LÕI V3.0:
+ * 1. 100% Ảnh chụp mộc thật từ Supabase Storage / Xưởng Đông Phong. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI.
+ * 2. Mở bài bằng Hook sắc bén (Cut Throat-Clearing), KHÔNG mở bài bằng câu chào rập khuôn nghệ nhân.
+ * 3. BỎ HOÀN TOÀN BẢNG SO SÁNH <table> (tránh tràn màn hình mobile, tránh rập khuôn khô cứng).
+ * 4. Bố cục linh hoạt theo dòng chảy tâm lý (PAS Flow), nghiêm cấm viết độn chữ (Padding).
+ * 5. Khối Hỏi - Đáp (FAQ) 3-4 câu dứt khoát cuối bài đón đầu Google AI Overviews Top 0.
+ * 6. Chèn 2-3 liên kết nội bộ tự nhiên dẫn về sản phẩm / chuyên mục.
+ * 7. Xoay vòng 5 mẫu Lời Kêu Gọi Zalo (Frictionless CTAs) giảm rào cản tâm lý mua hàng.
  */
 
 import fs from "fs/promises";
@@ -40,10 +47,43 @@ const REAL_WOOD_PHOTOS = {
     "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/tnw-11-1785412271065757119796-1791215192883.jpg",
     "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/tnw-13-17854122710131668343502-1791215228591.jpg"
   ],
+  "mun-sung": [
+    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/g8wfj8szsr7j8exnqokiw-akdxrgjassae4djmefnczrnnxfqpihiztdlak6ejy1jn6qm-m9tmz87son1yfovmsg-vlirkphv8gh-2fk1qtjpzxop1ififn8xfn6ltfshsi7woqgnxx0ftix2qbf1-srsz4txzyq7-z4vwcrmluy89t69ymuqc-spo8l6cmq-1791218587580.jpg"
+  ],
+  "huyet-long": [
+    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/cq-c-bbdtbcxn5vr16fntffgkj1qeuouqy619s8nq-zxoyholisvilttj3nlhmczkpzjdnxcznohysx4emggy8q8hnfgfptip9smacuodxcqooidtj2u9d3ouoblneasm5t8ioosxwghqbyod87l6-2sc6hofucmxswrlxrh7tguakmmipqs6dh6boafo9w-1791218614413.jpg"
+  ],
+  "trac-do": [
+    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/cq-c-bbdtbcxn5vr16fntffgkj1qeuouqy619s8nq-zxoyholisvilttj3nlhmczkpzjdnxcznohysx4emggy8q8hnfgfptip9smacuodxcqooidtj2u9d3ouoblneasm5t8ioosxwghqbyod87l6-2sc6hofucmxswrlxrh7tguakmmipqs6dh6boafo9w-1791218614413.jpg"
+  ],
   "default": [
     "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/images-1--1791215033290.jpg"
   ]
 };
+
+// 5 Mẫu Lời Kêu Gọi Zalo (Frictionless CTAs) giảm rào cản tâm lý mua hàng
+const ZALO_CTA_TEMPLATES = [
+  {
+    type: "size-tay",
+    text: "Chưa cần mua hàng, nếu quý bạn hữu còn phân vân kích thước hạt 10mm, 12mm hay 14mm vừa vặn với cổ tay mình, hãy nhắn ngay Zalo gửi ảnh cổ tay để nghệ nhân Đông Phong tư vấn đo size chuẩn xác hoàn toàn miễn phí."
+  },
+  {
+    type: "ngu-hanh-nam-sinh",
+    text: "Mỗi người sinh ra mang một nạp âm riêng biệt. Nhắn Zalo năm sinh âm lịch của bạn, xưởng sẽ tra cứu trực tiếp bảng ngũ hành và gợi ý chất gỗ tương sinh, vượng tài nhất."
+  },
+  {
+    type: "qua-tang-doi-tac",
+    text: "Quà tặng gỗ quý cần sự tinh tế tuyệt đối. Hãy gửi ngành nghề và độ tuổi người nhận qua Zalo, nghệ nhân sẽ gợi ý mẫu vật phẩm xứng tầm vị thế và trọn vẹn ý nghĩa phong thủy."
+  },
+  {
+    type: "tham-dinh-that-gia",
+    text: "Nếu bạn đang sở hữu một chuỗi hạt gỗ nhưng chưa rõ phôi mộc tự nhiên hay đã xử lý hóa chất, cứ gửi ảnh cận cảnh vân gỗ qua Zalo, nghệ nhân xưởng Đông Phong sẵn lòng thẩm định giúp bạn hoàn toàn miễn phí."
+  },
+  {
+    type: "trai-nghiem-phoi-moc",
+    text: "Trăm nghe không bằng một thấy. Hãy nhắn Zalo để nghệ nhân quay video cận cảnh từng thớ gỗ mộc thô trước khi tiện hạt và lên nước mộc thủ công dành riêng cho bạn."
+  }
+];
 
 function slugify(text) {
   return text
@@ -57,98 +97,27 @@ function slugify(text) {
 }
 
 /**
- * Xác định khung giờ hiện tại hoặc theo tham số truyền vào
+ * Xác định khung giờ hiện tại theo múi giờ Việt Nam (UTC+7) hoặc theo tham số dòng lệnh
+ * - Ca 1: 05:00 - 10:00 VN -> Slot 1 (Bảo quản sản phẩm)
+ * - Ca 2: 10:00 - 15:00 VN -> Slot 2 (Kiến thức về gỗ)
+ * - Ca 3: 15:00 - 24:00 (hoặc trước 05:00) VN -> Slot 3 (Hướng dẫn lựa chọn / Phong thủy ngũ hành)
  */
 function getCurrentSlot() {
   const args = process.argv.slice(2);
   const slotArg = args.find((a) => a.startsWith("--slot="));
   if (slotArg) {
-    return parseInt(slotArg.split("=")[1], 10);
+    const parsed = parseInt(slotArg.split("=")[1], 10);
+    if ([1, 2, 3].includes(parsed)) return parsed;
   }
 
   // Chuyển đổi chính xác sang múi giờ Việt Nam (UTC+7)
   const vnDate = new Date(Date.now() + 7 * 60 * 60 * 1000);
   const vnHour = vnDate.getUTCHours();
-  // Khung 1: Buổi sáng (06:00 - 14:00 VN) -> Slot 1 (Tin tức thị trường)
-  if (vnHour >= 6 && vnHour < 14) return 1;
-  // Khung 2: Buổi chiều & tối (14:00 - 24:00 hoặc trước 06:00 VN) -> Slot 2 (Content Pillar chuyên sâu)
-  return 2;
+
+  if (vnHour >= 5 && vnHour < 10) return 1;
+  if (vnHour >= 10 && vnHour < 15) return 2;
+  return 3;
 }
-
-/**
- * Xử lý tạo bài viết theo Content Pillar
- */
-async function generatePillarArticle(category, targetPillar) {
-  if (!GEMINI_API_KEY) {
-    throw new Error("Thiếu GEMINI_API_KEY trong .env.local");
-  }
-
-  // Tự động giải quyết category luân phiên nếu nhận "auto-rotate"
-  if (category === "auto-rotate") {
-    const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
-    const posts = JSON.parse(postsRaw);
-    const rotationPool = ["kien-thuc-ve-go", "bao-quan-san-pham", "huong-dan-lua-chon"];
-    const counts = rotationPool.map((cat) => ({
-      cat,
-      count: posts.filter((p) => p.category === cat).length,
-    }));
-    counts.sort((a, b) => a.count - b.count);
-    category = counts[0].cat;
-    console.log(`[Content-Pillar] Đang chọn chuyên mục luân phiên: ${category}`);
-  }
-
-  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-  const pillarsRaw = await fs.readFile(path.join(process.cwd(), "data", "content-pillars.json"), "utf-8");
-  const pillarsData = JSON.parse(pillarsRaw);
-
-  const matchedPillar = pillarsData.matrix.find((m) => m.category === category);
-  if (!matchedPillar || !matchedPillar.topics.length) {
-    throw new Error(`Không tìm thấy cấu hình cho chuyên mục: ${category}`);
-  }
-
-  // Đọc danh sách bài đã có để chọn topic chưa viết
-  const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
-  const posts = JSON.parse(postsRaw);
-  const existingTitles = posts.map((p) => p.title.toLowerCase());
-
-  // Tìm topic chưa được viết
-  let selectedTopic = matchedPillar.topics.find((t) => !existingTitles.some((et) => et.includes(t.title.toLowerCase().slice(0, 15))));
-  if (!selectedTopic) {
-    // Nếu đã viết hết, chọn ngẫu nhiên 1 topic và phái sinh góc nhìn mới
-    selectedTopic = matchedPillar.topics[Math.floor(Math.random() * matchedPillar.topics.length)];
-  }
-
-  const prompt = `
-Bạn là Nghệ nhân trưởng kiêm chuyên gia đồ gỗ phong thủy tại "Mỹ Nghệ Đông Phong" (xưởng mộc thủ công truyền thống cao cấp).
-Nhiệm vụ của bạn là biên soạn một bài viết CẨM NANG CHUYÊN SÂU chuẩn SEO và Google AI Overviews dựa trên chủ đề hạt giống sau:
-
-【CHỦ ĐỀ HẠT GIỐNG】: "${selectedTopic.title}"
-【CHUYÊN MỤC】: ${category}
-【GÓC KHAI THÁC】: ${matchedPillar.purpose}
-【TỪ KHÓA NGHIÊN CỨU】: ${selectedTopic.researchKeywords.join(", ")}
-
-【YÊU CẦU NỘI DUNG NGHIÊM NGẶT — BẮT BUỘC ĐỘ DÀI TỐI THIỂU 1.000 - 1.500 TỪ】:
-1. TIÊU ĐỀ: Tự nhiên, hấp dẫn, chuẩn phong thái nghệ nhân đồ gỗ quý (dưới 70 ký tự).
-2. ĐOẠN MỞ ĐẦU (Direct Answer): 50-70 từ trả lời trực diện thắc mắc cốt lõi của khách hàng (chuẩn Google AI Overviews).
-3. THÂN BÀI CHUYÊN SÂU (ĐẠT CHUẨN TỐI THIỂU 1.000 - 1.500 TỪ):
-   - BẮT BUỘC chia thành 4 - 5 phần với các thẻ <h2> rõ ràng, viết chi tiết từng mục, không được viết tóm tắt ngắn cụt.
-   - Phần 1 <h2>: Nguồn gốc, bản chất sinh học thớ gỗ, tôm gỗ và đặc tính tự nhiên (tối thiểu 250 từ).
-   - Phần 2 <h2>: Hướng dẫn thực hành chi tiết từng bước, kèm số liệu cụ thể (chu vi hạt mm, tỷ lệ co ngót, cơ chế tuyến mồ hôi, bảng tra ngũ hành) (tối thiểu 350 từ).
-   - Phần 3 <h2>: Bảng biểu so sánh (HTML <table>) hoặc danh sách liệt kê phân tích ưu/nhược điểm từng phương án (tối thiểu 200 từ).
-   - Phần 4 <h2>: Bí quyết dưỡng gỗ độc quyền từ xưởng mộc Đông Phong (cách lau mộc vải cotton, hồi hương, chống nồm ẩm) (tối thiểu 250 từ).
-   - Phần 5: Lời cam kết gỗ mộc tự nhiên 100% không tẩm hóa chất & Lời kêu gọi khách nhắn Zalo gửi năm sinh/ảnh cổ tay để nghệ nhân tư vấn đo size (150 từ).
-4. QUY TẮC HÌNH ẢNH:
-   - TUYỆT ĐỐI KHÔNG đề cập ảnh AI. Khẳng định 100% thớ gỗ tự nhiên thật từ xưởng mộc.
-
-XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ (KHÔNG BỌC TRONG \`\`\`json):
-{
-  "title": "Tiêu đề bài viết",
-  "excerpt": "Đoạn mô tả ngắn tóm lược 50-70 từ",
-  "content": "Toàn bộ bài viết định dạng HTML chuẩn (h2, p, ul, li, table, blockquote, strong) ĐẠT TỐI THIỂU 1.000 TỪ",
-  "woodTypesMentioned": ["Tử Đàn", "Bách Xanh"],
-  "suggestedProductCategories": ["vong-tay", "but-ky"]
-}
-`;
 
 function extractAndParseJson(text) {
   if (!text) throw new Error("Phản hồi rỗng từ Gemini");
@@ -174,17 +143,167 @@ function extractAndParseJson(text) {
   }
 }
 
+/**
+ * Lựa chọn ngẫu nhiên CTA Zalo không trùng lặp và loại bỏ bảng <table> nếu AI vô tình sinh ra
+ */
+function postProcessContent(rawContent, category) {
+  let content = rawContent || "";
+
+  // 1. NGHIÊM CẤM THẺ <table>: Chuyển đổi table thành danh sách sạch đẹp nếu có
+  if (content.includes("<table")) {
+    console.warn("[Post-Process] Phát hiện thẻ <table> trong nội dung — đang tiến hành dọn dẹp loại bỏ bảng...");
+    content = content
+      .replace(/<table[^>]*>[\s\S]*?<\/table>/gi, (tableHtml) => {
+        // Trích xuất các dòng tr/td để chuyển thành ul li
+        const rows = tableHtml.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
+        const items = [];
+        for (const row of rows) {
+          const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi) || [];
+          const textList = cells.map((c) => c.replace(/<[^>]*>/g, "").trim()).filter(Boolean);
+          if (textList.length >= 2) {
+            items.push(`<li><strong>${textList[0]}:</strong> ${textList.slice(1).join(" — ")}</li>`);
+          } else if (textList.length === 1) {
+            items.push(`<li>${textList[0]}</li>`);
+          }
+        }
+        return items.length ? `<ul>${items.join("")}</ul>` : "";
+      });
+  }
+
+  // 2. Chèn tự nhiên 2-3 liên kết nội bộ nếu bài viết chưa có đủ
+  const hasProductLink = content.includes("/san-pham/");
+  const hasBlogLink = content.includes("/bai-viet");
+
+  if (!hasProductLink) {
+    if (content.includes("vòng tay")) {
+      content = content.replace(/(vòng tay gỗ(?: quý| phong thủy)?)/i, '<a href="/san-pham/vong-tay">$1</a>');
+    } else if (content.includes("bút ký")) {
+      content = content.replace(/(bút ký(?: phong thủy| gỗ)?)/i, '<a href="/san-pham/but-ky">$1</a>');
+    }
+  }
+
+  // 3. Đảm bảo có CTA Zalo chuẩn và số Hotline Đông Phong
+  const randomCta = ZALO_CTA_TEMPLATES[Math.floor(Math.random() * ZALO_CTA_TEMPLATES.length)];
+  const ctaBlock = `
+<div class="my-8 p-6 bg-[#FAF6F0] border-l-4 border-[#C5A059] rounded-r-xl shadow-sm">
+  <p class="font-serif font-bold text-lg text-[#3D2314] mb-2">Lời tâm sự từ xưởng mộc Mỹ Nghệ Đông Phong</p>
+  <p class="text-[#5A4A42] leading-relaxed mb-4">${randomCta.text}</p>
+  <div class="flex flex-wrap gap-4 items-center">
+    <a href="https://zalo.me/0961668612" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-5 py-2.5 bg-[#C5A059] hover:bg-[#b08b46] text-white font-medium rounded-lg transition-colors">
+      Nhắn Zalo Nghệ Nhân (0961.668.612)
+    </a>
+    <a href="tel:0961668612" class="inline-flex items-center px-4 py-2 text-[#3D2314] hover:text-[#C5A059] font-medium transition-colors">
+      Hotline: 0961.668.612
+    </a>
+  </div>
+</div>
+`.trim();
+
+  // Kiểm tra xem đã có CTA box chưa
+  if (!content.includes("zalo.me") && !content.includes("0961")) {
+    content += `\n${ctaBlock}`;
+  }
+
+  return content;
+}
+
+/**
+ * Xử lý tạo bài viết theo Content Pillar thế hệ mới (Marketing Skills V3.0)
+ */
+async function generatePillarArticle(category, slotName) {
+  if (!GEMINI_API_KEY) {
+    throw new Error("Thiếu GEMINI_API_KEY trong .env.local hoặc GitHub Secrets");
+  }
+
+  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+  const pillarsRaw = await fs.readFile(path.join(process.cwd(), "data", "content-pillars.json"), "utf-8");
+  const pillarsData = JSON.parse(pillarsRaw);
+
+  const matchedPillar = pillarsData.matrix.find((m) => m.category === category);
+  if (!matchedPillar || !matchedPillar.topics.length) {
+    throw new Error(`Không tìm thấy cấu hình cho chuyên mục: ${category}`);
+  }
+
+  // Đọc danh sách bài đã có để chọn topic chưa viết
+  const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
+  const posts = JSON.parse(postsRaw);
+  const existingTitles = posts.map((p) => p.title.toLowerCase());
+
+  // Tìm topic chưa được viết
+  let selectedTopic = matchedPillar.topics.find((t) => !existingTitles.some((et) => et.includes(t.title.toLowerCase().slice(0, 15))));
+  if (!selectedTopic) {
+    // Nếu đã viết hết toàn bộ danh sách, chọn ngẫu nhiên 1 topic để khai thác góc nhìn thực tế mới
+    selectedTopic = matchedPillar.topics[Math.floor(Math.random() * matchedPillar.topics.length)];
+  }
+
+  console.log(`[Pillar-Engine] Đã chọn chủ đề: "${selectedTopic.title}" (Cấp độ: ${selectedTopic.level || "Chuyên sâu"})`);
+
+  const prompt = `
+Bạn là Nghệ nhân mộc gia truyền kiêm Chuyên gia đồ gỗ phong thủy tại thương hiệu cao cấp "Mỹ Nghệ Đông Phong".
+Hãy viết một bài viết cẩm nang CHUYÊN SÂU, CHÂN THỰC và GIÀU GIÁ TRỊ THỰC TIỄN dựa trên hạt giống nội dung sau:
+
+【CHỦ ĐỀ】: "${selectedTopic.title}"
+【CHUYÊN MỤC】: ${category} (${matchedPillar.purpose})
+【TỪ KHÓA TÌM KIẾM CỦA KHÁCH】: ${selectedTopic.researchKeywords.join(", ")}
+
+【BỘ TIÊU CHUẨN VIẾT V3.0 — TUYỆT ĐỐI TUÂN THỦ】:
+1. PHONG THÁI & GIỌNG VĂN:
+   - Giọng văn trầm ấm, điềm đạm, khiêm nhường nhưng uyên bác của người thợ mộc dành cả đời bên thớ gỗ và mùi tinh dầu tự nhiên.
+   - Tránh văn phong quảng cáo thổi phồng (no hype). Dùng từ ngữ nghề mộc chính xác: thớ gỗ, tôm gỗ, tom gỗ, phôi mộc, lên nước (patina), dác gỗ, tâm gỗ (heartwood), tinh dầu tự nhiên, mùi hương thảo mộc.
+
+2. MỞ BÀI SẮC BÉN (HOOK — CUT THROAT-CLEARING):
+   - TUYỆT ĐỐI KHÔNG mở bài bằng câu chào rập khuôn sáo rỗng: "Chào mừng quý vị...", "Tôi là nghệ nhân trưởng...", "Hôm nay tôi xin chia sẻ...", "Trong bài viết này chúng ta sẽ cùng tìm hiểu...".
+   - Vào thẳng vấn đề: Mở đầu bằng một tình huống thực tế tại xưởng mộc, một nghịch lý hoặc quan niệm sai lầm rất phổ biến của người mua gỗ phong thủy, hoặc một trải nghiệm chân thật.
+   - Đoạn mở đầu (40-60 từ) trả lời trực tiếp bản chất vấn đề để công cụ tìm kiếm AI (Google AI Overviews, Perplexity) dễ trích xuất câu trả lời trực tiếp (Direct Answer).
+
+3. ĐỘ DÀI & NGUYÊN TẮC CHỐNG ĐỘN CHỮ (NO PADDING):
+   - ĐỘ DÀI MỤC TIÊU: 800 - 1.200 TỪ THỰC TẾ (tính theo số từ văn bản, không tính thẻ HTML).
+   - Nghiêm cấm viết độn chữ rỗng tuếch để kéo dài bài. Viết câu nào chắc câu đó, đi sâu vào kỹ thuật thực tế và kinh nghiệm phân biệt. Khi hết giá trị thì kết bài dứt khoát.
+
+4. CẤU TRÚC THÂN BÀI (LINH HOẠT THEO TÂM LÝ KHÁCH HÀNG — PAS FLOW):
+   - Chia 3 - 4 phần với các tiêu đề <h2> tự nhiên, hấp dẫn, không rập khuôn số 1, 2, 3, 4, 5.
+   - Trình bày thoáng mắt: Đan xen đoạn văn 2-3 câu ngắn và danh sách gạch đầu dòng (<ul><li>) có in đậm từ khóa <strong> ở đầu mỗi ý.
+   - TUYỆT ĐỐI KHÔNG DÙNG BẢNG HTML (<table>)! Hãy dùng các danh sách so sánh hoặc đoạn văn phân tích tương phản.
+
+5. MỤC HỎI - ĐÁP ĐÓN ĐẦU AI OVERVIEWS (FAQ):
+   - Ở cuối bài (trước phần kết), bắt buộc có một mục <h2> mang tên "Những câu hỏi thường gặp" hoặc "Giải đáp nhanh thắc mắc từ người chơi gỗ".
+   - Bao gồm đúng 3 - 4 câu hỏi thực tế nhất mà khách hàng hay băn khoăn (dùng thẻ <h3> cho câu hỏi).
+   - Mỗi câu trả lời ngắn gọn, trực diện từ 2 - 3 câu dứt khoát, khoa học để Google AI Overviews dễ trích xuất Top 0.
+
+6. LIÊN KẾT NỘI BỘ (INTERNAL LINKS):
+   - Tự nhiên lồng ghép 2-3 liên kết nội bộ trong bài viết:
+     * <a href="/san-pham/vong-tay">vòng tay gỗ quý phong thủy</a>
+     * <a href="/san-pham/but-ky">bút ký phong thủy</a>
+     * <a href="/san-pham/goi-go">gối gỗ thư giãn</a>
+     * <a href="/san-pham/bi-lan-tay">bi lăn tay dưỡng sinh</a>
+     * <a href="/bai-viet">cẩm nang kiến thức gỗ Đông Phong</a>
+
+7. QUY TẮC HÌNH ẢNH:
+   - TUYỆT ĐỐI KHÔNG đề cập ảnh do AI tạo. Khẳng định 100% phôi gỗ mộc tự nhiên, vân gỗ thật từ xưởng thủ công.
+
+XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG BỌC TRONG \`\`\`json):
+{
+  "title": "Tiêu đề hấp dẫn, chuẩn phong thái nghệ nhân đồ gỗ quý (dưới 70 ký tự)",
+  "excerpt": "Đoạn tóm tắt súc tích 50-70 từ trả lời trực diện vấn đề",
+  "content": "Toàn bộ bài viết định dạng HTML chuẩn (h2, h3, p, ul, li, strong, blockquote, a) ĐẠT 800 - 1.200 TỪ THỰC TẾ, KHÔNG CÓ BẢNG TABLE",
+  "woodTypesMentioned": ["Tử Đàn", "Bách Xanh"],
+  "suggestedProductCategories": ["vong-tay", "but-ky"]
+}
+`.trim();
+
   const modelCandidates = [
     "gemini-3.5-flash",
     "gemini-3.5-flash-lite",
     "gemini-3.1-flash-lite",
     "gemini-3.8-flash",
-    "gemini-flash-latest",
+    "gemini-flash-latest"
   ];
+
   let result = null;
 
   for (const mName of modelCandidates) {
     try {
+      console.log(`[Pillar-Engine] Đang gọi mô hình Gemini: ${mName}...`);
       const model = genAI.getGenerativeModel({
         model: mName,
         generationConfig: {
@@ -195,29 +314,34 @@ function extractAndParseJson(text) {
       const res = await model.generateContent(prompt);
       const text = res.response.text().trim();
       const parsed = extractAndParseJson(text);
-      
+
       // Kiểm tra độ dài từ thực tế (loại bỏ thẻ HTML)
       const textOnly = (parsed.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
       const wordCount = textOnly ? textOnly.split(" ").length : 0;
-      
-      if (parsed.title && parsed.content && wordCount >= 700) {
+
+      if (parsed.title && parsed.content && wordCount >= 650) {
         parsed.wordCount = wordCount;
+        parsed.content = postProcessContent(parsed.content, category);
         result = parsed;
+        console.log(`[Pillar-Engine] ✅ Tạo thành công bài viết với ${wordCount} từ qua model ${mName}`);
         break;
+      } else {
+        console.warn(`[Pillar-Engine] Model ${mName} trả về chưa đủ điều kiện (từ: ${wordCount})`);
       }
     } catch (err) {
-      console.warn(`[AI-Publisher] Thử model ${mName} thất bại: ${err.message}`);
+      console.warn(`[Pillar-Engine] Thử model ${mName} thất bại: ${err.message}`);
       continue;
     }
   }
 
   if (!result) {
-    throw new Error("Gemini AI không thể tạo nội dung cho chủ đề này.");
+    throw new Error("Không thể tạo nội dung bài viết qua Gemini AI sau khi thử tất cả model candidates.");
   }
 
   // Chọn ảnh chụp thật phù hợp với loại gỗ đề cập
   let selectedThumb = REAL_WOOD_PHOTOS["default"][0];
-  const woodText = (result.woodTypesMentioned || []).join(" ").toLowerCase();
+  const woodText = (result.woodTypesMentioned || []).join(" ").toLowerCase() + " " + result.title.toLowerCase();
+  
   if (woodText.includes("tử đàn") || woodText.includes("tu dan")) {
     selectedThumb = REAL_WOOD_PHOTOS["tu-dan"][0];
   } else if (woodText.includes("sưa") || woodText.includes("sua")) {
@@ -226,6 +350,12 @@ function extractAndParseJson(text) {
     selectedThumb = REAL_WOOD_PHOTOS["bach-xanh"][0];
   } else if (woodText.includes("hoàng đàn") || woodText.includes("hoang dan")) {
     selectedThumb = REAL_WOOD_PHOTOS["hoang-dan"][0];
+  } else if (woodText.includes("mun") || woodText.includes("mun sừng")) {
+    selectedThumb = REAL_WOOD_PHOTOS["mun-sung"][0];
+  } else if (woodText.includes("huyết long") || woodText.includes("huyet long")) {
+    selectedThumb = REAL_WOOD_PHOTOS["huyet-long"][0];
+  } else if (woodText.includes("trắc") || woodText.includes("trac")) {
+    selectedThumb = REAL_WOOD_PHOTOS["trac-do"][0];
   }
 
   const postSlug = slugify(result.title);
@@ -241,34 +371,39 @@ function extractAndParseJson(text) {
     relatedProducts: ["vt-001", "vt-002"],
     status: "published",
     publishedAt: vnDateStr,
-    readingTime: Math.max(3, Math.ceil(result.content.length / 500)),
+    readingTime: Math.max(3, Math.ceil(result.wordCount / 180)),
   };
 
   // Lưu vào data/posts.json
   posts.unshift(newPost);
   await fs.writeFile(path.join(process.cwd(), "data", "posts.json"), JSON.stringify(posts, null, 2), "utf-8");
+  console.log(`[Pillar-Engine] Đã ghi bài viết mới vào data/posts.json (Tổng số bài: ${posts.length})`);
 
   // Đồng bộ lên Supabase nếu có key
   if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const { error: supaErr } = await supabase.from("posts").upsert({
-      id: newPost.id,
-      slug: newPost.slug,
-      title: newPost.title,
-      category: newPost.category,
-      excerpt: newPost.excerpt,
-      content: newPost.content,
-      thumbnail: newPost.thumbnail,
-      status: "published",
-      published_at: newPost.publishedAt,
-      created_at: new Date().toISOString(),
-      read_time: newPost.readingTime,
-      related_products: newPost.relatedProducts,
-    });
-    if (supaErr) {
-      console.error("[AI-Publisher] ❌ Lỗi Supabase upsert:", supaErr.message);
-    } else {
-      console.log("[AI-Publisher] ✅ Đã đồng bộ bài viết thành công lên Supabase");
+    try {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      const { error: supaErr } = await supabase.from("posts").upsert({
+        id: newPost.id,
+        slug: newPost.slug,
+        title: newPost.title,
+        category: newPost.category,
+        excerpt: newPost.excerpt,
+        content: newPost.content,
+        thumbnail: newPost.thumbnail,
+        status: "published",
+        published_at: newPost.publishedAt,
+        created_at: new Date().toISOString(),
+        read_time: newPost.readingTime,
+        related_products: newPost.relatedProducts,
+      });
+      if (supaErr) {
+        console.error("[Pillar-Engine] ❌ Lỗi Supabase upsert:", supaErr.message);
+      } else {
+        console.log("[Pillar-Engine] ✅ Đã đồng bộ bài viết thành công lên Supabase");
+      }
+    } catch (dbErr) {
+      console.warn("[Pillar-Engine] Cảnh báo kết nối Supabase:", dbErr.message);
     }
   }
 
@@ -278,73 +413,31 @@ function extractAndParseJson(text) {
 async function main() {
   const slot = getCurrentSlot();
   console.log("=================================================================");
-  console.log(`⏱️ MỸ NGHỆ ĐÔNG PHONG — KHUNG GIỜ XUẤT BẢN: SLOT ${slot}`);
+  console.log(`⏱️ MỸ NGHỆ ĐÔNG PHONG — LỊCH XUẤT BẢN 3 CA VÀNG: SLOT ${slot}`);
   console.log("=================================================================");
 
   const scheduleRaw = await fs.readFile(path.join(process.cwd(), "data", "publishing-schedule.json"), "utf-8");
   const scheduleData = JSON.parse(scheduleRaw);
-  const slotsList = scheduleData.activeSlots || scheduleData.slots || [];
-  let currentSlotConfig = slotsList.find((s) => s.slot === slot) || slotsList[0];
+  const slotsList = scheduleData.activeSlots || [];
+  const currentSlotConfig = slotsList.find((s) => s.slot === slot) || slotsList[0];
 
-  let targetCategory = currentSlotConfig.category;
-  if (targetCategory === "auto-rotate") {
-    // Luân phiên giữa 3 chuyên mục: kien-thuc-ve-go, bao-quan-san-pham, huong-dan-lua-chon
-    const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
-    const posts = JSON.parse(postsRaw);
-    const rotationPool = currentSlotConfig.rotationCategories || ["kien-thuc-ve-go", "bao-quan-san-pham", "huong-dan-lua-chon"];
-    
-    // Tìm chuyên mục nào ít bài nhất hoặc được đăng lâu nhất
-    const counts = rotationPool.map((cat) => ({
-      cat,
-      count: posts.filter((p) => p.category === cat).length,
-    }));
-    counts.sort((a, b) => a.count - b.count);
-    targetCategory = counts[0].cat;
-    console.log(`[Auto-Rotate] Chọn chuyên mục luân phiên tối nay: ${targetCategory}`);
-  }
+  const targetCategory = currentSlotConfig.category;
 
-  console.log(`- Thời gian dự kiến: ${currentSlotConfig.time}`);
-  console.log(`- Chuyên mục: ${targetCategory} (${currentSlotConfig.name})`);
-  console.log(`- Động cơ: ${currentSlotConfig.engine}`);
-  console.log(`- Quy tắc ảnh: ${currentSlotConfig.imageRule}`);
+  console.log(`- Thời gian dự kiến: ${currentSlotConfig.time} VN`);
+  console.log(`- Khung giờ: Ca ${slot} — ${currentSlotConfig.name}`);
+  console.log(`- Chuyên mục mục tiêu: ${targetCategory}`);
+  console.log(`- Động cơ: ${currentSlotConfig.engine} (100% Content Pillar V3.0)`);
+  console.log(`- Tiêu chuẩn: Không bảng table, Hook mở bài, FAQ đón đầu Google AI Overviews, 100% ảnh thật\n`);
 
-  if (currentSlotConfig.engine === "hot-news-crawler") {
-    console.log("\n[Slot 1] Đang quét tin tức thị trường & làng nghề từ Google News...");
-    // Gọi cơ chế cào tin cũ với bộ lọc gỗ quý nghiêm ngặt
-    const { runAutoNewsCuration } = await import("../lib/server/ai-auto-news.ts");
-    const res = await runAutoNewsCuration({ autoPublish: true, maxArticles: 1 });
-    
-    if (res.publishedCount > 0) {
-      console.log(`✅ Kết quả: Đã xuất bản ${res.publishedCount} bài tin tức thị trường.`);
-    } else {
-      console.log(`⚠️ Không tìm thấy bài báo mới nào đạt tiêu chuẩn lọc ảnh & chủ đề gỗ hôm nay.`);
-      console.log(`🔄 [TỰ ĐỘNG CHUYỂN ĐỔI DỰ PHÒNG] Kích hoạt Động cơ Content Pillar để luôn đảm bảo có bài viết chất lượng xuất bản...`);
-      console.log(`⚠️ Không tìm thấy bài báo mới nào đạt tiêu chuẩn lọc ảnh & chủ đề gỗ hôm nay.`);
-      console.log(`🔄 [TỰ ĐỘNG CHUYỂN ĐỔI DỰ PHÒNG] Kích hoạt Động cơ Content Pillar để luôn đảm bảo có bài viết chất lượng xuất bản...`);
-      // "auto-rotate" chỉ là tên ảo trong lịch — phải đổi sang chuyên mục thật trước khi gọi generatePillarArticle
-      const postsRaw2 = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
-      const posts2 = JSON.parse(postsRaw2);
-      const rotationPool = ["kien-thuc-ve-go", "bao-quan-san-pham", "huong-dan-lua-chon"];
-      const counts = rotationPool.map((cat) => ({ cat, count: posts2.filter((p) => p.category === cat).length }));
-      counts.sort((a, b) => a.count - b.count);
-      const fallbackCategory = counts[0].cat;
-      console.log(`[Fallback] Chọn chuyên mục dự phòng: ${fallbackCategory}`);
-      const newPost = await generatePillarArticle(fallbackCategory, "Cẩm Nang Chuyên Sâu Đồ Gỗ (Dự Phòng)");
-      console.log(`✅ Đã xuất bản thành công bài viết chuyên sâu dự phòng:`);
-      console.log(`   - Tiêu đề: ${newPost.title}`);
-      console.log(`   - Đường dẫn: /bai-viet/${newPost.slug}`);
-      console.log(`   - Chuyên mục: ${newPost.category}`);
-      console.log(`   - Ảnh minh họa (Thật 100%): ${newPost.thumbnail}`);
-    }
-  } else {
-    console.log(`\n[Slot ${slot}] Đang lấy chủ đề gốc từ Content Pillar & nghiên cứu web...`);
-    const newPost = await generatePillarArticle(targetCategory, currentSlotConfig.name);
-    console.log(`✅ Đã xuất bản thành công bài viết chuyên sâu:`);
-    console.log(`   - Tiêu đề: ${newPost.title}`);
-    console.log(`   - Đường dẫn: /bai-viet/${newPost.slug}`);
-    console.log(`   - Chuyên mục: ${newPost.category}`);
-    console.log(`   - Ảnh minh họa (Thật 100%): ${newPost.thumbnail}`);
-  }
+  const newPost = await generatePillarArticle(targetCategory, currentSlotConfig.name);
+  console.log("\n=================================================================");
+  console.log(`🎉 XUẤT BẢN THÀNH CÔNG BÀI VIẾT CA ${slot}:`);
+  console.log(`   - Tiêu đề: ${newPost.title}`);
+  console.log(`   - Đường dẫn: /bai-viet/${newPost.slug}`);
+  console.log(`   - Chuyên mục: ${newPost.category}`);
+  console.log(`   - Ảnh đại diện thật: ${newPost.thumbnail}`);
+  console.log(`   - Thời gian đọc dự kiến: ${newPost.readingTime} phút`);
+  console.log("=================================================================");
 }
 
 main().catch((err) => {

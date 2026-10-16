@@ -1,19 +1,18 @@
-name: Daily Smart Auto Publisher (Ramp-up)
+name: Daily Smart Auto Publisher (3 Golden Slots)
 
 on:
   schedule:
-    # 00:30 UTC = 07:30 Giờ Việt Nam (Slot 1: Tin tức & Thị trường)
+    # 00:30 UTC = 07:30 Giờ Việt Nam (Slot 1: Bảo quản sản phẩm & Dưỡng mộc)
     - cron: '30 0 * * *'
-    # 13:30 UTC = 20:30 Giờ Việt Nam (Slot 2: Cẩm nang Content Pillar chuyên sâu)
+    # 04:30 UTC = 11:30 Giờ Việt Nam (Slot 2: Kiến thức danh mộc & Nhận biết)
+    - cron: '30 4 * * *'
+    # 13:30 UTC = 20:30 Giờ Việt Nam (Slot 3: Phong thủy ngũ hành 60 chuyên đề)
     - cron: '30 13 * * *'
-    # --- GIAI ĐOẠN 2: MỞ TOÀN LỰC KHI ĐÃ THOÁT SANDBOX (Sau 30 ngày) ---
-    # - cron: '30 4 * * *'  # 11:30 VN: Kiến thức về gỗ
-    # - cron: '30 9 * * *'  # 16:30 VN: Bảo quản sản phẩm
   # Cho phép kích hoạt thủ công từ giao diện GitHub bất cứ lúc nào
   workflow_dispatch:
     inputs:
       slot:
-        description: 'Chọn khung giờ (1: Tin tức, 2: Kiến thức, 3: Bảo quản, 4: Lựa chọn, hoặc để trống tự nhận diện)'
+        description: 'Chọn ca xuất bản (1: Bảo quản, 2: Kiến thức gỗ, 3: Phong thủy ngũ hành, hoặc để trống tự nhận diện)'
         required: false
         default: ''
 
@@ -63,9 +62,8 @@ jobs:
             echo "Khong co thay doi nao trong data/posts.json — bo qua commit."
             exit 0
           fi
-          git commit -m "chore(auto-news): tu dong xuat ban bai viet moi [skip ci]"
+          git commit -m "chore(auto-news): tu dong xuat ban bai viet moi theo lich 3 ca [skip ci]"
           echo "--- pull --rebase ---"
           git pull --rebase --autostash origin main
           echo "--- push ---"
           git push origin main
-

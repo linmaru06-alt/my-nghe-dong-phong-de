@@ -8,7 +8,7 @@
  * - Ca 3 (20:30 VN): Cẩm nang Phong thủy Ngũ Hành theo năm sinh & nghề nghiệp (huong-dan-lua-chon)
  * 
  * NGUYÊN TẮC CỐT LÕI V3.0:
- * 1. 100% Ảnh chụp mộc thật từ Supabase Storage / Xưởng Đông Phong. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI.
+ * 1. 100% Ảnh chụp thật TÌM KIẾM TRỰC TIẾP TRÊN MẠNG (từ báo chí & trang mộc chuyên ngành). TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI.
  * 2. Mở bài bằng Hook sắc bén (Cut Throat-Clearing), KHÔNG mở bài bằng câu chào rập khuôn nghệ nhân.
  * 3. BỎ HOÀN TOÀN BẢNG SO SÁNH <table> (tránh tràn màn hình mobile, tránh rập khuôn khô cứng).
  * 4. Bố cục linh hoạt theo dòng chảy tâm lý (PAS Flow), nghiêm cấm viết độn chữ (Padding).
@@ -29,37 +29,6 @@ dotenv.config();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// Kho ảnh chụp thật đã kiểm định của các loại gỗ quý Đông Phong (Tuyệt đối không dùng AI)
-const REAL_WOOD_PHOTOS = {
-  "tu-dan": [
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/g8wfj8szsr7j8exnqokiw-akdxrgjassae4djmefnczrnnxfqpihiztdlak6ejy1jn6qm-m9tmz87son1yfovmsg-vlirkphv8gh-2fk1qtjpzxop1ififn8xfn6ltfshsi7woqgnxx0ftix2qbf1-srsz4txzyq7-z4vwcrmluy89t69ymuqc-spo8l6cmq-1791218587580.jpg",
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/nbaij2cy8diedm8vgepf8-gmbvwjomsv2xylpffrp1aoha-bntwoswq5mg-s-rok95sp3z-kvootl5ng-hz-hogqll06qzrixywceozirfopp6qgn43kvhlq4keizcs0vosbd0k6tvwe5w3p01uhzzjuvw-hzh-8hpzoq5iwaqh2hc4crqxoqij-rfjkdde8-1791218681177.jpg"
-  ],
-  "sua-do": [
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/cq-c-bbdtbcxn5vr16fntffgkj1qeuouqy619s8nq-zxoyholisvilttj3nlhmczkpzjdnxcznohysx4emggy8q8hnfgfptip9smacuodxcqooidtj2u9d3ouoblneasm5t8ioosxwghqbyod87l6-2sc6hofucmxswrlxrh7tguakmmipqs6dh6boafo9w-1791218614413.jpg"
-  ],
-  "bach-xanh": [
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/a7081af3a0b849e610a9-1791214960300.jpg",
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/images-1791214977706.jpg"
-  ],
-  "hoang-dan": [
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/tnw-11-1785412271065757119796-1791215192883.jpg",
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/tnw-13-17854122710131668343502-1791215228591.jpg"
-  ],
-  "mun-sung": [
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/g8wfj8szsr7j8exnqokiw-akdxrgjassae4djmefnczrnnxfqpihiztdlak6ejy1jn6qm-m9tmz87son1yfovmsg-vlirkphv8gh-2fk1qtjpzxop1ififn8xfn6ltfshsi7woqgnxx0ftix2qbf1-srsz4txzyq7-z4vwcrmluy89t69ymuqc-spo8l6cmq-1791218587580.jpg"
-  ],
-  "huyet-long": [
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/cq-c-bbdtbcxn5vr16fntffgkj1qeuouqy619s8nq-zxoyholisvilttj3nlhmczkpzjdnxcznohysx4emggy8q8hnfgfptip9smacuodxcqooidtj2u9d3ouoblneasm5t8ioosxwghqbyod87l6-2sc6hofucmxswrlxrh7tguakmmipqs6dh6boafo9w-1791218614413.jpg"
-  ],
-  "trac-do": [
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/cq-c-bbdtbcxn5vr16fntffgkj1qeuouqy619s8nq-zxoyholisvilttj3nlhmczkpzjdnxcznohysx4emggy8q8hnfgfptip9smacuodxcqooidtj2u9d3ouoblneasm5t8ioosxwghqbyod87l6-2sc6hofucmxswrlxrh7tguakmmipqs6dh6boafo9w-1791218614413.jpg"
-  ],
-  "default": [
-    "https://lpawosdhwvejvsgfayov.supabase.co/storage/v1/object/public/dongphong-media/blog/images-1--1791215033290.jpg"
-  ]
-};
 
 // 5 Mẫu Lời Kêu Gọi Zalo (Frictionless CTAs) giảm rào cản tâm lý mua hàng
 const ZALO_CTA_TEMPLATES = [
@@ -84,6 +53,154 @@ const ZALO_CTA_TEMPLATES = [
     text: "Trăm nghe không bằng một thấy. Hãy nhắn Zalo để nghệ nhân quay video cận cảnh từng thớ gỗ mộc thô trước khi tiện hạt và lên nước mộc thủ công dành riêng cho bạn."
   }
 ];
+
+/**
+ * Tự động tìm kiếm ảnh chụp thật trên mạng cho bài viết (Không dùng ảnh cố định Supabase)
+ * Tìm kiếm đa nguồn: DuckDuckGo Image API + Web Scraping báo chí / trang mộc uy tín
+ */
+export async function findRealWebImage(title, woodTypes = []) {
+  console.log(`[Web-Image-Search] 🔍 Đang tìm kiếm ảnh thật trên mạng cho: "${title}"...`);
+  const queries = [];
+  const lowerTitle = title.toLowerCase();
+
+  const woodMap = [
+    { key: "hoàng đàn", query: "gỗ hoàng đàn tuyết lạng sơn" },
+    { key: "tử đàn", query: "vòng gỗ tử đàn tiểu diệp kim sa" },
+    { key: "sưa đỏ", query: "vòng gỗ sưa đỏ bắc bộ vân mây" },
+    { key: "bách xanh", query: "vòng gỗ bách xanh chìm nước mộc châu" },
+    { key: "mun sừng", query: "gỗ mun sừng khánh hòa đen bóng" },
+    { key: "huyết long", query: "vòng gỗ huyết long thấu quang" },
+    { key: "trầm hương", query: "vòng trầm hương tự nhiên" },
+    { key: "trắc", query: "vòng gỗ trắc đỏ đen tự nhiên" },
+    { key: "cẩm lai", query: "bi lăn tay gỗ cẩm lai" }
+  ];
+
+  for (const item of woodMap) {
+    if (lowerTitle.includes(item.key) || woodTypes.some((w) => w.toLowerCase().includes(item.key))) {
+      queries.push(item.query);
+      queries.push(`gỗ ${item.key} phôi mộc`);
+    }
+  }
+
+  if (lowerTitle.includes("dụng thần") || lowerTitle.includes("hỷ thần") || lowerTitle.includes("mệnh")) {
+    queries.push("vòng tay gỗ phong thủy tự nhiên cao cấp");
+    queries.push("chuỗi hạt gỗ quý phong thủy");
+  }
+
+  if (lowerTitle.includes("bảo quản") || lowerTitle.includes("độ bền") || lowerTitle.includes("5 năm")) {
+    queries.push("vòng gỗ phong thủy lên nước bóng đẹp");
+    queries.push("kinh nghiệm đeo vòng gỗ quý lên nước");
+  }
+
+  if (queries.length === 0) {
+    queries.push(`${title.slice(0, 35)} gỗ quý`);
+  }
+
+  const uniqueQueries = [...new Set(queries)];
+
+  for (const q of uniqueQueries) {
+    // 1. Thử qua DDG Image Search API
+    try {
+      const tokenRes = await fetch(`https://duckduckgo.com/?q=${encodeURIComponent(q)}&iax=images&ia=images`, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        },
+        signal: AbortSignal.timeout(4000)
+      });
+      const html = await tokenRes.text();
+      const vqdMatch = html.match(/vqd=([a-zA-Z0-9_-]+)/) || html.match(/vqd:\s*"([a-zA-Z0-9_-]+)"/);
+      if (vqdMatch) {
+        const vqd = vqdMatch[1];
+        const apiRes = await fetch(`https://duckduckgo.com/i.js?l=wt-wt&o=json&q=${encodeURIComponent(q)}&vqd=${vqd}`, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Referer": "https://duckduckgo.com/"
+          },
+          signal: AbortSignal.timeout(4000)
+        });
+        const data = await apiRes.json();
+        if (data.results && data.results.length > 0) {
+          const candidates = data.results.filter((item) => {
+            const url = (item.image || "").toLowerCase();
+            return (
+              url.startsWith("https://") &&
+              !url.includes("logo") &&
+              !url.includes("icon") &&
+              !url.includes("avatar") &&
+              !url.includes("shopee") &&
+              !url.includes("lazada") &&
+              (item.width ? item.width >= 400 : true)
+            );
+          });
+          if (candidates.length > 0) {
+            const chosen = candidates[Math.floor(Math.random() * Math.min(3, candidates.length))];
+            console.log(`[Web-Image-Search] 🎯 Tìm thấy ảnh thật từ web API: ${chosen.image}`);
+            return chosen.image;
+          }
+        }
+      }
+    } catch {}
+
+    // 2. Thử qua DDG HTML Web Search + trích xuất trang web thật
+    try {
+      const searchRes = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        },
+        signal: AbortSignal.timeout(4000)
+      });
+      if (searchRes.ok) {
+        const searchHtml = await searchRes.text();
+        const uddgMatches = searchHtml.match(/uddg=([^&"']+)/gi) || [];
+        for (const m of uddgMatches.slice(0, 4)) {
+          const pageUrl = decodeURIComponent(m.replace("uddg=", ""));
+          if (
+            pageUrl.includes("youtube.") ||
+            pageUrl.includes("facebook.") ||
+            pageUrl.includes("shopee.") ||
+            pageUrl.includes("lazada.")
+          ) continue;
+
+          try {
+            const pageRes = await fetch(pageUrl, {
+              headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+              },
+              signal: AbortSignal.timeout(4000)
+            });
+            if (pageRes.ok) {
+              const pageHtml = await pageRes.text();
+              const ogMatch = pageHtml.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+                              pageHtml.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+              let imgUrl = ogMatch ? ogMatch[1] : null;
+              if (!imgUrl) {
+                const imgTag = pageHtml.match(/<img[^>]+(?:src|data-src)=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
+                if (imgTag) imgUrl = imgTag[1];
+              }
+              if (imgUrl && imgUrl.startsWith("http")) {
+                const lower = imgUrl.toLowerCase();
+                if (!lower.includes("logo") && !lower.includes("icon") && !lower.includes("favicon")) {
+                  console.log(`[Web-Image-Search] 🎯 Lấy ảnh thật từ website [${pageUrl}]:\n   ${imgUrl}`);
+                  return imgUrl;
+                }
+              }
+            }
+          } catch {}
+        }
+      }
+    } catch {}
+  }
+
+  // Backup pool các ảnh thật chất lượng cao từ web
+  const webBackupPool = [
+    "https://nhagohoangphuc.vn/uploads/go-sua-la-gi-3.jpg.webp",
+    "https://dogoquangthich.com/wp-content/uploads/2019/06/Go-Hoang-Dan.jpg",
+    "https://vuavonggo.com/wp-content/uploads/vong-go-bach-xanh-ban-lach-vua-vong-go-11.jpg",
+    "https://vuavonggo.com/wp-content/uploads/Vong-go-huyet-long-thau-quang-ban-lach-vua-vong-go-07.jpg",
+    "https://dogogiaan.com/wp-content/uploads/2019/04/Vong-go-sua-do-Viet-Nam-cover-2_result.jpg"
+  ];
+  return webBackupPool[Math.floor(Math.random() * webBackupPool.length)];
+}
 
 function slugify(text) {
   return text
@@ -154,7 +271,6 @@ function postProcessContent(rawContent, category) {
     console.warn("[Post-Process] Phát hiện thẻ <table> trong nội dung — đang tiến hành dọn dẹp loại bỏ bảng...");
     content = content
       .replace(/<table[^>]*>[\s\S]*?<\/table>/gi, (tableHtml) => {
-        // Trích xuất các dòng tr/td để chuyển thành ul li
         const rows = tableHtml.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
         const items = [];
         for (const row of rows) {
@@ -172,7 +288,6 @@ function postProcessContent(rawContent, category) {
 
   // 2. Chèn tự nhiên 2-3 liên kết nội bộ nếu bài viết chưa có đủ
   const hasProductLink = content.includes("/san-pham/");
-  const hasBlogLink = content.includes("/bai-viet");
 
   if (!hasProductLink) {
     if (content.includes("vòng tay")) {
@@ -199,7 +314,6 @@ function postProcessContent(rawContent, category) {
 </div>
 `.trim();
 
-  // Kiểm tra xem đã có CTA box chưa
   if (!content.includes("zalo.me") && !content.includes("0961")) {
     content += `\n${ctaBlock}`;
   }
@@ -232,7 +346,6 @@ async function generatePillarArticle(category, slotName) {
   // Tìm topic chưa được viết
   let selectedTopic = matchedPillar.topics.find((t) => !existingTitles.some((et) => et.includes(t.title.toLowerCase().slice(0, 15))));
   if (!selectedTopic) {
-    // Nếu đã viết hết toàn bộ danh sách, chọn ngẫu nhiên 1 topic để khai thác góc nhìn thực tế mới
     selectedTopic = matchedPillar.topics[Math.floor(Math.random() * matchedPillar.topics.length)];
   }
 
@@ -315,7 +428,6 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
       const text = res.response.text().trim();
       const parsed = extractAndParseJson(text);
 
-      // Kiểm tra độ dài từ thực tế (loại bỏ thẻ HTML)
       const textOnly = (parsed.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
       const wordCount = textOnly ? textOnly.split(" ").length : 0;
 
@@ -338,25 +450,8 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     throw new Error("Không thể tạo nội dung bài viết qua Gemini AI sau khi thử tất cả model candidates.");
   }
 
-  // Chọn ảnh chụp thật phù hợp với loại gỗ đề cập
-  let selectedThumb = REAL_WOOD_PHOTOS["default"][0];
-  const woodText = (result.woodTypesMentioned || []).join(" ").toLowerCase() + " " + result.title.toLowerCase();
-  
-  if (woodText.includes("tử đàn") || woodText.includes("tu dan")) {
-    selectedThumb = REAL_WOOD_PHOTOS["tu-dan"][0];
-  } else if (woodText.includes("sưa") || woodText.includes("sua")) {
-    selectedThumb = REAL_WOOD_PHOTOS["sua-do"][0];
-  } else if (woodText.includes("bách xanh") || woodText.includes("bach xanh")) {
-    selectedThumb = REAL_WOOD_PHOTOS["bach-xanh"][0];
-  } else if (woodText.includes("hoàng đàn") || woodText.includes("hoang dan")) {
-    selectedThumb = REAL_WOOD_PHOTOS["hoang-dan"][0];
-  } else if (woodText.includes("mun") || woodText.includes("mun sừng")) {
-    selectedThumb = REAL_WOOD_PHOTOS["mun-sung"][0];
-  } else if (woodText.includes("huyết long") || woodText.includes("huyet long")) {
-    selectedThumb = REAL_WOOD_PHOTOS["huyet-long"][0];
-  } else if (woodText.includes("trắc") || woodText.includes("trac")) {
-    selectedThumb = REAL_WOOD_PHOTOS["trac-do"][0];
-  }
+  // TÌM KIẾM ẢNH THẬT TRÊN MẠNG DỰA THEO CHỦ ĐỀ VÀ LOẠI GỖ (KHÔNG DÙNG SUPABASE CỐ ĐỊNH)
+  const selectedThumb = await findRealWebImage(result.title, result.woodTypesMentioned || []);
 
   const postSlug = slugify(result.title);
   const vnDateStr = new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().split("T")[0];
@@ -427,7 +522,7 @@ async function main() {
   console.log(`- Khung giờ: Ca ${slot} — ${currentSlotConfig.name}`);
   console.log(`- Chuyên mục mục tiêu: ${targetCategory}`);
   console.log(`- Động cơ: ${currentSlotConfig.engine} (100% Content Pillar V3.0)`);
-  console.log(`- Tiêu chuẩn: Không bảng table, Hook mở bài, FAQ đón đầu Google AI Overviews, 100% ảnh thật\n`);
+  console.log(`- Tiêu chuẩn: Ảnh thật kiếm trên mạng, Không bảng table, Hook mở bài, FAQ Google AI Overviews\n`);
 
   const newPost = await generatePillarArticle(targetCategory, currentSlotConfig.name);
   console.log("\n=================================================================");
@@ -435,7 +530,7 @@ async function main() {
   console.log(`   - Tiêu đề: ${newPost.title}`);
   console.log(`   - Đường dẫn: /bai-viet/${newPost.slug}`);
   console.log(`   - Chuyên mục: ${newPost.category}`);
-  console.log(`   - Ảnh đại diện thật: ${newPost.thumbnail}`);
+  console.log(`   - Ảnh đại diện thật từ web: ${newPost.thumbnail}`);
   console.log(`   - Thời gian đọc dự kiến: ${newPost.readingTime} phút`);
   console.log("=================================================================");
 }

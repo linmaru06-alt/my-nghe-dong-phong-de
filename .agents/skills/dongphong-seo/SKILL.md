@@ -102,6 +102,7 @@ Quy định áp dụng cho toàn bộ bài viết trên web và hệ thống xu�
    - Mẫu 3 (Quà tặng đối tác/sếp): Tư vấn mẫu phẩm theo độ tuổi và ngành nghề vị thế.
    - Mẫu 4 (Thẩm định thật - giả): Thẩm định miễn phí ảnh chụp cận cảnh vân gỗ.
    - Mẫu 5 (Trải nghiệm phôi mộc): Quay video cận cảnh phôi thô trước khi tiện hạt.
-7. **Quy tắc hình ảnh mộc thật 100%:**
-   - 100% hình ảnh là ảnh chụp thật thớ gỗ, vân gỗ và sản phẩm thực tế từ Supabase Storage hoặc xưởng mộc Đông Phong.
-   - **Tuyệt đối cấm sử dụng ảnh do AI tạo** (Midjourney, DALL-E, v.v.).
+7. **Quy tắc hình ảnh chụp thật 100% tìm kiếm từ mạng internet:**
+   - 100% hình ảnh bài viết là **ảnh chụp thật được tìm kiếm tự động từ các trang web, bài viết nghiên cứu chuyên ngành đồ gỗ uy tín trên mạng internet** (khớp theo từng chất gỗ: Hoàng đàn, Tử đàn, Sưa đỏ, Bách xanh, Mun sừng...).
+   - **Tuyệt đối cấm sử dụng ảnh do AI tạo** (Midjourney, DALL-E, Stable Diffusion).
+   - **Không sử dụng kho ảnh cố định trùng lặp** để mỗi bài viết đều có hình ảnh thực tế độc bản, sắc nét.

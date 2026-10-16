@@ -52,7 +52,7 @@ function extractTags(title, content) {
 // Cập nhật tags cho từng bài viết
 for (const post of posts) {
   if (post.id === "pillar-1792135152101") {
-    post.tags = ["Hoàng Đàn Tuyết", "Mệnh Kim", "Chiêu Tài Vượng Khí", "Trừ Tà Hộ Thân", "Vòng Tay Phong Thủy"];
+    post.tags = ["Hoàng Đàn Tuyết", "Tác Dụng Gỗ Hoàng Đàn", "Gỗ Hoàng Đàn Hợp Mệnh Gì", "Mệnh Kim", "Vương Mộc", "Vòng Tay Phong Thủy"];
   } else if (post.id === "pillar-1792135123396") {
     post.tags = ["Dụng Thần Hỷ Thần", "Sinh Lão Bệnh Tử", "Trừ Tà Hộ Thân", "Tử Đàn Tiểu Diệp", "Vòng Tay Phong Thủy"];
   } else if (post.id === "pillar-1792134842198") {

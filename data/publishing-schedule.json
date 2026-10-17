@@ -8,20 +8,20 @@
     {
       "slot": 1,
       "time": "07:30",
+      "name": "Kiến Thức Danh Mộc & Bách Khoa Gỗ Quý Toàn Cầu",
+      "category": "kien-thuc-ve-go",
+      "engine": "pillar-deep-research",
+      "source": "Lấy hạt giống từ 15 bài danh mộc thế giới trong data/content-pillars.json nhóm 'kien-thuc-ve-go' (Top 10 gỗ đắt nhất, Mun Đen Châu Phi, Đàn Hương Ấn Độ, Bog Oak, Lignum Vitae...).",
+      "imageRule": "100% ảnh chụp cận cảnh thớ gỗ tự nhiên, thấu quang, phôi thô từ kho xưởng hoặc bài nghiên cứu chuyên ngành. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
+    },
+    {
+      "slot": 2,
+      "time": "11:30",
       "name": "Bảo Quản Sản Phẩm & Kỹ Thuật Dưỡng Mộc",
       "category": "bao-quan-san-pham",
       "engine": "pillar-deep-research",
       "source": "Lấy hạt giống từ data/content-pillars.json nhóm 'bao-quan-san-pham'. Hướng dẫn chăm sóc, lên nước, thay dây, chống nồm ẩm, hồi hương gỗ.",
       "imageRule": "100% ảnh chụp mộc thật từ xưởng Đông Phong hoặc bài viết chuyên ngành. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
-    },
-    {
-      "slot": 2,
-      "time": "11:30",
-      "name": "Kiến Thức Danh Mộc & Nhận Biết Gỗ Quý",
-      "category": "kien-thuc-ve-go",
-      "engine": "pillar-deep-research",
-      "source": "Lấy hạt giống từ data/content-pillars.json nhóm 'kien-thuc-ve-go'. Nhận diện thớ gỗ, tôm gỗ, so sánh đặc tính danh mộc (Tử Đàn, Sưa Đỏ, Bách Xanh, Mun Sừng, Hoàng Đàn...).",
-      "imageRule": "100% ảnh chụp cận cảnh thớ gỗ tự nhiên, thấu quang, phôi thô từ kho xưởng. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
     },
     {
       "slot": 3,

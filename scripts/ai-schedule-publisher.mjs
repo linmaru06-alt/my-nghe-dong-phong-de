@@ -3,8 +3,8 @@
  * Hệ thống xuất bản bài viết tự động theo 3 Khung Giờ Vàng — Mỹ Nghệ Đông Phong
  * Áp dụng tiêu chuẩn Copywriting đỉnh cao (Marketing Skills & GEO Search):
  * 
- * - Ca 1 (07:30 VN): Bảo quản sản phẩm & Kỹ thuật mộc (bao-quan-san-pham)
- * - Ca 2 (11:30 VN): Kiến thức danh mộc & Nhận biết thật - giả (kien-thuc-ve-go)
+ * - Ca 1 (07:30 VN): Kiến thức danh mộc & Bách khoa gỗ quý thế giới (kien-thuc-ve-go)
+ * - Ca 2 (11:30 VN): Bảo quản sản phẩm & Kỹ thuật dưỡng mộc (bao-quan-san-pham)
  * - Ca 3 (20:30 VN): Cẩm nang Phong thủy Ngũ Hành theo năm sinh & nghề nghiệp (huong-dan-lua-chon)
  * 
  * NGUYÊN TẮC CỐT LÕI V3.0:
@@ -215,8 +215,8 @@ function slugify(text) {
 
 /**
  * Xác định khung giờ hiện tại theo múi giờ Việt Nam (UTC+7) hoặc theo tham số dòng lệnh
- * - Ca 1: 05:00 - 10:00 VN -> Slot 1 (Bảo quản sản phẩm)
- * - Ca 2: 10:00 - 15:00 VN -> Slot 2 (Kiến thức về gỗ)
+ * - Ca 1: 05:00 - 10:00 VN -> Slot 1 (Kiến thức danh mộc & Gỗ quý thế giới)
+ * - Ca 2: 10:00 - 15:00 VN -> Slot 2 (Bảo quản sản phẩm & Dưỡng mộc)
  * - Ca 3: 15:00 - 24:00 (hoặc trước 05:00) VN -> Slot 3 (Hướng dẫn lựa chọn / Phong thủy ngũ hành)
  */
 function getCurrentSlot() {

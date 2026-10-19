@@ -341,18 +341,74 @@ async function generatePillarArticle(category, slotName) {
     throw new Error(`Không tìm thấy cấu hình cho chuyên mục: ${category}`);
   }
 
-  // Đọc danh sách bài đã có để chọn topic chưa viết
+  // 1. Đọc published-topics.json để quản lý chủ đề đã phủ sóng
+  const pubTopicsPath = path.join(process.cwd(), "data", "published-topics.json");
+  let publishedTopics = [];
+  try {
+    const pubRaw = await fs.readFile(pubTopicsPath, "utf-8");
+    publishedTopics = JSON.parse(pubRaw).publishedTopics || [];
+  } catch {}
+
+  // 2. Đọc danh sách bài viết hiện có
   const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
   const posts = JSON.parse(postsRaw);
-  const existingTitles = posts.map((p) => p.title.toLowerCase());
 
-  // Tìm topic chưa được viết
-  let selectedTopic = matchedPillar.topics.find((t) => !existingTitles.some((et) => et.includes(t.title.toLowerCase().slice(0, 15))));
-  if (!selectedTopic) {
-    selectedTopic = matchedPillar.topics[Math.floor(Math.random() * matchedPillar.topics.length)];
+  // Bộ lọc 4 lớp chống trùng lặp nội dung tuyệt đối:
+  function isTopicAlreadyPublished(t) {
+    const tTitleLower = t.title.toLowerCase();
+
+    // Lớp 1: Đã nằm trong danh sách publishedTopics
+    if (publishedTopics.some((pt) => pt.toLowerCase() === tTitleLower)) {
+      return true;
+    }
+
+    // Lớp 2: Kiểm tra các năm sinh (vd: 1992, 1993, 1970, 1971, 2000, 2001...)
+    const years = t.title.match(/\b(19\d\d|20\d\d)\b/g);
+    if (years && years.length > 0) {
+      const yearMatched = posts.some((p) => {
+        const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
+        return years.some((y) => text.includes(y));
+      });
+      if (yearMatched) return true;
+    }
+
+    // Lớp 3: Kiểm tra từ khóa nghiên cứu đặc thù (researchKeywords)
+    if (t.researchKeywords && t.researchKeywords.length > 0) {
+      const kwMatched = posts.some((p) => {
+        const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
+        return t.researchKeywords.some((kw) => {
+          const kwClean = kw.trim().toLowerCase();
+          return kwClean.length >= 8 && text.includes(kwClean);
+        });
+      });
+      if (kwMatched) return true;
+    }
+
+    // Lớp 4: Kiểm tra độ tương đồng từ vựng tiêu đề (Word Overlap >= 60%)
+    const tWords = tTitleLower
+      .replace(/[^\p{L}\p{N}\s]/gu, "")
+      .split(/\s+/)
+      .filter((w) => w.length > 3);
+    const titleMatched = posts.some((p) => {
+      const pText = `${p.title} ${p.slug}`.toLowerCase();
+      const matchCount = tWords.filter((w) => pText.includes(w)).length;
+      return tWords.length > 0 && matchCount / tWords.length >= 0.6;
+    });
+    if (titleMatched) return true;
+
+    return false;
   }
 
-  console.log(`[Pillar-Engine] Đã chọn chủ đề: "${selectedTopic.title}" (Cấp độ: ${selectedTopic.level || "Chuyên sâu"})`);
+  // 3. Chọn topic tiếp theo chưa từng được viết (theo thứ tự tuần tự trong ma trận)
+  const remainingTopics = matchedPillar.topics.filter((t) => !isTopicAlreadyPublished(t));
+  let selectedTopic = remainingTopics[0];
+
+  if (!selectedTopic) {
+    console.warn(`[Pillar-Engine] Đã hoàn thành 100% các chủ đề của chuyên mục ${category}! Reset chu kỳ mới.`);
+    selectedTopic = matchedPillar.topics[0];
+  }
+
+  console.log(`[Pillar-Engine] Đã chọn chủ đề chưa viết: "${selectedTopic.title}" (Còn lại: ${remainingTopics.length - 1}/${matchedPillar.topics.length} chủ đề)`);
 
   const prompt = `
 Bạn là Chuyên gia thẩm định và nghiên cứu đồ gỗ quý cao cấp tại thương hiệu "Mỹ Nghệ Đông Phong".
@@ -477,6 +533,7 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     slug: postSlug,
     title: result.title,
     category: category,
+    pillarTopic: selectedTopic.title,
     excerpt: result.excerpt,
     content: finalContent,
     thumbnail: selectedThumb,
@@ -485,6 +542,24 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     publishedAt: vnDateStr,
     readingTime: Math.max(3, Math.ceil(result.wordCount / 180)),
   };
+
+  // Cập nhật published-topics.json
+  if (!publishedTopics.some((pt) => pt.toLowerCase() === selectedTopic.title.toLowerCase())) {
+    publishedTopics.push(selectedTopic.title);
+    await fs.writeFile(
+      pubTopicsPath,
+      JSON.stringify(
+        {
+          description: "Lịch sử các chủ đề Content Pillar đã xuất bản, đảm bảo không bao giờ trùng lặp nội dung",
+          publishedTopics,
+        },
+        null,
+        2
+      ),
+      "utf-8"
+    );
+    console.log(`[Pillar-Engine] Đã ghi nhận chủ đề vào published-topics.json (Tổng số chủ đề đã phủ: ${publishedTopics.length})`);
+  }
 
   // Lưu vào data/posts.json
   posts.unshift(newPost);

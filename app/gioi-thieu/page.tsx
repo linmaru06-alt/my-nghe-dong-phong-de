@@ -25,7 +25,7 @@ export default function AboutPage() {
     },
     {
       icon: Sparkles,
-      title: "Văn Hóa & Phong Thủy",
+      title: "Văn Hóa Và Phong Thủy",
       desc: "Tôn vinh giá trị phong thủy nguyên bản của từng hành mộc, giúp chủ nhân thỉnh được vật phẩm vừa sang trọng vừa an nhiên tinh thần.",
     },
   ];
@@ -58,7 +58,7 @@ export default function AboutPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10 flex items-end p-6 md:p-10 text-left">
               <div className="max-w-md text-white">
                 <span className="text-xs uppercase tracking-widest text-[#D4AF37] font-semibold block mb-1">
-                  Độc bản & Tự nhiên
+                  Độc bản và Tự nhiên
                 </span>
                 <p className="font-serif text-lg md:text-2xl font-bold">
                   &quot;Không có hai thớ gỗ nào giống hệt nhau trên đời&quot;

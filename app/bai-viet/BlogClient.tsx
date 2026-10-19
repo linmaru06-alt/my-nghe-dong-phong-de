@@ -13,7 +13,7 @@ import { formatDate } from "@/lib/utils";
 
 const tabs = [
   { id: "", label: "Tất cả bài viết" },
-  { id: "tin-tuc", label: "Tin tức & Thị trường" },
+  { id: "tin-tuc", label: "Tin tức và Thị trường" },
   { id: "kien-thuc-ve-go", label: "Kiến thức về gỗ" },
   { id: "huong-dan-lua-chon", label: "Hướng dẫn lựa chọn" },
   { id: "bao-quan-san-pham", label: "Bảo quản sản phẩm" },
@@ -54,7 +54,7 @@ export default function BlogClient({ initialTab = "", initialPosts }: BlogClient
   return (
     <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
       {/* Breadcrumb */}
-      <Breadcrumb items={[{ label: "Bài viết & Cẩm nang" }]} />
+      <Breadcrumb items={[{ label: "Bài viết và Cẩm nang" }]} />
 
       {/* Page Header */}
       <motion.div 
@@ -64,7 +64,7 @@ export default function BlogClient({ initialTab = "", initialPosts }: BlogClient
         className="mb-10 max-w-2xl"
       >
         <h1 className="text-3xl md:text-5xl font-serif font-medium text-primary mb-4 tracking-wide">
-          Cẩm Nang & Văn Hóa Đồ Gỗ
+          Cẩm Nang Và Văn Hóa Đồ Gỗ
         </h1>
         <p className="text-base text-text-muted leading-relaxed font-light">
           Góc chia sẻ kiến thức chuyên sâu về nhận biết danh mộc, ý nghĩa phong thủy và kinh nghiệm giữ vân gỗ bền đẹp theo năm tháng.

@@ -383,7 +383,7 @@ export function ArticleContentRenderer({ content }: ArticleContentRendererProps)
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <h3 className="font-serif font-bold text-xl md:text-2xl text-[#3D2314] mb-3">
-                  {block.data.title || "Lời Kết & Cam Kết Chất Lượng"}
+                  {block.data.title || "Lời Kết Và Cam Kết Chất Lượng"}
                 </h3>
                 <div className="prose prose-stone max-w-2xl mx-auto text-sm md:text-base text-[#5A4A42] leading-relaxed mb-5">
                   <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.data.content || ""}</ReactMarkdown>

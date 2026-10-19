@@ -71,7 +71,7 @@ export default function AdminPostsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl md:text-3xl font-bold text-primary">
-            Quản Lý Bài Viết & Cẩm Nang
+            Quản Lý Bài Viết Và Cẩm Nang
           </h1>
           <p className="text-xs text-text-muted mt-1">
             Tổng số: {posts.length} bài viết kiến thức gỗ quý.
@@ -87,7 +87,7 @@ export default function AdminPostsPage() {
             title="Tự động cào tin bài báo mới nhất và biên soạn 800-1200 từ"
           >
             <Sparkles className={`w-4 h-4 ${isCurating ? "animate-spin" : ""}`} />
-            <span>{isCurating ? "Đang cào & biên soạn..." : "Cào tin tức AI"}</span>
+            <span>{isCurating ? "Đang cào và biên soạn..." : "Cào tin tức AI"}</span>
           </button>
 
           <Link

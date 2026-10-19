@@ -5,7 +5,7 @@ import Accordion from "@/components/ui/Accordion";
 import settingsData from "@/data/settings.json";
 
 export const metadata = {
-  title: "Liên Hệ & Tư Vấn Thỉnh Gỗ Quý | Mỹ Nghệ Đông Phong",
+  title: "Liên Hệ Và Tư Vấn Thỉnh Gỗ Quý | Mỹ Nghệ Đông Phong",
   description:
     "Thông tin liên hệ hotline, Zalo chính thức, gian hàng Shopee và Facebook xưởng chế tác thủ công Mỹ Nghệ Đông Phong. Trực tiếp giải đáp thắc mắc khách hàng 24/7.",
 };
@@ -35,7 +35,7 @@ export default function ContactPage() {
   return (
     <main className="flex-1 w-full bg-bg py-8 md:py-12 select-none">
       <div className="container mx-auto px-4 md:px-6">
-        <Breadcrumb items={[{ label: "Liên hệ & Tư vấn" }]} />
+        <Breadcrumb items={[{ label: "Liên hệ và Tư vấn" }]} />
 
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto my-8">
@@ -43,7 +43,7 @@ export default function ContactPage() {
             Kết Nối Trực Tiếp
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-primary mb-3">
-            Tư Vấn & Đặt Hàng Theo Yêu Cầu
+            Tư Vấn Và Đặt Hàng Theo Yêu Cầu
           </h1>
           <p className="text-sm md:text-base text-text-muted leading-relaxed">
             Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc về phân biệt vân gỗ, tư vấn hợp mệnh và chế tác đo ni riêng.
@@ -132,7 +132,7 @@ export default function ContactPage() {
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-4 h-4 text-accent-gold" />
             <h2 className="font-serif text-base font-bold text-primary uppercase tracking-wide">
-              Kênh Mua Sắm & Mạng Xã Hội Chính Thức
+              Kênh Mua Sắm Và Mạng Xã Hội Chính Thức
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -179,7 +179,7 @@ export default function ContactPage() {
                       Trang Facebook Xưởng Mộc
                     </h3>
                     <span className="text-[11px] text-text-muted font-medium block">
-                      Cập nhật phôi gỗ & Video chế tác mỗi ngày
+                      Cập nhật phôi gỗ và Video chế tác mỗi ngày
                     </span>
                   </div>
                 </div>
@@ -235,7 +235,7 @@ export default function ContactPage() {
               <span>Câu Hỏi Thường Gặp</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl font-bold text-primary">
-              Giải Đáp Thắc Mắc & Chính Sách
+              Giải Đáp Thắc Mắc Và Chính Sách
             </h2>
           </div>
 

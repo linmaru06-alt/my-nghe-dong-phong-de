@@ -25,7 +25,7 @@ export async function BlogPreview({ posts }: BlogPreviewProps) {
                 Tri Thức Về Gỗ Quý
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-primary">
-                Cẩm Nang & Văn Hóa Đồ Gỗ
+                Cẩm Nang Và Văn Hóa Đồ Gỗ
               </h2>
               <p className="mt-2 text-sm text-text-muted">
                 Chia sẻ chuyên sâu cách phân biệt vân gỗ, nhận biết mùi hương tự nhiên và kinh nghiệm chọn cỡ hạt.

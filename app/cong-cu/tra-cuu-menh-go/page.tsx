@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Tra Cứu Vòng Gỗ Hợp Mệnh Phong Thủy Theo Năm Sinh | Mỹ Nghệ Đông Phong",
     description:
-      "Giải mã Can Chi & Ngũ Hành: Khám phá loại gỗ quý tự nhiên trợ mệnh, trừ tà và chiêu tài lộc tốt nhất cho tuổi của bạn.",
+      "Giải mã Can Chi Và Ngũ Hành: Khám phá loại gỗ quý tự nhiên trợ mệnh, trừ tà và chiêu tài lộc tốt nhất cho tuổi của bạn.",
     url: "https://mynghedongphong.vn/cong-cu/tra-cuu-menh-go",
     type: "website",
     images: [

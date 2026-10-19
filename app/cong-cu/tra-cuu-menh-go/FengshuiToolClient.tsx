@@ -40,7 +40,7 @@ export default function FengshuiToolClient() {
             <span>Thuật Toán Tứ Trụ Ngũ Hành</span>
           </div>
           <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#3D2314] mb-3">
-            Tra Cứu Bản Mệnh & Linh Mộc Tương Sinh
+            Tra Cứu Bản Mệnh Và Linh Mộc Tương Sinh
           </h2>
           <p className="text-sm md:text-base text-[#5A4A42] leading-relaxed">
             Chọn năm sinh âm lịch để giải mã Can Chi, Ngũ Hành Nạp Âm và tìm ra phôi gỗ quý mang trường năng lượng trợ mệnh cát lành nhất.

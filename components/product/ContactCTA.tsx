@@ -57,7 +57,7 @@ export function ContactCTA({
       <div className="grid grid-cols-2 gap-2 pt-2 text-[11px] text-text-muted">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-secondary flex-shrink-0" />
-          <span>Kiểm tra mộc & vân gỗ trước khi nhận</span>
+          <span>Kiểm tra mộc và vân gỗ trước khi nhận</span>
         </div>
         <div className="flex items-center gap-2">
           <Truck className="w-4 h-4 text-secondary flex-shrink-0" />

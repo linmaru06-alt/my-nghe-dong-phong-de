@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "Cẩm Nang & Kiến Thức Gỗ Quý | Mỹ Nghệ Đông Phong",
+  title: "Cẩm Nang Và Kiến Thức Gỗ Quý | Mỹ Nghệ Đông Phong",
   description:
     "Tổng hợp bài viết chuyên sâu về nhận biết gỗ Tử Đàn, Sưa đỏ, Nu bách xanh, cách chọn kích thước hạt vòng tay phong thủy chuẩn xác.",
 };

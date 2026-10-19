@@ -139,7 +139,7 @@ export default function AdminProductsPage() {
           <thead>
             <tr className="border-b border-border bg-bg text-text-muted uppercase font-semibold">
               <th className="py-3 px-3">Ảnh</th>
-              <th className="py-3 px-3">Tác phẩm & Mã</th>
+              <th className="py-3 px-3">Tác phẩm và Mã</th>
               <th className="py-3 px-3">Danh mục</th>
               <th className="py-3 px-3">Loại gỗ</th>
               <th className="py-3 px-3">Đơn giá</th>

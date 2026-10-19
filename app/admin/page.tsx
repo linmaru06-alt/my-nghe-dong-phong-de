@@ -63,7 +63,7 @@ export default function AdminDashboardPage() {
             Tổng Quan Quản Trị
           </h1>
           <p className="text-xs md:text-sm text-text-muted mt-1">
-            Hệ thống quản lý nội dung đồ gỗ mỹ nghệ & phong thủy Đông Phong.
+            Hệ thống quản lý nội dung đồ gỗ mỹ nghệ và phong thủy Đông Phong.
           </p>
         </div>
 

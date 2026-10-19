@@ -9,9 +9,9 @@ import { getLatestPosts } from "@/lib/server/posts";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Mỹ Nghệ Đông Phong — Tuyệt Tác Đồ Gỗ Quý Mỹ Nghệ & Phong Thủy",
+  title: "Mỹ Nghệ Đông Phong — Tuyệt Tác Đồ Gỗ Quý Mỹ Nghệ Và Phong Thủy",
   description:
-    "Xưởng chế tác thủ công mộc cao cấp: Vòng tay Tử Đàn, Sưa Đỏ, Nu Bách Xanh, Bút ký phong thủy & gối đệm gỗ quý. Tư vấn Zalo và hotline trực tiếp.",
+    "Xưởng chế tác thủ công mộc cao cấp: Vòng tay Tử Đàn, Sưa Đỏ, Nu Bách Xanh, Bút ký phong thủy và gối đệm gỗ quý. Tư vấn Zalo và hotline trực tiếp.",
 };
 
 export default async function HomePage() {
@@ -25,7 +25,7 @@ export default async function HomePage() {
     url: "https://mynghedongphong.vn",
     logo: "https://mynghedongphong.vn/images/logo.png",
     description:
-      "Xưởng chế tác thủ công mộc cao cấp: Vòng tay Tử Đàn, Sưa Đỏ, Nu Bách Xanh, Bút ký phong thủy & gối đệm gỗ quý.",
+      "Xưởng chế tác thủ công mộc cao cấp: Vòng tay Tử Đàn, Sưa Đỏ, Nu Bách Xanh, Bút ký phong thủy và gối đệm gỗ quý.",
     telephone: "0968888972",
     contactPoint: {
       "@type": "ContactPoint",

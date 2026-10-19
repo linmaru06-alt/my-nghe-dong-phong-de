@@ -86,7 +86,7 @@ export default function ProductDetailClient({ product: propProduct, slug }: Prod
   const accordionItems = [
     {
       id: "mo-ta",
-      title: "Mô Tả & Đặc Tính Gỗ",
+      title: "Mô Tả Và Đặc Tính Gỗ",
       defaultOpen: true,
       content: (
         <div className="space-y-3">
@@ -117,7 +117,7 @@ export default function ProductDetailClient({ product: propProduct, slug }: Prod
     },
     {
       id: "giao-hang",
-      title: "Chính Sách Giao Nhận & Đổi Trả",
+      title: "Chính Sách Giao Nhận Và Đổi Trả",
       defaultOpen: false,
       content: (
         <ul className="list-disc list-inside space-y-1 text-xs leading-relaxed">

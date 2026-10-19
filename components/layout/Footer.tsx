@@ -98,7 +98,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/bai-viet" className="hover:text-white transition-colors">
-                  Cẩm nang & Kiến thức gỗ
+                  Cẩm nang và Kiến thức gỗ
                 </Link>
               </li>
               <li>
@@ -112,7 +112,7 @@ export function Footer() {
           {/* Col 3: Direct Contact (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <h3 className="font-serif text-[15px] font-medium text-white tracking-widest uppercase">
-              Tư Vấn & Kết Nối
+              Tư Vấn Và Kết Nối
             </h3>
             <div className="space-y-4">
               <a

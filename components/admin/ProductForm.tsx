@@ -276,7 +276,7 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-semibold text-text uppercase tracking-wider">
-                Kích cỡ & Báo giá
+                Kích cỡ và Báo giá
               </label>
               <button
                 type="button"
@@ -360,7 +360,7 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
           {/* Publishing Card */}
           <div className="bg-surface p-6 rounded-card border border-border shadow-xs space-y-4">
             <h3 className="font-serif text-base font-bold text-text border-b border-border pb-2">
-              Trạng Thái & Hiển Thị
+              Trạng Thái Và Hiển Thị
             </h3>
 
             <div>

@@ -121,7 +121,7 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
                 <div className="flex items-center gap-2 mb-3.5">
                   <Tag className="w-4 h-4 text-[#C5A059]" />
                   <span className="text-xs uppercase font-bold tracking-wider text-[#5A4A42]">
-                    Chủ đề & Từ khóa liên quan
+                    Chủ đề và Từ khóa liên quan
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">

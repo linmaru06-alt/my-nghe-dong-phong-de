@@ -190,7 +190,7 @@ export function SearchDropdown({ isOpen, onClose }: SearchDropdownProps) {
                 <div className="py-6 text-center">
                   <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#5C3A21] uppercase tracking-wider mb-3">
                     <Sparkles className="w-4 h-4 text-[#C5A059]" />
-                    <span>Chủ đề & Hashtag tìm kiếm nhanh</span>
+                    <span>Chủ đề và Hashtag tìm kiếm nhanh</span>
                   </div>
                   <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
                     {POPULAR_HASHTAGS.map((item) => (
@@ -272,7 +272,7 @@ export function SearchDropdown({ isOpen, onClose }: SearchDropdownProps) {
                     <div>
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-[#5C3A21] uppercase tracking-wider mb-3">
                         <BookOpen className="w-3.5 h-3.5 text-[#C5A059]" />
-                        <span>Kiến thức & Chia sẻ ({filteredPosts.length})</span>
+                        <span>Kiến thức và Chia sẻ ({filteredPosts.length})</span>
                       </div>
                       <div className="space-y-2">
                         {filteredPosts.map((post) => (

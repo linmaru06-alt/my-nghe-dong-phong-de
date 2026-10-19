@@ -154,7 +154,7 @@ export default function AdminSettingsPage() {
       {/* Header */}
       <div>
         <h1 className="font-serif text-2xl md:text-3xl font-bold text-primary">
-          Cài Đặt Hệ Thống & Liên Hệ
+          Cài Đặt Hệ Thống Và Liên Hệ
         </h1>
         <p className="text-xs text-text-muted mt-1">
           Cập nhật thông tin hotline, đường dẫn Zalo tư vấn, địa chỉ xưởng và bảo mật tài khoản.
@@ -167,7 +167,7 @@ export default function AdminSettingsPage() {
           <div className="flex items-center gap-2.5 border-b border-border pb-3">
             <Building2 className="w-5 h-5 text-accent-gold" />
             <h2 className="font-serif text-base font-bold text-primary">
-              Thông Tin Doanh Nghiệp & Hotline Tư Vấn
+              Thông Tin Doanh Nghiệp Và Hotline Tư Vấn
             </h2>
           </div>
 
@@ -316,7 +316,7 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, businessHours: e.target.value }))
                 }
-                placeholder="08:00 - 21:00 (Hàng ngày, kể cả T7 & CN)"
+                placeholder="08:00 - 21:00 (Hàng ngày, kể cả T7 và CN)"
                 className="w-full bg-bg border border-border rounded-btn px-3.5 py-2 text-sm text-text focus:outline-none focus:border-primary"
               />
             </div>
@@ -356,7 +356,7 @@ export default function AdminSettingsPage() {
             <ShieldCheck className="w-5 h-5 text-accent-gold" />
             <div>
               <h2 className="font-serif text-base font-bold text-primary">
-                Bảo Mật Tài Khoản & Đổi Mật Khẩu Quản Trị
+                Bảo Mật Tài Khoản Và Đổi Mật Khẩu Quản Trị
               </h2>
               <p className="text-[11px] text-text-muted mt-0.5">
                 Tài khoản mặc định: <span className="font-mono font-semibold text-text">admin@dongphong.vn</span>

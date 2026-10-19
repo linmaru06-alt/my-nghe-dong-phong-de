@@ -243,7 +243,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 onClick={onClose}
                 className="flex items-center justify-between px-5 py-3.5 text-sm font-medium text-text hover:text-primary hover:bg-bg transition-colors"
               >
-                <span>Liên hệ & Tư vấn</span>
+                <span>Liên hệ và Tư vấn</span>
               </Link>
             </nav>
 

@@ -126,4 +126,16 @@ Toàn bộ giao diện phải toát lên nét đẹp tinh tế, trầm ấm và 
 - **Tối ưu tìm kiếm AI (GEO)**: Đoạn mở đầu Direct Answer 40-60 từ trả lời trực tiếp thắc mắc cốt lõi, duy trì file `public/llms.txt` để hỗ trợ AI bot (ChatGPT, Gemini, Perplexity).
 - **Bảo vệ trang riêng tư**: Chặn tuyệt đối Google index khu vực quản trị CMS (`/admin`, `/admin/*`) qua `robots.ts` và thẻ meta `noindex, nofollow`.
 
+---
+
+## 9. Tôn chỉ Biên soạn Nội dung: Văn xuôi Xúc cảm Nghệ nhân (Master Content Standard)
+
+Toàn bộ bài viết, cẩm nang và nội dung kiến thức trên website bắt buộc tuân thủ:
+- **Chuẩn văn xuôi chảy trôi (Flowing Narrative Prose):** 100% thân bài phải được viết thành các đoạn văn xuôi liền mạch, có câu dẫn dắt êm ái, nhịp thở tự nhiên của nghệ nhân tâm sự cùng người chơi gỗ.
+- **Tuyệt đối CẤM phong cách Slide checklist / Báo cáo kỹ thuật:** Nghiêm cấm chia bài thành các danh sách gạch đầu dòng lắt nhắt `<ul><li><strong>Tiêu đề:</strong> nội dung...</li></ul>`. Không dùng dấu hai chấm liên tục làm đứt mạch đọc.
+- **Mềm hóa học thuật bằng ngôn ngữ giác quan:** Chuyển hóa số liệu thô (tỷ trọng, tôm gỗ, co ngót) thành cảm giác thực tế đời sống (cầm đầm tay, nặng trịch như đá quý, hương thơm dịu mát, nước gỗ lên men ngọc patina sau năm tháng).
+- **Tuyệt đối KHÔNG đánh số thứ tự tiêu đề:** Cấm dùng `1. `, `2. `, `Phần 1: ` ở thẻ `<h2>`, `<h3>`. Đặt tiêu đề tự nhiên, thi vị, giàu chiều sâu.
+- **Cấu trúc đón đầu AI Search:** Duy trì đoạn mở bài Hook 40-60 từ (Direct Answer), 3-4 câu hỏi FAQ chuẩn xác ở cuối bài và khung lời tâm sự Zalo mộc mạc.
+
+
 

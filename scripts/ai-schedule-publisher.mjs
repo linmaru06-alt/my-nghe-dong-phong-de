@@ -362,26 +362,26 @@ Hãy biên soạn một bài viết cẩm nang CHUYÊN ĐỀ PHÂN TÍCH CHUYÊN
 【CHUYÊN MỤC】: ${category} (${matchedPillar.purpose})
 【TỪ KHÓA TÌM KIẾM CỦA KHÁCH】: ${selectedTopic.researchKeywords.join(", ")}
 
-【BỘ TIÊU CHUẨN VIẾT BÀI V3.0 — TUYỆT ĐỐI TUÂN THỦ】:
-1. PHONG THÁI & VĂN PHONG:
-   - DỄ HIỂU — PHÂN TÍCH MẠCH LẠC — CÓ CHIỀU SÂU THỰC CHẤT.
-   - Ngôn từ trong sáng, chuẩn xác, gãy gọn. Giải thích những vấn đề kỹ thuật phức tạp thành đơn giản, người mới cũng hiểu ngay bản chất.
-   - TUYỆT ĐỐI KHÔNG dùng từ ngữ hàn lâm sách vở khô cứng (tránh các từ báo cáo khoa học, từ tử vi triết học xa vời).
-   - TUYỆT ĐỐI KHÔNG viết dạng tản văn, không kể lể chuyện phiếm hay tâm sự dông dài.
+【BỘ TIÊU CHUẨN BIÊN SOẠN V4.0 — VĂN XUÔI XÚC CẢM NGHỆ NHÂN — TUYỆT ĐỐI TUÂN THỦ】:
+1. PHONG THÁI & VĂN PHONG XÚC CẢM:
+   - 100% THÂN BÀI VIẾT THÀNH CÁC ĐOẠN VĂN XUÔI LIỀN MẠCH, CÓ NHỊP THỞ ÊM ÁI, CÓ HÌNH ẢNH GIÁC QUAN (đầm tay, đanh thép, mịn như lụa, men ngọc patina, thơm ngọt sâu...).
+   - TUYỆT ĐỐI CẤM phong cách "Báo cáo kỹ thuật gạch đầu dòng" hoặc "Slide thuyết trình/checklist" (CẤM dùng danh sách <ul><li><strong>Tiêu đề:</strong> ...</li></ul> làm thân bài).
+   - TUYỆT ĐỐI CẤM các từ ngữ hàn lâm máy móc ("Cơ chế vật lý", "Xét về mặt cơ học ứng dụng", "Chỉ số vật lý", "Sau đây là các tiêu chí:").
+   - Hãy chuyển hóa tri thức và dữ liệu khoa học thành lời giải thích cho cảm giác cầm nắm và trải nghiệm thực tế đời sống.
 
-2. CHIỀU SÂU PHÂN TÍCH & CƠ CHẾ BẢN CHẤT:
-   - Luôn mổ xẻ "TẠI SAO LẠI NHƯ THẾ": Phân tích rõ nguyên nhân, cơ chế tự nhiên và vật lý đằng sau (tại sao gỗ lên tuyết, tại sao gỗ chìm nước, tại sao phôi già đắt gấp nhiều lần phôi non, cơ chế tinh dầu tiết ra khi tiếp xúc thân nhiệt).
-   - Đưa ra các tiêu chí so sánh cụ thể có thể đo lường hoặc quan sát được (màu sắc, tôm gỗ, tỷ trọng, phản ứng quang học khi soi đèn flash, mùi hương).
+2. CHIỀU SÂU TRI THỨC ĐỘC BẢN:
+   - Luôn giải thích bản chất mộc học bằng câu chuyện và góc nhìn của người thợ xưởng mộc (tại sao gỗ lên tuyết, tại sao chìm nước, tại sao phôi già có giá trị cao, thời tiết hanh khô nồm ẩm tác động thế nào đến thớ gỗ).
+   - Mỗi phần nội dung là một câu chuyện mộc mạc, sâu sắc, cuốn hút người đọc từ đầu đến cuối.
 
 3. MỞ BÀI SẮC BÉN (ANSWER-FIRST / HOOK):
    - TUYỆT ĐỐI KHÔNG mở bài bằng câu chào rập khuôn: "Chào mừng quý vị...", "Hôm nay chúng ta sẽ tìm hiểu...".
    - Vào thẳng bản chất: Mở đầu bằng một câu hỏi cốt lõi, một nghịch lý hoặc quan niệm sai lầm rất phổ biến của người mua gỗ phong thủy.
    - Đoạn mở đầu (40-60 từ) trả lời trực tiếp vấn đề để công cụ tìm kiếm AI (Google AI Overviews, Perplexity) dễ trích xuất Top 0.
 
-4. BỐ CỤC THÂN BÀI & QUY TẮC KHÔNG DÙNG BẢNG:
-   - TUYỆT ĐỐI CẤM DÙNG THẺ BẢNG HTML (<table>)! Mọi bảng tra hay so sánh đều phải chuyển hóa thành danh sách gạch đầu dòng (<ul><li>) có in đậm từ khóa <strong> ở đầu mỗi ý, hoặc các đoạn văn phân tích tương phản.
-   - Chia 3 - 4 phần với các tiêu đề <h2> tự nhiên, hấp dẫn, dễ theo dõi.
-   - TUYỆT ĐỐI KHÔNG đánh số thứ tự ở đầu các tiêu đề <h2>, <h3> (CẤM viết "1. ", "2. ", "Phần 1: "). Tiêu đề phải tự nhiên, mang phong thái nghệ nhân kể chuyện mộc mạc.
+4. BỐ CỤC THÂN BÀI & TIÊU ĐỀ TỰ NHIÊN:
+   - TUYỆT ĐỐI CẤM DÙNG THẺ BẢNG HTML (<table>)!
+   - Chia 3 - 4 phần với các tiêu đề <h2> tự nhiên, hấp dẫn, thi vị và giàu chiều sâu.
+   - TUYỆT ĐỐI KHÔNG đánh số thứ tự ở đầu các tiêu đề <h2>, <h3> (CẤM viết "1. ", "2. ", "Phần 1: ").
    - ĐỘ DÀI MỤC TIÊU: 800 - 1.200 TỪ THỰC TẾ, viết câu nào chắc câu đó, tuyệt đối không viết độn chữ rỗng tuếch.
 
 5. MỤC HỎI - ĐÁP ĐÓN ĐẦU AI OVERVIEWS (FAQ):

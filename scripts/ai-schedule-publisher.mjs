@@ -297,8 +297,8 @@ function postProcessContent(rawContent, category) {
     }
   }
 
-  // 3. Tự động loại bỏ đánh số thứ tự ở đầu các tiêu đề <h2>, <h3> (VD: <h2>1. ..., <h3>Phần 1: ...)
-  content = content.replace(/<(h[2-4])[^>]*>\s*(\d+[\.\)]|\bPhần\s+\d+[:\.]?)\s*/gi, '<$1>');
+  // 3. Tự động loại bỏ đánh số thứ tự ở đầu các tiêu đề <h2> (VD: <h2>1. ..., <h2>Phần 1: ...)
+  content = content.replace(/<(h2)[^>]*>\s*(\d+[\.\)]|\bPhần\s+\d+[:\.]?)\s*/gi, '<$1>');
 
   // 4. Đảm bảo có CTA Zalo chuẩn và số Hotline Đông Phong
   const randomCta = ZALO_CTA_TEMPLATES[Math.floor(Math.random() * ZALO_CTA_TEMPLATES.length)];
@@ -362,10 +362,10 @@ Hãy biên soạn một bài viết cẩm nang CHUYÊN ĐỀ PHÂN TÍCH CHUYÊN
 【CHUYÊN MỤC】: ${category} (${matchedPillar.purpose})
 【TỪ KHÓA TÌM KIẾM CỦA KHÁCH】: ${selectedTopic.researchKeywords.join(", ")}
 
-【BỘ TIÊU CHUẨN BIÊN SOẠN V4.0 — VĂN XUÔI XÚC CẢM NGHỆ NHÂN — TUYỆT ĐỐI TUÂN THỦ】:
-1. PHONG THÁI & VĂN PHONG XÚC CẢM:
-   - 100% THÂN BÀI VIẾT THÀNH CÁC ĐOẠN VĂN XUÔI LIỀN MẠCH, CÓ NHỊP THỞ ÊM ÁI, CÓ HÌNH ẢNH GIÁC QUAN (đầm tay, đanh thép, mịn như lụa, men ngọc patina, thơm ngọt sâu...).
-   - TUYỆT ĐỐI CẤM phong cách "Báo cáo kỹ thuật gạch đầu dòng" hoặc "Slide thuyết trình/checklist" (CẤM dùng danh sách <ul><li><strong>Tiêu đề:</strong> ...</li></ul> làm thân bài).
+【BỘ TIÊU CHUẨN BIÊN SOẠN V4.1 — ĐÚNG VIỆC ĐÚNG ĐỊNH DẠNG — TUYỆT ĐỐI TUÂN THỦ】:
+1. PHONG THÁI & ĐỊNH DẠNG THEO ĐỀ TÀI (FORM FOLLOWS FUNCTION):
+   - ĐỐI VỚI BÀI PHÂN TÍCH / TẢN VĂN / TÂM LÝ: Thân bài 100% viết thành các đoạn văn xuôi liền mạch có nhịp thở êm ái, giàu xúc cảm giác quan (đầm tay, đanh thép, mịn như lụa, men ngọc patina...). Tuyệt đối CẤM phong cách checklist slide thuyết trình hay gạch đầu dòng khô cứng.
+   - ĐỐI VỚI BÀI BẢNG XẾP HẠNG (TOP X) / QUY TRÌNH THAO TÁC / DANH SÁCH: BẮT BUỘC phân tách rõ từng đối tượng (sử dụng tiêu đề con <h3> hoặc danh sách gạch đầu dòng <ul><li>) để người đọc dễ dàng quét nhanh (scannable). Bên trong mỗi mục liệt kê, câu văn vẫn phải giàu hình ảnh, cảm giác và tri thức mộc học.
    - TUYỆT ĐỐI CẤM các từ ngữ hàn lâm máy móc ("Cơ chế vật lý", "Xét về mặt cơ học ứng dụng", "Chỉ số vật lý", "Sau đây là các tiêu chí:").
    - Hãy chuyển hóa tri thức và dữ liệu khoa học thành lời giải thích cho cảm giác cầm nắm và trải nghiệm thực tế đời sống.
 
@@ -381,7 +381,7 @@ Hãy biên soạn một bài viết cẩm nang CHUYÊN ĐỀ PHÂN TÍCH CHUYÊN
 4. BỐ CỤC THÂN BÀI & TIÊU ĐỀ TỰ NHIÊN:
    - TUYỆT ĐỐI CẤM DÙNG THẺ BẢNG HTML (<table>)!
    - Chia 3 - 4 phần với các tiêu đề <h2> tự nhiên, hấp dẫn, thi vị và giàu chiều sâu.
-   - TUYỆT ĐỐI KHÔNG đánh số thứ tự ở đầu các tiêu đề <h2>, <h3> (CẤM viết "1. ", "2. ", "Phần 1: ").
+   - TUYỆT ĐỐI KHÔNG đánh số thứ tự ở đầu các tiêu đề <h2> (CẤM viết "1. ", "2. ", "Phần 1: ").
    - ĐỘ DÀI MỤC TIÊU: 800 - 1.200 TỪ THỰC TẾ, viết câu nào chắc câu đó, tuyệt đối không viết độn chữ rỗng tuếch.
 
 5. MỤC HỎI - ĐÁP ĐÓN ĐẦU AI OVERVIEWS (FAQ):

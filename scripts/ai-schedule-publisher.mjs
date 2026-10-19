@@ -297,7 +297,10 @@ function postProcessContent(rawContent, category) {
     }
   }
 
-  // 3. Đảm bảo có CTA Zalo chuẩn và số Hotline Đông Phong
+  // 3. Tự động loại bỏ đánh số thứ tự ở đầu các tiêu đề <h2>, <h3> (VD: <h2>1. ..., <h3>Phần 1: ...)
+  content = content.replace(/<(h[2-4])[^>]*>\s*(\d+[\.\)]|\bPhần\s+\d+[:\.]?)\s*/gi, '<$1>');
+
+  // 4. Đảm bảo có CTA Zalo chuẩn và số Hotline Đông Phong
   const randomCta = ZALO_CTA_TEMPLATES[Math.floor(Math.random() * ZALO_CTA_TEMPLATES.length)];
   const ctaBlock = `
 <div class="my-8 p-6 bg-[#FAF6F0] border-l-4 border-[#C5A059] rounded-r-xl shadow-sm">
@@ -378,6 +381,7 @@ Hãy biên soạn một bài viết cẩm nang CHUYÊN ĐỀ PHÂN TÍCH CHUYÊN
 4. BỐ CỤC THÂN BÀI & QUY TẮC KHÔNG DÙNG BẢNG:
    - TUYỆT ĐỐI CẤM DÙNG THẺ BẢNG HTML (<table>)! Mọi bảng tra hay so sánh đều phải chuyển hóa thành danh sách gạch đầu dòng (<ul><li>) có in đậm từ khóa <strong> ở đầu mỗi ý, hoặc các đoạn văn phân tích tương phản.
    - Chia 3 - 4 phần với các tiêu đề <h2> tự nhiên, hấp dẫn, dễ theo dõi.
+   - TUYỆT ĐỐI KHÔNG đánh số thứ tự ở đầu các tiêu đề <h2>, <h3> (CẤM viết "1. ", "2. ", "Phần 1: "). Tiêu đề phải tự nhiên, mang phong thái nghệ nhân kể chuyện mộc mạc.
    - ĐỘ DÀI MỤC TIÊU: 800 - 1.200 TỪ THỰC TẾ, viết câu nào chắc câu đó, tuyệt đối không viết độn chữ rỗng tuếch.
 
 5. MỤC HỎI - ĐÁP ĐÓN ĐẦU AI OVERVIEWS (FAQ):

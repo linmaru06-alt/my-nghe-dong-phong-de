@@ -18,7 +18,7 @@ const beVietnam = Be_Vietnam_Pro({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://mynghedongphong.vn"),
-  title: "Mỹ Nghệ Đông Phong — Đồ Gỗ Quý Mỹ Nghệ Và Phong Thủy",
+  title: "Mỹ Nghệ Đông Phong",
   description:
     "Chuyên chế tác mộc thủ công từ các loại gỗ quý tự nhiên: Tử Đàn, Sưa, Nu Bách Xanh, Huyết Long, Mun Sừng. Tư vấn Zalo và hotline trực tiếp.",
   keywords: ["đồ gỗ mỹ nghệ", "vòng tay phong thủy", "bút ký gỗ quý", "mỹ nghệ đông phong"],

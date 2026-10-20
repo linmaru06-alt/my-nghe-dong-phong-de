@@ -55,7 +55,7 @@ jobs:
           set -e
           git config user.name "Dong Phong Auto Bot"
           git config user.email "bot@mynghedongphong.vn"
-          git add data/posts.json
+          git add data/posts.json data/published-topics.json
           echo "--- git status ---"
           git status --short
           if git diff --staged --quiet; then

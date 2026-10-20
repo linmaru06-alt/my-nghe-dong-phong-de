@@ -85,9 +85,10 @@ Quy định áp dụng cho toàn bộ bài viết trên web và hệ thống xu�
    - **Tuyệt đối cấm:** Các câu mở đầu rập khuôn sáo rỗng như *"Chào mừng quý vị...", "Tôi là nghệ nhân trưởng...", "Hôm nay tôi xin chia sẻ...", "Trong bài viết này..."*.
    - **Thay bằng:** Đi thẳng vào một nghịch lý, một quan niệm phong thủy sai lầm phổ biến, hoặc câu chuyện thực tế về thớ gỗ tại xưởng.
    - Đoạn mở đầu 40–60 từ trả lời trực diện vấn đề để Google AI Overviews dễ trích xuất (Direct Answer).
-2. **Bỏ hoàn toàn bảng so sánh HTML `<table>`:**
-   - Người đọc chủ yếu dùng điện thoại di động; bảng `<table>` gây tràn màn hình và tạo cảm giác văn mẫu khô cứng.
-   - Sử dụng các danh sách gạch đầu dòng `<ul><li>` có in đậm từ khóa `<strong>` hoặc các đoạn văn đối chiếu tương phản ngắn.
+2. **Nguyên tắc "Đúng việc - Đúng định dạng" (Form Follows Function) & Bỏ bảng HTML `<table>`:**
+   - **Bài Phân tích / Tâm lý / Bản chất:** Bắt buộc 100% là **Văn xuôi xúc cảm nghệ nhân (Flowing Narrative Prose)** liền mạch, có nhịp thở êm ái. Tuyệt đối cấm băm nhỏ thành checklist `<ul><li><strong>Tiêu đề:</strong> nội dung...</li></ul>`. Hãy hòa quyện dữ liệu khoa học vào ngôn ngữ giác quan (cầm đầm tay, nặng trịch như đá quý, tôm gỗ mịn như lụa, men ngọc patina...).
+   - **Bài Bảng xếp hạng / Danh sách / Quy trình (Listicle / Top X / Checklist):** BẮT BUỘC phân tách rõ từng đối tượng (dùng danh sách `<ul><li>` hoặc thẻ `<h3>`). Ví dụ bài *Top 10 loài gỗ đắt nhất*, bài *Quy trình bảo quản 5 bước* phải để người đọc quét nhanh từng loại gỗ / từng bước một cách trực quan, bên trong mỗi mục vẫn viết bằng câu chữ gợi cảm, giàu hình ảnh.
+   - **Tuyệt đối không đánh số thứ tự tiêu đề lớn:** Cấm viết `1. `, `2. `, `Phần 1: ` ở thẻ `<h2>` để tránh cảm giác giáo điều.
 3. **Chống độn chữ (Anti-Padding):**
    - Độ dài bài viết đạt **800 – 1.200 từ thực tế** (tính theo số từ văn bản).
    - Nghiêm cấm viết lặp ý, câu nào ra câu đó. Dừng bài viết khi đã truyền tải trọn vẹn giá trị cho người đọc.
@@ -114,9 +115,8 @@ Quy định áp dụng cho toàn bộ bài viết trên web và hệ thống xu�
 4. **Quy tắc Tay Trái Nạp Phúc — Tay Phải Hộ Mệnh:** Khi đi đàm phán, gặp đối tác, đi chùa thì đeo tay trái (chiêu tài lộc); khi đi qua vùng đất dữ, đám tang, bệnh viện thì đeo tay phải (trừ uế khí).
 5. **Hóa giải năm hạn & Sự cố tâm linh:** Hóa giải vận xui trong năm Tam Tai, Thái Tuế; giải thích hiện tượng vòng đứt dây là linh mộc "đỡ hộ kiếp nạn".
 
-### 5.4. Phong Cách Biên Soạn: Dễ Hiểu — Phân Tích Mạch Lạc — Có Chiều Sâu
-- **Dễ hiểu:** Ngôn từ trong sáng, chuẩn xác, giải thích những vấn đề kỹ thuật và phong thủy phức tạp thành đơn giản.
-- **Phân tích logic:** Mổ xẻ nguyên nhân, cơ chế tự nhiên (tại sao gỗ lên tuyết, tại sao gỗ chìm nước, tại sao phôi già có giá trị cao).
-- **Tuyệt đối không:** Văn mẫu hàn lâm sách vở, không lý thuyết suông, không kể lể dông dài chuyện phiếm.
-- **Tuyệt đối nghiêm cấm thẻ bảng `<table>`:** Sử dụng danh sách `<ul><li>` có in đậm từ khóa `<strong>` ở đầu mỗi ý hoặc đoạn văn phân tích tương phản.
+### 5.4. Phong Cách Biên Soạn: Linh Hoạt Định Dạng — Xúc Cảm Nghệ Nhân
+- **Đúng định dạng theo đề tài:** Bài cảm thụ/phân tích viết văn xuôi liền mạch; bài bảng xếp hạng Top X/hướng dẫn từng bước viết theo danh sách scannable rõ ràng.
+- **Chuyển hóa dữ liệu thành cảm giác:** Thay vì nêu số liệu cơ học khô cứng (tỷ trọng, tôm gỗ, co ngót), hãy diễn giải cảm giác thực tế khi cầm trên tay, khi ma sát với thân nhiệt, và khi cùng đồng hành qua năm tháng.
+- **Tuyệt đối không:** Báo cáo kỹ thuật khô khan, từ ngữ hàn lâm sách vở, slide checklist áp dụng sai đề tài, và số thứ tự tiêu đề lớn máy móc.
 

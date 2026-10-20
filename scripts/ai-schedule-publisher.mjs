@@ -297,8 +297,8 @@ function postProcessContent(rawContent, category) {
     }
   }
 
-  // 3. Tự động loại bỏ đánh số thứ tự ở đầu các tiêu đề <h2>, <h3> (VD: <h2>1. ..., <h3>Phần 1: ...)
-  content = content.replace(/<(h[2-4])[^>]*>\s*(\d+[\.\)]|\bPhần\s+\d+[:\.]?)\s*/gi, '<$1>');
+  // 3. Tự động loại bỏ đánh số thứ tự ở đầu các tiêu đề <h2> (VD: <h2>1. ..., <h2>Phần 1: ...)
+  content = content.replace(/<(h2)[^>]*>\s*(\d+[\.\)]|\bPhần\s+\d+[:\.]?)\s*/gi, '<$1>');
 
   // 4. Đảm bảo có CTA Zalo chuẩn và số Hotline Đông Phong
   const randomCta = ZALO_CTA_TEMPLATES[Math.floor(Math.random() * ZALO_CTA_TEMPLATES.length)];
@@ -341,18 +341,74 @@ async function generatePillarArticle(category, slotName) {
     throw new Error(`Không tìm thấy cấu hình cho chuyên mục: ${category}`);
   }
 
-  // Đọc danh sách bài đã có để chọn topic chưa viết
+  // 1. Đọc published-topics.json để quản lý chủ đề đã phủ sóng
+  const pubTopicsPath = path.join(process.cwd(), "data", "published-topics.json");
+  let publishedTopics = [];
+  try {
+    const pubRaw = await fs.readFile(pubTopicsPath, "utf-8");
+    publishedTopics = JSON.parse(pubRaw).publishedTopics || [];
+  } catch {}
+
+  // 2. Đọc danh sách bài viết hiện có
   const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
   const posts = JSON.parse(postsRaw);
-  const existingTitles = posts.map((p) => p.title.toLowerCase());
 
-  // Tìm topic chưa được viết
-  let selectedTopic = matchedPillar.topics.find((t) => !existingTitles.some((et) => et.includes(t.title.toLowerCase().slice(0, 15))));
-  if (!selectedTopic) {
-    selectedTopic = matchedPillar.topics[Math.floor(Math.random() * matchedPillar.topics.length)];
+  // Bộ lọc 4 lớp chống trùng lặp nội dung tuyệt đối:
+  function isTopicAlreadyPublished(t) {
+    const tTitleLower = t.title.toLowerCase();
+
+    // Lớp 1: Đã nằm trong danh sách publishedTopics
+    if (publishedTopics.some((pt) => pt.toLowerCase() === tTitleLower)) {
+      return true;
+    }
+
+    // Lớp 2: Kiểm tra các năm sinh (vd: 1992, 1993, 1970, 1971, 2000, 2001...)
+    const years = t.title.match(/\b(19\d\d|20\d\d)\b/g);
+    if (years && years.length > 0) {
+      const yearMatched = posts.some((p) => {
+        const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
+        return years.some((y) => text.includes(y));
+      });
+      if (yearMatched) return true;
+    }
+
+    // Lớp 3: Kiểm tra từ khóa nghiên cứu đặc thù (researchKeywords)
+    if (t.researchKeywords && t.researchKeywords.length > 0) {
+      const kwMatched = posts.some((p) => {
+        const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
+        return t.researchKeywords.some((kw) => {
+          const kwClean = kw.trim().toLowerCase();
+          return kwClean.length >= 8 && text.includes(kwClean);
+        });
+      });
+      if (kwMatched) return true;
+    }
+
+    // Lớp 4: Kiểm tra độ tương đồng từ vựng tiêu đề (Word Overlap >= 60%)
+    const tWords = tTitleLower
+      .replace(/[^\p{L}\p{N}\s]/gu, "")
+      .split(/\s+/)
+      .filter((w) => w.length > 3);
+    const titleMatched = posts.some((p) => {
+      const pText = `${p.title} ${p.slug}`.toLowerCase();
+      const matchCount = tWords.filter((w) => pText.includes(w)).length;
+      return tWords.length > 0 && matchCount / tWords.length >= 0.6;
+    });
+    if (titleMatched) return true;
+
+    return false;
   }
 
-  console.log(`[Pillar-Engine] Đã chọn chủ đề: "${selectedTopic.title}" (Cấp độ: ${selectedTopic.level || "Chuyên sâu"})`);
+  // 3. Chọn topic tiếp theo chưa từng được viết (theo thứ tự tuần tự trong ma trận)
+  const remainingTopics = matchedPillar.topics.filter((t) => !isTopicAlreadyPublished(t));
+  let selectedTopic = remainingTopics[0];
+
+  if (!selectedTopic) {
+    console.warn(`[Pillar-Engine] Đã hoàn thành 100% các chủ đề của chuyên mục ${category}! Reset chu kỳ mới.`);
+    selectedTopic = matchedPillar.topics[0];
+  }
+
+  console.log(`[Pillar-Engine] Đã chọn chủ đề chưa viết: "${selectedTopic.title}" (Còn lại: ${remainingTopics.length - 1}/${matchedPillar.topics.length} chủ đề)`);
 
   const prompt = `
 Bạn là Chuyên gia thẩm định và nghiên cứu đồ gỗ quý cao cấp tại thương hiệu "Mỹ Nghệ Đông Phong".
@@ -362,26 +418,26 @@ Hãy biên soạn một bài viết cẩm nang CHUYÊN ĐỀ PHÂN TÍCH CHUYÊN
 【CHUYÊN MỤC】: ${category} (${matchedPillar.purpose})
 【TỪ KHÓA TÌM KIẾM CỦA KHÁCH】: ${selectedTopic.researchKeywords.join(", ")}
 
-【BỘ TIÊU CHUẨN VIẾT BÀI V3.0 — TUYỆT ĐỐI TUÂN THỦ】:
-1. PHONG THÁI & VĂN PHONG:
-   - DỄ HIỂU — PHÂN TÍCH MẠCH LẠC — CÓ CHIỀU SÂU THỰC CHẤT.
-   - Ngôn từ trong sáng, chuẩn xác, gãy gọn. Giải thích những vấn đề kỹ thuật phức tạp thành đơn giản, người mới cũng hiểu ngay bản chất.
-   - TUYỆT ĐỐI KHÔNG dùng từ ngữ hàn lâm sách vở khô cứng (tránh các từ báo cáo khoa học, từ tử vi triết học xa vời).
-   - TUYỆT ĐỐI KHÔNG viết dạng tản văn, không kể lể chuyện phiếm hay tâm sự dông dài.
+【BỘ TIÊU CHUẨN BIÊN SOẠN V4.1 — ĐÚNG VIỆC ĐÚNG ĐỊNH DẠNG — TUYỆT ĐỐI TUÂN THỦ】:
+1. PHONG THÁI & ĐỊNH DẠNG THEO ĐỀ TÀI (FORM FOLLOWS FUNCTION):
+   - ĐỐI VỚI BÀI PHÂN TÍCH / TẢN VĂN / TÂM LÝ: Thân bài 100% viết thành các đoạn văn xuôi liền mạch có nhịp thở êm ái, giàu xúc cảm giác quan (đầm tay, đanh thép, mịn như lụa, men ngọc patina...). Tuyệt đối CẤM phong cách checklist slide thuyết trình hay gạch đầu dòng khô cứng.
+   - ĐỐI VỚI BÀI BẢNG XẾP HẠNG (TOP X) / QUY TRÌNH THAO TÁC / DANH SÁCH: BẮT BUỘC phân tách rõ từng đối tượng (sử dụng tiêu đề con <h3> hoặc danh sách gạch đầu dòng <ul><li>) để người đọc dễ dàng quét nhanh (scannable). Bên trong mỗi mục liệt kê, câu văn vẫn phải giàu hình ảnh, cảm giác và tri thức mộc học.
+   - TUYỆT ĐỐI CẤM các từ ngữ hàn lâm máy móc ("Cơ chế vật lý", "Xét về mặt cơ học ứng dụng", "Chỉ số vật lý", "Sau đây là các tiêu chí:").
+   - Hãy chuyển hóa tri thức và dữ liệu khoa học thành lời giải thích cho cảm giác cầm nắm và trải nghiệm thực tế đời sống.
 
-2. CHIỀU SÂU PHÂN TÍCH & CƠ CHẾ BẢN CHẤT:
-   - Luôn mổ xẻ "TẠI SAO LẠI NHƯ THẾ": Phân tích rõ nguyên nhân, cơ chế tự nhiên và vật lý đằng sau (tại sao gỗ lên tuyết, tại sao gỗ chìm nước, tại sao phôi già đắt gấp nhiều lần phôi non, cơ chế tinh dầu tiết ra khi tiếp xúc thân nhiệt).
-   - Đưa ra các tiêu chí so sánh cụ thể có thể đo lường hoặc quan sát được (màu sắc, tôm gỗ, tỷ trọng, phản ứng quang học khi soi đèn flash, mùi hương).
+2. CHIỀU SÂU TRI THỨC ĐỘC BẢN:
+   - Luôn giải thích bản chất mộc học bằng câu chuyện và góc nhìn của người thợ xưởng mộc (tại sao gỗ lên tuyết, tại sao chìm nước, tại sao phôi già có giá trị cao, thời tiết hanh khô nồm ẩm tác động thế nào đến thớ gỗ).
+   - Mỗi phần nội dung là một câu chuyện mộc mạc, sâu sắc, cuốn hút người đọc từ đầu đến cuối.
 
 3. MỞ BÀI SẮC BÉN (ANSWER-FIRST / HOOK):
    - TUYỆT ĐỐI KHÔNG mở bài bằng câu chào rập khuôn: "Chào mừng quý vị...", "Hôm nay chúng ta sẽ tìm hiểu...".
    - Vào thẳng bản chất: Mở đầu bằng một câu hỏi cốt lõi, một nghịch lý hoặc quan niệm sai lầm rất phổ biến của người mua gỗ phong thủy.
    - Đoạn mở đầu (40-60 từ) trả lời trực tiếp vấn đề để công cụ tìm kiếm AI (Google AI Overviews, Perplexity) dễ trích xuất Top 0.
 
-4. BỐ CỤC THÂN BÀI & QUY TẮC KHÔNG DÙNG BẢNG:
-   - TUYỆT ĐỐI CẤM DÙNG THẺ BẢNG HTML (<table>)! Mọi bảng tra hay so sánh đều phải chuyển hóa thành danh sách gạch đầu dòng (<ul><li>) có in đậm từ khóa <strong> ở đầu mỗi ý, hoặc các đoạn văn phân tích tương phản.
-   - Chia 3 - 4 phần với các tiêu đề <h2> tự nhiên, hấp dẫn, dễ theo dõi.
-   - TUYỆT ĐỐI KHÔNG đánh số thứ tự ở đầu các tiêu đề <h2>, <h3> (CẤM viết "1. ", "2. ", "Phần 1: "). Tiêu đề phải tự nhiên, mang phong thái nghệ nhân kể chuyện mộc mạc.
+4. BỐ CỤC THÂN BÀI & TIÊU ĐỀ TỰ NHIÊN:
+   - TUYỆT ĐỐI CẤM DÙNG THẺ BẢNG HTML (<table>)!
+   - Chia 3 - 4 phần với các tiêu đề <h2> tự nhiên, hấp dẫn, thi vị và giàu chiều sâu.
+   - TUYỆT ĐỐI KHÔNG đánh số thứ tự ở đầu các tiêu đề <h2> (CẤM viết "1. ", "2. ", "Phần 1: ").
    - ĐỘ DÀI MỤC TIÊU: 800 - 1.200 TỪ THỰC TẾ, viết câu nào chắc câu đó, tuyệt đối không viết độn chữ rỗng tuếch.
 
 5. MỤC HỎI - ĐÁP ĐÓN ĐẦU AI OVERVIEWS (FAQ):
@@ -477,6 +533,7 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     slug: postSlug,
     title: result.title,
     category: category,
+    pillarTopic: selectedTopic.title,
     excerpt: result.excerpt,
     content: finalContent,
     thumbnail: selectedThumb,
@@ -485,6 +542,24 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     publishedAt: vnDateStr,
     readingTime: Math.max(3, Math.ceil(result.wordCount / 180)),
   };
+
+  // Cập nhật published-topics.json
+  if (!publishedTopics.some((pt) => pt.toLowerCase() === selectedTopic.title.toLowerCase())) {
+    publishedTopics.push(selectedTopic.title);
+    await fs.writeFile(
+      pubTopicsPath,
+      JSON.stringify(
+        {
+          description: "Lịch sử các chủ đề Content Pillar đã xuất bản, đảm bảo không bao giờ trùng lặp nội dung",
+          publishedTopics,
+        },
+        null,
+        2
+      ),
+      "utf-8"
+    );
+    console.log(`[Pillar-Engine] Đã ghi nhận chủ đề vào published-topics.json (Tổng số chủ đề đã phủ: ${publishedTopics.length})`);
+  }
 
   // Lưu vào data/posts.json
   posts.unshift(newPost);

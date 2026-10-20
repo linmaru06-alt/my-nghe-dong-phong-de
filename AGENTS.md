@@ -126,4 +126,24 @@ Toàn bộ giao diện phải toát lên nét đẹp tinh tế, trầm ấm và 
 - **Tối ưu tìm kiếm AI (GEO)**: Đoạn mở đầu Direct Answer 40-60 từ trả lời trực tiếp thắc mắc cốt lõi, duy trì file `public/llms.txt` để hỗ trợ AI bot (ChatGPT, Gemini, Perplexity).
 - **Bảo vệ trang riêng tư**: Chặn tuyệt đối Google index khu vực quản trị CMS (`/admin`, `/admin/*`) qua `robots.ts` và thẻ meta `noindex, nofollow`.
 
+---
+
+## 9. Tôn chỉ Biên soạn Nội dung: Đúng việc - Đúng định dạng (Master Content Standard)
+
+Toàn bộ bài viết, cẩm nang và nội dung kiến thức trên website tuân thủ nguyên tắc linh hoạt giữa cảm xúc nghệ nhân và trải nghiệm người đọc (UX Writing):
+
+1. **Bài Phân tích / Cảm nhận / Tâm lý / Bản chất (Deep Dive & Narrative):**
+   - **Chuẩn văn xuôi chảy trôi (Flowing Prose):** 100% thân bài phải được viết thành các đoạn văn xuôi liền mạch, có câu dẫn dắt êm ái, nhịp thở tự nhiên của nghệ nhân tâm sự cùng người chơi gỗ.
+   - **Tuyệt đối CẤM phong cách Slide checklist / Báo cáo kỹ thuật:** Không băm vụn các lý giải vật lý hay cảm giác cầm nắm thành gạch đầu dòng lắt nhắt `<ul><li><strong>Tiêu đề:</strong> nội dung...</li></ul>`. Hãy hòa quyện số liệu (tỷ trọng, co ngót, tôm gỗ) thành lời giải thích cho xúc giác và thị giác.
+
+2. **Bài Bảng xếp hạng / Danh sách / Quy trình thao tác (Listicle / Top X / Checklist):**
+   - **Bắt buộc phân tách rõ ràng từng mục:** Đối với các bài mang tính danh sách (ví dụ: *Top 10 loài gỗ đắt nhất*, *5 bước xử lý khi vòng dính nước*, *Checklist nhận diện phôi già*), BẮT BUỘC phải dùng danh sách gạch đầu dòng `<ul><li>` hoặc tiêu đề con `<h3>` cho từng mục độc lập để người đọc dễ dàng quét nhanh (scannable).
+   - **Giữ trọn hồn mộc:** Bên trong mỗi mục liệt kê, câu văn vẫn phải mềm mại, giàu cảm giác giác quan, tránh khô cứng như bảng thông số kỹ thuật.
+
+3. **Quy tắc tiêu đề & Cấu trúc chung:**
+   - **Không đánh số thứ tự ở tiêu đề lớn `<h2>`:** Tránh dùng `1. `, `2. `, `Phần 1: ` gây cảm giác giáo điều.
+   - **Cấu trúc đón đầu AI Search:** Duy trì đoạn mở bài Hook 40-60 từ (Direct Answer), 3-4 câu hỏi FAQ chuẩn xác ở cuối bài và khung lời tâm sự Zalo mộc mạc.
+
+
+
 

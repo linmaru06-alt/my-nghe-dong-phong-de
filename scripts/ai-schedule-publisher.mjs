@@ -129,6 +129,10 @@ export async function findRealWebImage(title, woodTypes = []) {
               !url.includes("avatar") &&
               !url.includes("shopee") &&
               !url.includes("lazada") &&
+              !url.includes("tiki") &&
+              !url.includes("vuongmoc") &&
+              !url.includes("dktcdn") &&
+              !url.includes("watermark") &&
               (item.width ? item.width >= 400 : true)
             );
           });
@@ -349,9 +353,22 @@ async function generatePillarArticle(category, slotName) {
     publishedTopics = JSON.parse(pubRaw).publishedTopics || [];
   } catch {}
 
-  // 2. Đọc danh sách bài viết hiện có
+  // 2. Đọc danh sách bài viết hiện có từ data/posts.json kết hợp Supabase
   const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
-  const posts = JSON.parse(postsRaw);
+  let posts = JSON.parse(postsRaw);
+
+  if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+    try {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      const { data: supaPosts } = await supabase.from("posts").select("id, slug, title");
+      if (supaPosts && supaPosts.length > 0) {
+        const existingIds = new Set(posts.map((p) => p.id));
+        for (const sp of supaPosts) {
+          if (!existingIds.has(sp.id)) posts.push(sp);
+        }
+      }
+    } catch {}
+  }
 
   // Bộ lọc 4 lớp chống trùng lặp nội dung tuyệt đối:
   function isTopicAlreadyPublished(t) {

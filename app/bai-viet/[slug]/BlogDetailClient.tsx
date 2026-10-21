@@ -9,6 +9,7 @@ import postsData from "@/data/posts.json";
 import productsData from "@/data/products.json";
 import { ArticleContentRenderer } from "@/components/blog/ArticleContentRenderer";
 import { extractTagsFromContent } from "@/lib/utils/tags";
+import type { Post } from "@/lib/server/posts";
 
 export interface BlogDetailClientProps {
   post?: any;
@@ -35,8 +36,8 @@ export default function BlogDetailClient({ post: propPost, slug }: BlogDetailCli
   // Recent posts
   const recentPosts = useMemo(() => {
     if (!post) return [];
-    return [...postsData]
-      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    return [...(postsData as unknown as Post[])]
+      .sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime())
       .filter((p) => p.id !== post.id)
       .slice(0, 5);
   }, [post]);

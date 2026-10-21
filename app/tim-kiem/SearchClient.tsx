@@ -42,7 +42,7 @@ export default function SearchClient({
   const [activeTab, setActiveTab] = useState<"products" | "posts">("products");
 
   const productsList = initialProducts || productsData;
-  const postsList = initialPosts || postsData;
+  const postsList: Post[] = initialPosts || (postsData as unknown as Post[]);
 
   useEffect(() => {
     setSearchInput(initialQuery);

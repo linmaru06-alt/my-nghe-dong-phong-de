@@ -28,7 +28,7 @@ export interface BlogClientProps {
 
 export default function BlogClient({ initialTab = "", initialPosts }: BlogClientProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
-  const rawPosts = initialPosts || postsData;
+  const rawPosts: Post[] = initialPosts || (postsData as unknown as Post[]);
   const posts = React.useMemo(() => {
     return [...rawPosts].sort((a, b) => {
       const dateA = new Date(a.publishedAt || 0).getTime();
@@ -132,7 +132,7 @@ export default function BlogClient({ initialTab = "", initialPosts }: BlogClient
               <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-text-muted mb-4 font-medium">
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
-                  {formatDate(featuredPost.publishedAt)}
+                  {formatDate(featuredPost.publishedAt || "")}
                 </span>
                 <span className="text-border">•</span>
                 <span className="flex items-center gap-1.5">

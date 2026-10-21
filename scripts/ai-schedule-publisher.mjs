@@ -356,15 +356,16 @@ async function generatePillarArticle(category, slotName) {
   // 2. Đọc danh sách bài viết hiện có từ data/posts.json kết hợp Supabase
   const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
   let posts = JSON.parse(postsRaw);
+  let dedupPosts = [...posts];
 
   if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
     try {
       const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
       const { data: supaPosts } = await supabase.from("posts").select("id, slug, title");
       if (supaPosts && supaPosts.length > 0) {
-        const existingIds = new Set(posts.map((p) => p.id));
+        const existingIds = new Set(dedupPosts.map((p) => p.id));
         for (const sp of supaPosts) {
-          if (!existingIds.has(sp.id)) posts.push(sp);
+          if (!existingIds.has(sp.id)) dedupPosts.push(sp);
         }
       }
     } catch {}
@@ -382,7 +383,7 @@ async function generatePillarArticle(category, slotName) {
     // Lớp 2: Kiểm tra các năm sinh (vd: 1992, 1993, 1970, 1971, 2000, 2001...)
     const years = t.title.match(/\b(19\d\d|20\d\d)\b/g);
     if (years && years.length > 0) {
-      const yearMatched = posts.some((p) => {
+      const yearMatched = dedupPosts.some((p) => {
         const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
         return years.some((y) => text.includes(y));
       });
@@ -391,7 +392,7 @@ async function generatePillarArticle(category, slotName) {
 
     // Lớp 3: Kiểm tra từ khóa nghiên cứu đặc thù (researchKeywords)
     if (t.researchKeywords && t.researchKeywords.length > 0) {
-      const kwMatched = posts.some((p) => {
+      const kwMatched = dedupPosts.some((p) => {
         const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
         return t.researchKeywords.some((kw) => {
           const kwClean = kw.trim().toLowerCase();
@@ -406,7 +407,7 @@ async function generatePillarArticle(category, slotName) {
       .replace(/[^\p{L}\p{N}\s]/gu, "")
       .split(/\s+/)
       .filter((w) => w.length > 3);
-    const titleMatched = posts.some((p) => {
+    const titleMatched = dedupPosts.some((p) => {
       const pText = `${p.title} ${p.slug}`.toLowerCase();
       const matchCount = tWords.filter((w) => pText.includes(w)).length;
       return tWords.length > 0 && matchCount / tWords.length >= 0.6;

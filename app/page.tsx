@@ -1,5 +1,4 @@
 import HeroSection from "@/components/home/HeroSection";
-import CategoryGrid from "@/components/home/CategoryGrid";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import ContactBanner from "@/components/home/ContactBanner";
 import LatestArticles from "@/components/home/LatestArticles";
@@ -63,7 +62,6 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
       <HeroSection />
-      <CategoryGrid products={products} />
       <FeaturedProducts products={products} totalCount={products.length} />
       <LatestArticles posts={posts} />
       <ContactBanner />

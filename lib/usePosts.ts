@@ -11,6 +11,7 @@ export interface Post {
   thumbnail: string;
   relatedProducts?: string[];
   tags?: string[];
+  featured?: boolean;
   status: "published" | "draft";
   publishedAt: string;
   readingTime: number;
@@ -26,6 +27,7 @@ interface PostsState {
   addPost: (post: Post) => Promise<boolean>;
   updatePost: (id: string, post: Partial<Post>) => Promise<boolean>;
   deletePost: (id: string) => Promise<boolean>;
+  toggleFeatured: (id: string) => Promise<boolean>;
   resetToDefault: () => Promise<void>;
 }
 
@@ -242,6 +244,18 @@ export const usePostsStore = create<PostsState>((set, get) => ({
       await fetch(`/api/admin/posts?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch {}
 
+    return await syncPostsToBackend(list);
+  },
+
+  toggleFeatured: async (id: string) => {
+    const list = get().posts.map((p) =>
+      p.id === id ? { ...p, featured: !p.featured } : p
+    );
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      localStorage.setItem(STORAGE_KEY + "_timestamp", Date.now().toString());
+    }
+    set({ posts: list });
     return await syncPostsToBackend(list);
   },
 

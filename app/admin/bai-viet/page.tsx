@@ -3,13 +3,14 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Search, Edit2, Trash2, Eye, Sparkles } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Eye, Sparkles, Star } from "lucide-react";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { usePostsStore } from "@/lib/usePosts";
 import { formatDate } from "@/lib/utils";
+import { toast } from "@/components/ui/Toast";
 
 export default function AdminPostsPage() {
-  const { posts, deletePost, loadPosts } = usePostsStore();
+  const { posts, deletePost, toggleFeatured, loadPosts } = usePostsStore();
   const [isCurating, setIsCurating] = useState(false);
   const [curateMessage, setCurateMessage] = useState<string | null>(null);
 
@@ -63,6 +64,14 @@ export default function AdminPostsPage() {
     if (confirm(`Bạn có chắc chắn muốn xóa bài viết "${title}"?`)) {
       deletePost(id);
     }
+  };
+
+  const handleToggleFeatured = (id: string, title: string, currentFeatured?: boolean) => {
+    toggleFeatured(id);
+    toast.info(
+      currentFeatured ? `Đã bỏ ghim nổi bật "${title}"` : `★ Đã ghim "${title}" lên trang chủ!`,
+      "Đã đồng bộ vào data/posts.json"
+    );
   };
 
   return (
@@ -142,6 +151,7 @@ export default function AdminPostsPage() {
               <th className="py-3 px-3">Thời gian đọc</th>
               <th className="py-3 px-3">Ngày phát hành</th>
               <th className="py-3 px-3">Trạng thái</th>
+              <th className="py-3 px-3 text-center">Nổi bật</th>
               <th className="py-3 px-3 text-right">Hành động</th>
             </tr>
           </thead>
@@ -182,6 +192,22 @@ export default function AdminPostsPage() {
 
                 <td className="py-2.5 px-3">
                   <StatusBadge status={post.status} />
+                </td>
+
+                {/* Featured Toggle */}
+                <td className="py-2.5 px-3 text-center">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleFeatured(post.id, post.title, post.featured)}
+                    title={post.featured ? "Bỏ ghim nổi bật" : "Ghim lên trang chủ"}
+                    className={`p-1.5 rounded-full transition-colors ${
+                      post.featured
+                        ? "bg-amber-100 text-amber-600"
+                        : "text-border hover:text-amber-500"
+                    }`}
+                  >
+                    <Star className={`w-4 h-4 ${post.featured ? "fill-current" : ""}`} />
+                  </button>
                 </td>
 
                 <td className="py-2.5 px-3 text-right">

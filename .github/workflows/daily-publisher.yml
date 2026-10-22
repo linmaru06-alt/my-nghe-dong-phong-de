@@ -2,17 +2,17 @@ name: Daily Smart Auto Publisher (3 Golden Slots)
 
 on:
   schedule:
-    # 00:30 UTC = 07:30 Giờ Việt Nam (Slot 1: Kiến thức danh mộc & Bách khoa gỗ quý)
+    # 00:30 UTC = 07:30 Giờ Việt Nam (Slot 1: Bách khoa gỗ quý toàn cầu & Kiến thức danh mộc)
     - cron: '30 0 * * *'
-    # 04:30 UTC = 11:30 Giờ Việt Nam (Slot 2: Bảo quản sản phẩm & Kỹ thuật dưỡng mộc)
+    # 04:30 UTC = 11:30 Giờ Việt Nam (Slot 2: Phong thủy ngũ hành & Lựa chọn vật phẩm - Ca Trưa)
     - cron: '30 4 * * *'
-    # 13:30 UTC = 20:30 Giờ Việt Nam (Slot 3: Phong thủy ngũ hành 60 chuyên đề)
+    # 13:30 UTC = 20:30 Giờ Việt Nam (Slot 3: Phong thủy ngũ hành & Lựa chọn vật phẩm - Ca Tối)
     - cron: '30 13 * * *'
   # Cho phép kích hoạt thủ công từ giao diện GitHub bất cứ lúc nào
   workflow_dispatch:
     inputs:
       slot:
-        description: 'Chọn ca xuất bản (1: Kiến thức gỗ quý, 2: Bảo quản dưỡng mộc, 3: Phong thủy ngũ hành, hoặc để trống tự nhận diện)'
+        description: 'Chọn ca xuất bản (1: Bách khoa gỗ quý, 2: Phong thủy ngũ hành Trưa, 3: Phong thủy ngũ hành Tối, hoặc để trống tự nhận diện)'
         required: false
         default: ''
 

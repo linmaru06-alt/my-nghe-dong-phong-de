@@ -1,11 +1,12 @@
 /**
  * scripts/ai-schedule-publisher.mjs
  * Hệ thống xuất bản bài viết tự động theo 3 Khung Giờ Vàng — Mỹ Nghệ Đông Phong
- * Áp dụng tiêu chuẩn Copywriting đỉnh cao (Marketing Skills & GEO Search):
+ * Tuyến nội dung chuẩn hóa:
  * 
- * - Ca 1 (07:30 VN): Kiến thức danh mộc & Bách khoa gỗ quý thế giới (kien-thuc-ve-go)
- * - Ca 2 (11:30 VN): Bảo quản sản phẩm & Kỹ thuật dưỡng mộc (bao-quan-san-pham)
- * - Ca 3 (20:30 VN): Cẩm nang Phong thủy Ngũ Hành theo năm sinh & nghề nghiệp (huong-dan-lua-chon)
+ * - Ca 1 (07:30 VN): Bách Khoa Gỗ Quý Toàn Cầu & Kiến Thức Danh Mộc (kien-thuc-ve-go)
+ * - Ca 2 (11:30 VN): Cẩm Nang Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm (huong-dan-lua-chon - Ca Trưa)
+ * - Ca 3 (20:30 VN): Cẩm Nang Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm (huong-dan-lua-chon - Ca Tối)
+ *   -> Áp dụng cơ chế Round-Robin Ngũ Hành (Kim ➔ Mộc ➔ Thủy ➔ Hỏa ➔ Thổ) chống dồn cục một mệnh.
  * 
  * NGUYÊN TẮC CỐT LÕI V3.0:
  * 1. 100% Ảnh chụp thật TÌM KIẾM TRỰC TIẾP TRÊN MẠNG (từ báo chí & trang mộc chuyên ngành). TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI.
@@ -219,9 +220,9 @@ function slugify(text) {
 
 /**
  * Xác định khung giờ hiện tại theo múi giờ Việt Nam (UTC+7) hoặc theo tham số dòng lệnh
- * - Ca 1: 05:00 - 10:00 VN -> Slot 1 (Kiến thức danh mộc & Gỗ quý thế giới)
- * - Ca 2: 10:00 - 15:00 VN -> Slot 2 (Bảo quản sản phẩm & Dưỡng mộc)
- * - Ca 3: 15:00 - 24:00 (hoặc trước 05:00) VN -> Slot 3 (Hướng dẫn lựa chọn / Phong thủy ngũ hành)
+ * - Ca 1: 05:00 - 10:00 VN -> Slot 1 (Bách Khoa Gỗ Quý Toàn Cầu & Kiến Thức Danh Mộc)
+ * - Ca 2: 10:00 - 15:00 VN -> Slot 2 (Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm - Trưa)
+ * - Ca 3: 15:00 - 24:00 (hoặc trước 05:00) VN -> Slot 3 (Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm - Tối)
  */
 function getCurrentSlot() {
   const args = process.argv.slice(2);
@@ -417,9 +418,71 @@ async function generatePillarArticle(category, slotName) {
     return false;
   }
 
-  // 3. Chọn topic tiếp theo chưa từng được viết (theo thứ tự tuần tự trong ma trận)
+  // 3. Chọn topic tiếp theo chưa từng được viết (áp dụng Round-Robin Ngũ Hành cho huong-dan-lua-chon)
   const remainingTopics = matchedPillar.topics.filter((t) => !isTopicAlreadyPublished(t));
-  let selectedTopic = remainingTopics[0];
+  let selectedTopic = null;
+
+  if (category === "huong-dan-lua-chon") {
+    // Chu kỳ Ngũ Hành xoay vòng: Kim -> Mộc -> Thủy -> Hỏa -> Thổ -> Kim
+    const NGU_HANH_CYCLE = ["kim", "moc", "thuy", "hoa", "tho"];
+    const ELEMENT_PATTERNS = {
+      kim: ["mệnh kim", "hợp mệnh kim", "kiếm phong kim", "thoa xuyến kim", "bạch lạp kim", "hải trung kim", "sa trung kim", "kim bách kim"],
+      moc: ["mệnh mộc", "hợp mệnh mộc", "đại lâm mộc", "dương liễu mộc", "tùng bách mộc", "bình địa mộc", "tang đố mộc", "thạch lựu mộc"],
+      thuy: ["mệnh thủy", "hợp mệnh thủy", "giản hạ thủy", "tuyền trung thủy", "trường lưu thủy", "thiên hà thủy", "đại khê thủy", "đại hải thủy"],
+      hoa: ["mệnh hỏa", "hợp mệnh hỏa", "lư trung hỏa", "sơn đầu hỏa", "tích lịch hỏa", "sơn hạ hỏa", "phúc đăng hỏa", "thiên thượng hỏa"],
+      tho: ["mệnh thổ", "hợp mệnh thổ", "lộ bàng thổ", "thành đầu thổ", "ốc thượng thổ", "bích thượng thổ", "đại dịch thổ", "sa trung thổ"]
+    };
+
+    function detectElement(text) {
+      const lower = (text || "").toLowerCase();
+      for (const [el, kws] of Object.entries(ELEMENT_PATTERNS)) {
+        if (kws.some((k) => lower.includes(k))) return el;
+      }
+      return null;
+    }
+
+    // Tìm bài viết gần nhất của chuyên mục huong-dan-lua-chon
+    const recentHdlc = dedupPosts
+      .filter((p) => p.category === "huong-dan-lua-chon")
+      .slice(0, 5);
+
+    // Xác định mệnh của bài gần nhất
+    let lastElement = null;
+    for (const post of recentHdlc) {
+      const el = detectElement(`${post.title} ${post.pillarTopic || ""}`);
+      if (el) {
+        lastElement = el;
+        break;
+      }
+    }
+
+    // Xoay vòng sang mệnh tiếp theo
+    let targetElements = [...NGU_HANH_CYCLE];
+    if (lastElement) {
+      const lastIdx = NGU_HANH_CYCLE.indexOf(lastElement);
+      targetElements = [
+        ...NGU_HANH_CYCLE.slice(lastIdx + 1),
+        ...NGU_HANH_CYCLE.slice(0, lastIdx + 1)
+      ];
+    }
+
+    // Tìm topic đầu tiên khớp với mệnh mục tiêu kế tiếp
+    for (const targetEl of targetElements) {
+      const elMatch = remainingTopics.find((t) => {
+        const text = `${t.title} ${(t.researchKeywords || []).join(" ")}`;
+        return detectElement(text) === targetEl;
+      });
+      if (elMatch) {
+        selectedTopic = elMatch;
+        console.log(`[Pillar-Engine] 🔄 Luân chuyển Ngũ Hành (${(lastElement || 'khởi đầu').toUpperCase()} ➔ ${targetEl.toUpperCase()}): Chọn chủ đề "${selectedTopic.title}"`);
+        break;
+      }
+    }
+  }
+
+  if (!selectedTopic) {
+    selectedTopic = remainingTopics[0];
+  }
 
   if (!selectedTopic) {
     console.warn(`[Pillar-Engine] Đã hoàn thành 100% các chủ đề của chuyên mục ${category}! Reset chu kỳ mới.`);
@@ -485,10 +548,10 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
 `.trim();
 
   const modelCandidates = [
-    "gemini-3.8-flash",
     "gemini-3.5-flash",
-    "gemini-3.5-flash-lite",
-    "gemini-flash-latest"
+    "gemini-flash-latest",
+    "gemini-3.8-flash",
+    "gemini-3.5-flash-lite"
   ];
 
   let result = null;

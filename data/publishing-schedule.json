@@ -1,35 +1,35 @@
 {
-  "version": "3.0",
+  "version": "3.1",
   "name": "Lịch Xuất Bản Thông Minh (3 Ca Vàng) — Mỹ Nghệ Đông Phong",
-  "currentPhase": "Phase 2: Xuất bản chuyên sâu theo 3 Ca Vàng (100% Content Pillar & Phong Thủy Ngũ Hành)",
+  "currentPhase": "Phase 2: Tuyến nội dung chuẩn hóa (Ca Sáng: Bách Khoa Gỗ Quý; Ca Trưa & Tối: Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm)",
   "dailyTarget": 3,
   "timezone": "Asia/Ho_Chi_Minh",
   "activeSlots": [
     {
       "slot": 1,
       "time": "07:30",
-      "name": "Kiến Thức Danh Mộc & Bách Khoa Gỗ Quý Toàn Cầu",
+      "name": "Bách Khoa Gỗ Quý Toàn Cầu & Kiến Thức Danh Mộc",
       "category": "kien-thuc-ve-go",
       "engine": "pillar-deep-research",
-      "source": "Lấy hạt giống từ 15 bài danh mộc thế giới trong data/content-pillars.json nhóm 'kien-thuc-ve-go' (Top 10 gỗ đắt nhất, Mun Đen Châu Phi, Đàn Hương Ấn Độ, Bog Oak, Lignum Vitae...).",
+      "source": "Lấy hạt giống từ 24 bài danh mộc thế giới trong data/content-pillars.json nhóm 'kien-thuc-ve-go' (Top 10 gỗ đắt nhất, Mun Đen Châu Phi, Đàn Hương Ấn Độ, Bog Oak, Lignum Vitae...).",
       "imageRule": "100% ảnh chụp cận cảnh thớ gỗ tự nhiên, thấu quang, phôi thô từ kho xưởng hoặc bài nghiên cứu chuyên ngành. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
     },
     {
       "slot": 2,
       "time": "11:30",
-      "name": "Bảo Quản Sản Phẩm & Kỹ Thuật Dưỡng Mộc",
-      "category": "bao-quan-san-pham",
+      "name": "Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm (Ca Trưa)",
+      "category": "huong-dan-lua-chon",
       "engine": "pillar-deep-research",
-      "source": "Lấy hạt giống từ data/content-pillars.json nhóm 'bao-quan-san-pham'. Hướng dẫn chăm sóc, lên nước, thay dây, chống nồm ẩm, hồi hương gỗ.",
-      "imageRule": "100% ảnh chụp mộc thật từ xưởng Đông Phong hoặc bài viết chuyên ngành. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
+      "source": "Lấy hạt giống từ ma trận 60 bài Ngũ Hành (Kim, Mộc, Thủy, Hỏa, Thổ) luân phiên Round-Robin từ data/content-pillars.json nhóm 'huong-dan-lua-chon'.",
+      "imageRule": "100% ảnh chụp thật chuỗi vòng, bút ký phong thủy xưởng Đông Phong hoặc bài nghiên cứu mộc. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
     },
     {
       "slot": 3,
       "time": "20:30",
-      "name": "Cẩm Nang Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm",
+      "name": "Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm (Ca Tối)",
       "category": "huong-dan-lua-chon",
       "engine": "pillar-deep-research",
-      "source": "Lấy hạt giống từ ma trận 60 bài Ngũ Hành (Kim, Mộc, Thủy, Hỏa, Thổ) theo năm sinh, độ tuổi, ngành nghề từ data/content-pillars.json nhóm 'huong-dan-lua-chon'.",
+      "source": "Tiếp nối chu kỳ Ngũ Hành xoay vòng (Kim ➔ Mộc ➔ Thủy ➔ Hỏa ➔ Thổ) theo năm sinh, độ tuổi, nghề nghiệp từ data/content-pillars.json.",
       "imageRule": "100% ảnh chụp thật chuỗi vòng, bút ký phong thủy xưởng Đông Phong. TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI."
     }
   ]

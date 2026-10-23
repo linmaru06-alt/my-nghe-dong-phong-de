@@ -548,8 +548,11 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
 `.trim();
 
   const modelCandidates = [
+    "gemini-3.7-flash",
+    "gemini-3.6-flash",
     "gemini-3.8-flash",
     "gemini-flash-latest",
+    "gemini-pro-latest",
     "gemini-3.5-flash",
     "gemini-3.5-flash-lite"
   ];
@@ -584,6 +587,7 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
       }
     } catch (err) {
       console.warn(`[Pillar-Engine] Thử model ${mName} thất bại: ${err.message}`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       continue;
     }
   }

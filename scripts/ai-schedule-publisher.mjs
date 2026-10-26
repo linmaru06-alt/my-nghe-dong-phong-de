@@ -548,13 +548,12 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
 `.trim();
 
   const modelCandidates = [
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.8-flash",
-    "gemini-flash-latest",
-    "gemini-pro-latest",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
     "gemini-3.5-flash",
-    "gemini-3.5-flash-lite"
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
+    "gemini-flash-latest"
   ];
 
   let result = null;
@@ -569,7 +568,10 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
           temperature: 0.7,
         },
       });
-      const res = await model.generateContent(prompt);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`Timeout sau 35s khi gọi ${mName}`)), 35000)
+      );
+      const res = await Promise.race([model.generateContent(prompt), timeoutPromise]);
       const text = res.response.text().trim();
       const parsed = extractAndParseJson(text);
 

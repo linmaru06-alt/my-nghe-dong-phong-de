@@ -50,7 +50,16 @@ jobs:
             npx tsx scripts/ai-schedule-publisher.mjs
           fi
 
+      - name: Backup Sync to Supabase
+        if: failure()
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/seed-supabase.js
+
       - name: Commit & Push New Post If Updated
+        if: always()
         run: |
           set -e
           git config user.name "Dong Phong Auto Bot"

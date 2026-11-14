@@ -24,5 +24,7 @@
   { "id": "zebrawood", "name": "Gỗ Ngựa Vằn", "fullName": "Zebrawood Sọc Đen Vàng (Microberlinia brazzavillensis)", "origin": "Trung Phi (Gabon, Cameroon)", "rarity": "Quý hiếm độc đáo" },
   { "id": "petrified-wood", "name": "Gỗ Hóa Thạch", "fullName": "Gỗ Hóa Thạch Triệu Năm Hóa Ngọc", "origin": "Việt Nam, Madagascar, Mỹ, Indonesia", "rarity": "Khoáng vật phong thủy cổ đại" },
   { "id": "lebanon-cedar", "name": "Tuyết Tùng Lebanon", "fullName": "Lebanon Cedar (Cedrus libani)", "origin": "Lebanon & Địa Trung Hải", "rarity": "Gỗ thiêng Kinh Thánh Solomon" },
-  { "id": "bubinga", "name": "Gỗ Bubinga", "fullName": "Hồng Mộc Nu Waterfall Bubinga (Guibourtia demeusei)", "origin": "Châu Phi", "rarity": "Rất quý hiếm (CITES II)" }
+  { "id": "bubinga", "name": "Gỗ Bubinga", "fullName": "Hồng Mộc Nu Waterfall Bubinga (Guibourtia demeusei)", "origin": "Châu Phi", "rarity": "Rất quý hiếm (CITES II)" },
+  { "id": "chop-bach-xanh", "name": "Chớp Bách Xanh", "fullName": "Chớp Bách Xanh Mộc Châu (Calocedrus macrolepis)", "origin": "Mộc Châu, Việt Nam", "rarity": "Rất quý hiếm (Nhóm 2A)" },
+  { "id": "go-cam", "name": "Gỗ Cẩm", "fullName": "Gỗ Cẩm / Nu Cẩm Chỉ (Dalbergia oliveri)", "origin": "Việt Nam / Lào", "rarity": "Rất quý hiếm (Nhóm 1)" }
 ]

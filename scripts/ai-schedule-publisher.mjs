@@ -28,8 +28,9 @@ dotenv.config({ path: ".env.local" });
 dotenv.config();
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // 5 Mẫu Lời Kêu Gọi Zalo (Frictionless CTAs) giảm rào cản tâm lý mua hàng
 const ZALO_CTA_TEMPLATES = [
@@ -613,7 +614,14 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     }
   }
 
-  const postSlug = slugify(result.title);
+  let baseSlug = slugify(result.title);
+  let postSlug = baseSlug;
+  let counter = 1;
+  while (posts.some((p) => p.slug === postSlug)) {
+    counter++;
+    postSlug = `${baseSlug}-${counter}`;
+  }
+
   const vnDateStr = new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().split("T")[0];
   const newPost = {
     id: `pillar-${Date.now()}`,
@@ -653,32 +661,59 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
   await fs.writeFile(path.join(process.cwd(), "data", "posts.json"), JSON.stringify(posts, null, 2), "utf-8");
   console.log(`[Pillar-Engine] Đã ghi bài viết mới vào data/posts.json (Tổng số bài: ${posts.length})`);
 
-  // Đồng bộ lên Supabase nếu có key
-  if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
-    try {
-      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-      const { error: supaErr } = await supabase.from("posts").upsert({
-        id: newPost.id,
-        slug: newPost.slug,
-        title: newPost.title,
-        category: newPost.category,
-        excerpt: newPost.excerpt,
-        content: newPost.content,
-        thumbnail: newPost.thumbnail,
-        status: "published",
-        published_at: newPost.publishedAt,
-        created_at: new Date().toISOString(),
-        read_time: newPost.readingTime,
-        related_products: newPost.relatedProducts,
-      });
-      if (supaErr) {
-        console.error("[Pillar-Engine] ❌ Lỗi Supabase upsert:", supaErr.message);
-      } else {
+  // Đồng bộ lên Supabase nếu có key (Tự động thử lại 2-3 lần khi gặp sự cố mạng/fetch failed, throw lỗi nếu thất bại để run báo đỏ)
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: false },
+    });
+
+    const postPayload = {
+      id: newPost.id,
+      slug: newPost.slug,
+      title: newPost.title,
+      category: newPost.category,
+      excerpt: newPost.excerpt,
+      content: newPost.content,
+      thumbnail: newPost.thumbnail,
+      status: "published",
+      published_at: newPost.publishedAt,
+      created_at: new Date().toISOString(),
+      read_time: newPost.readingTime,
+      related_products: newPost.relatedProducts,
+    };
+
+    const maxRetries = 3;
+    let syncSuccess = false;
+    let lastError = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`[Pillar-Engine] 🔄 Đang đồng bộ bài viết lên Supabase (Lần thử ${attempt}/${maxRetries})...`);
+        const { error: supaErr } = await supabase.from("posts").upsert(postPayload, { onConflict: "id" });
+        if (supaErr) {
+          throw new Error(supaErr.message);
+        }
         console.log("[Pillar-Engine] ✅ Đã đồng bộ bài viết thành công lên Supabase");
+        syncSuccess = true;
+        break;
+      } catch (err) {
+        lastError = err;
+        console.warn(`[Pillar-Engine] ⚠️ Lần thử ${attempt}/${maxRetries} thất bại (${err.message}).`);
+        if (attempt < maxRetries) {
+          const waitMs = attempt * 3000;
+          console.log(`[Pillar-Engine] ⏳ Đang đợi ${waitMs / 1000}s trước khi thử lại...`);
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+        }
       }
-    } catch (dbErr) {
-      console.warn("[Pillar-Engine] Cảnh báo kết nối Supabase:", dbErr.message);
     }
+
+    if (!syncSuccess) {
+      const errMsg = `[Pillar-Engine] ❌ Lỗi Supabase upsert: Đã thử lại ${maxRetries} lần nhưng vẫn thất bại: ${lastError?.message || lastError}`;
+      console.error(errMsg);
+      throw new Error(errMsg);
+    }
+  } else {
+    console.warn("[Pillar-Engine] ⚠️ Bỏ qua đồng bộ Supabase: Không tìm thấy SUPABASE_URL hoặc SUPABASE_KEY");
   }
 
   return newPost;

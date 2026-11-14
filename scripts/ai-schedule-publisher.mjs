@@ -373,81 +373,40 @@ async function generatePillarArticle(category, slotName) {
     } catch {}
   }
 
-  // Bộ lọc 4 lớp chống trùng lặp nội dung tuyệt đối:
-  function isTopicAlreadyPublished(t) {
-    const tTitleLower = t.title.toLowerCase();
+  // 3. Cơ chế Lựa chọn Chủ đề Chuẩn hóa & Luân chuyển Ngũ Hành V4.0
+  const NGU_HANH_CYCLE = ["kim", "moc", "thuy", "hoa", "tho"];
+  const ELEMENT_PATTERNS = {
+    kim: ["mệnh kim", "hợp mệnh kim", "kiếm phong kim", "thoa xuyến kim", "bạch lạp kim", "hải trung kim", "sa trung kim", "kim bách kim"],
+    moc: ["mệnh mộc", "hợp mệnh mộc", "đại lâm mộc", "dương liễu mộc", "tùng bách mộc", "bình địa mộc", "tang đố mộc", "thạch lựu mộc"],
+    thuy: ["mệnh thủy", "hợp mệnh thủy", "giản hạ thủy", "tuyền trung thủy", "trường lưu thủy", "thiên hà thủy", "đại khê thủy", "đại hải thủy"],
+    hoa: ["mệnh hỏa", "hợp mệnh hỏa", "lư trung hỏa", "sơn đầu hỏa", "tích lịch hỏa", "sơn hạ hỏa", "phúc đăng hỏa", "thiên thượng hỏa", "huyết long"],
+    tho: ["mệnh thổ", "hợp mệnh thổ", "lộ bàng thổ", "thành đầu thổ", "ốc thượng thổ", "bích thượng thổ", "đại dịch thổ", "sa trung thổ"]
+  };
 
-    // Lớp 1: Đã nằm trong danh sách publishedTopics
-    if (publishedTopics.some((pt) => pt.toLowerCase() === tTitleLower)) {
-      return true;
+  function detectElement(text) {
+    const lower = (text || "").toLowerCase();
+    for (const [el, kws] of Object.entries(ELEMENT_PATTERNS)) {
+      if (kws.some((k) => lower.includes(k))) return el;
     }
-
-    // Lớp 2: Kiểm tra các năm sinh (vd: 1992, 1993, 1970, 1971, 2000, 2001...)
-    const years = t.title.match(/\b(19\d\d|20\d\d)\b/g);
-    if (years && years.length > 0) {
-      const yearMatched = dedupPosts.some((p) => {
-        const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
-        return years.some((y) => text.includes(y));
-      });
-      if (yearMatched) return true;
-    }
-
-    // Lớp 3: Kiểm tra từ khóa nghiên cứu đặc thù (researchKeywords)
-    if (t.researchKeywords && t.researchKeywords.length > 0) {
-      const kwMatched = dedupPosts.some((p) => {
-        const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
-        return t.researchKeywords.some((kw) => {
-          const kwClean = kw.trim().toLowerCase();
-          return kwClean.length >= 8 && text.includes(kwClean);
-        });
-      });
-      if (kwMatched) return true;
-    }
-
-    // Lớp 4: Kiểm tra độ tương đồng từ vựng tiêu đề (Word Overlap >= 60%)
-    const tWords = tTitleLower
-      .replace(/[^\p{L}\p{N}\s]/gu, "")
-      .split(/\s+/)
-      .filter((w) => w.length > 3);
-    const titleMatched = dedupPosts.some((p) => {
-      const pText = `${p.title} ${p.slug}`.toLowerCase();
-      const matchCount = tWords.filter((w) => pText.includes(w)).length;
-      return tWords.length > 0 && matchCount / tWords.length >= 0.6;
-    });
-    if (titleMatched) return true;
-
-    return false;
+    return null;
   }
 
-  // 3. Chọn topic tiếp theo chưa từng được viết (áp dụng Round-Robin Ngũ Hành cho huong-dan-lua-chon)
-  const remainingTopics = matchedPillar.topics.filter((t) => !isTopicAlreadyPublished(t));
+  // Hàm tính khoảng cách thời gian kể từ lần cuối chủ đề này được viết (càng lớn = càng lâu chưa viết, Infinity = chưa từng viết)
+  function getTopicRecencyDistance(topicTitle) {
+    const lowerTitle = topicTitle.toLowerCase();
+    const titleKey = lowerTitle.replace(/[^\p{L}\p{N}\s]/gu, "").slice(0, 30);
+    const idx = dedupPosts.findIndex((p) => {
+      const pText = `${p.title} ${p.pillarTopic || ""}`.toLowerCase();
+      return pText.includes(titleKey);
+    });
+    return idx === -1 ? Infinity : idx;
+  }
+
   let selectedTopic = null;
 
   if (category === "huong-dan-lua-chon") {
-    // Chu kỳ Ngũ Hành xoay vòng: Kim -> Mộc -> Thủy -> Hỏa -> Thổ -> Kim
-    const NGU_HANH_CYCLE = ["kim", "moc", "thuy", "hoa", "tho"];
-    const ELEMENT_PATTERNS = {
-      kim: ["mệnh kim", "hợp mệnh kim", "kiếm phong kim", "thoa xuyến kim", "bạch lạp kim", "hải trung kim", "sa trung kim", "kim bách kim"],
-      moc: ["mệnh mộc", "hợp mệnh mộc", "đại lâm mộc", "dương liễu mộc", "tùng bách mộc", "bình địa mộc", "tang đố mộc", "thạch lựu mộc"],
-      thuy: ["mệnh thủy", "hợp mệnh thủy", "giản hạ thủy", "tuyền trung thủy", "trường lưu thủy", "thiên hà thủy", "đại khê thủy", "đại hải thủy"],
-      hoa: ["mệnh hỏa", "hợp mệnh hỏa", "lư trung hỏa", "sơn đầu hỏa", "tích lịch hỏa", "sơn hạ hỏa", "phúc đăng hỏa", "thiên thượng hỏa"],
-      tho: ["mệnh thổ", "hợp mệnh thổ", "lộ bàng thổ", "thành đầu thổ", "ốc thượng thổ", "bích thượng thổ", "đại dịch thổ", "sa trung thổ"]
-    };
-
-    function detectElement(text) {
-      const lower = (text || "").toLowerCase();
-      for (const [el, kws] of Object.entries(ELEMENT_PATTERNS)) {
-        if (kws.some((k) => lower.includes(k))) return el;
-      }
-      return null;
-    }
-
-    // Tìm bài viết gần nhất của chuyên mục huong-dan-lua-chon
-    const recentHdlc = dedupPosts
-      .filter((p) => p.category === "huong-dan-lua-chon")
-      .slice(0, 5);
-
-    // Xác định mệnh của bài gần nhất
+    // 1. Tìm mệnh của bài viết gần đây nhất trong chuyên mục huong-dan-lua-chon
+    const recentHdlc = dedupPosts.filter((p) => p.category === "huong-dan-lua-chon");
     let lastElement = null;
     for (const post of recentHdlc) {
       const el = detectElement(`${post.title} ${post.pillarTopic || ""}`);
@@ -457,40 +416,35 @@ async function generatePillarArticle(category, slotName) {
       }
     }
 
-    // Xoay vòng sang mệnh tiếp theo
-    let targetElements = [...NGU_HANH_CYCLE];
-    if (lastElement) {
-      const lastIdx = NGU_HANH_CYCLE.indexOf(lastElement);
-      targetElements = [
-        ...NGU_HANH_CYCLE.slice(lastIdx + 1),
-        ...NGU_HANH_CYCLE.slice(0, lastIdx + 1)
-      ];
-    }
+    // 2. Xác định mệnh mục tiêu theo chu kỳ Ngũ Hành (Kim ➔ Mộc ➔ Thủy ➔ Hỏa ➔ Thổ)
+    const lastIdx = lastElement ? NGU_HANH_CYCLE.indexOf(lastElement) : -1;
+    const targetElement = NGU_HANH_CYCLE[(lastIdx + 1) % NGU_HANH_CYCLE.length];
 
-    // Tìm topic đầu tiên khớp với mệnh mục tiêu kế tiếp
-    for (const targetEl of targetElements) {
-      const elMatch = remainingTopics.find((t) => {
-        const text = `${t.title} ${(t.researchKeywords || []).join(" ")}`;
-        return detectElement(text) === targetEl;
-      });
-      if (elMatch) {
-        selectedTopic = elMatch;
-        console.log(`[Pillar-Engine] 🔄 Luân chuyển Ngũ Hành (${(lastElement || 'khởi đầu').toUpperCase()} ➔ ${targetEl.toUpperCase()}): Chọn chủ đề "${selectedTopic.title}"`);
-        break;
-      }
-    }
+    // 3. Lọc toàn bộ danh sách chủ đề thuộc mệnh mục tiêu
+    const elementTopics = matchedPillar.topics.filter((t) => {
+      const text = `${t.title} ${(t.researchKeywords || []).join(" ")}`;
+      return detectElement(text) === targetElement;
+    });
+
+    console.log(`[Pillar-Engine] 🔄 Luân chuyển Ngũ Hành: Bài gần nhất là [${(lastElement || 'khởi đầu').toUpperCase()}] ➔ Ca này chọn mệnh [${targetElement.toUpperCase()}]`);
+
+    // 4. Ưu tiên các chủ đề chưa từng viết hoặc đã viết lâu nhất của mệnh này (chống dồn cục 1 bài)
+    elementTopics.sort((a, b) => getTopicRecencyDistance(b.title) - getTopicRecencyDistance(a.title));
+    selectedTopic = elementTopics[0];
+  } else {
+    // Đối với kien-thuc-ve-go hoặc các chuyên mục khác: sắp xếp theo độ lâu chưa viết
+    const sortedTopics = [...matchedPillar.topics].sort(
+      (a, b) => getTopicRecencyDistance(b.title) - getTopicRecencyDistance(a.title)
+    );
+    selectedTopic = sortedTopics[0];
   }
 
   if (!selectedTopic) {
-    selectedTopic = remainingTopics[0];
-  }
-
-  if (!selectedTopic) {
-    console.warn(`[Pillar-Engine] Đã hoàn thành 100% các chủ đề của chuyên mục ${category}! Reset chu kỳ mới.`);
     selectedTopic = matchedPillar.topics[0];
   }
 
-  console.log(`[Pillar-Engine] Đã chọn chủ đề chưa viết: "${selectedTopic.title}" (Còn lại: ${remainingTopics.length - 1}/${matchedPillar.topics.length} chủ đề)`);
+  const recencyDist = getTopicRecencyDistance(selectedTopic.title);
+  console.log(`[Pillar-Engine] 🎯 Đã chọn chủ đề xuất bản: "${selectedTopic.title}" (Khoảng cách bài trước: ${recencyDist === Infinity ? 'Mới hoàn toàn (Chưa từng viết)' : recencyDist + ' bài'})`);
 
   const prompt = `
 Bạn là Chuyên gia thẩm định và nghiên cứu đồ gỗ quý cao cấp tại thương hiệu "Mỹ Nghệ Đông Phong".

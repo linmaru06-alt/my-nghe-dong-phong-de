@@ -13,7 +13,11 @@ if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder("ipv4first");
 }
 
-// Đọc file .env.local thủ công nếu chưa nạp
+function cleanEnv(val) {
+  if (!val) return "";
+  return String(val).trim().replace(/^["']|["']$/g, "").trim();
+}
+
 function loadEnv() {
   const envPath = path.join(__dirname, "..", ".env.local");
   if (fs.existsSync(envPath)) {
@@ -22,7 +26,7 @@ function loadEnv() {
       const trimmed = line.trim();
       if (trimmed && !trimmed.startsWith("#") && trimmed.includes("=")) {
         const [k, ...v] = trimmed.split("=");
-        process.env[k.trim()] = v.join("=").trim().replace(/^["']|["']$/g, "");
+        process.env[k.trim()] = cleanEnv(v.join("="));
       }
     });
   }
@@ -30,9 +34,9 @@ function loadEnv() {
 
 loadEnv();
 
-const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim();
+const SUPABASE_URL = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
 // Ưu tiên SERVICE_ROLE_KEY nếu có để bypass RLS khi seed, nếu không thì dùng ANON_KEY
-const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+const SUPABASE_KEY = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes("your-project-id")) {
   console.error("\n❌ LỖI: Chưa cấu hình NEXT_PUBLIC_SUPABASE_URL hoặc NEXT_PUBLIC_SUPABASE_ANON_KEY trong file .env.local!");

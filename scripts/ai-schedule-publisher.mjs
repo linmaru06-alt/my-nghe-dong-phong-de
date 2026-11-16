@@ -33,10 +33,15 @@ if (dns.setDefaultResultOrder) {
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
-const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || "").trim();
-const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim();
-const SUPABASE_SERVICE_ROLE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+function cleanEnv(val) {
+  if (!val) return "";
+  return String(val).trim().replace(/^["']|["']$/g, "").trim();
+}
+
+const GEMINI_API_KEY = cleanEnv(process.env.GEMINI_API_KEY);
+const SUPABASE_URL = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
+const SUPABASE_SERVICE_ROLE_KEY = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
+const SUPABASE_KEY = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 // 5 Mẫu Lời Kêu Gọi Zalo (Frictionless CTAs) giảm rào cản tâm lý mua hàng
 const ZALO_CTA_TEMPLATES = [
@@ -151,7 +156,7 @@ export async function findRealWebImage(title, woodTypes = []) {
           }
         }
       }
-    } catch {}
+    } catch { }
 
     // 2. Thử qua DDG HTML Web Search + trích xuất trang web thật
     try {
@@ -183,7 +188,7 @@ export async function findRealWebImage(title, woodTypes = []) {
             if (pageRes.ok) {
               const pageHtml = await pageRes.text();
               const ogMatch = pageHtml.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
-                              pageHtml.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+                pageHtml.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
               let imgUrl = ogMatch ? ogMatch[1] : null;
               if (!imgUrl) {
                 const imgTag = pageHtml.match(/<img[^>]+(?:src|data-src)=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
@@ -197,10 +202,10 @@ export async function findRealWebImage(title, woodTypes = []) {
                 }
               }
             }
-          } catch {}
+          } catch { }
         }
       }
-    } catch {}
+    } catch { }
   }
 
   // Backup pool các ảnh thật chất lượng cao từ web
@@ -359,7 +364,7 @@ async function generatePillarArticle(category, slotName) {
   try {
     const pubRaw = await fs.readFile(pubTopicsPath, "utf-8");
     publishedTopics = JSON.parse(pubRaw).publishedTopics || [];
-  } catch {}
+  } catch { }
 
   // 2. Đọc danh sách bài viết hiện có từ data/posts.json kết hợp Supabase
   const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
@@ -376,7 +381,7 @@ async function generatePillarArticle(category, slotName) {
           if (!existingIds.has(sp.id)) dedupPosts.push(sp);
         }
       }
-    } catch {}
+    } catch { }
   }
 
   // 3. Cơ chế Lựa chọn Chủ đề Chuẩn hóa & Luân chuyển Ngũ Hành V4.0

@@ -5,7 +5,13 @@
 
 const fs = require("fs");
 const path = require("path");
+const dns = require("node:dns");
 const { createClient } = require("@supabase/supabase-js");
+
+// Đảm bảo ưu tiên IPv4 trước IPv6 trong môi trường CI/CD (GitHub Actions) để tránh lỗi "TypeError: fetch failed"
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
 
 // Đọc file .env.local thủ công nếu chưa nạp
 function loadEnv() {
@@ -24,9 +30,9 @@ function loadEnv() {
 
 loadEnv();
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim();
 // Ưu tiên SERVICE_ROLE_KEY nếu có để bypass RLS khi seed, nếu không thì dùng ANON_KEY
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
 
 if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes("your-project-id")) {
   console.error("\n❌ LỖI: Chưa cấu hình NEXT_PUBLIC_SUPABASE_URL hoặc NEXT_PUBLIC_SUPABASE_ANON_KEY trong file .env.local!");
@@ -50,7 +56,8 @@ async function upsertWithRetry(tableName, data, options = { onConflict: "id" }, 
       return resData;
     } catch (err) {
       lastError = err;
-      console.warn(`⚠️ [${tableName}] Lần thử ${attempt}/${maxRetries} gặp sự cố: ${err.message}`);
+      const causeMsg = err.cause ? ` (Chi tiết cause: ${err.cause.code || err.cause.message || JSON.stringify(err.cause)})` : "";
+      console.warn(`⚠️ [${tableName}] Lần thử ${attempt}/${maxRetries} gặp sự cố: ${err.message}${causeMsg}`);
       if (attempt < maxRetries) {
         const waitMs = attempt * 2500;
         console.log(`⏳ Đang đợi ${waitMs / 1000}s trước khi thử lại...`);
@@ -135,11 +142,13 @@ async function seed() {
     }
   }
 
-  // 4. Đồng bộ Posts
+  // 4. Đồng bộ Posts (chỉ đồng bộ các bài đã xuất bản, giữ lại các bài draft/hold)
   const postsPath = path.join(__dirname, "..", "data", "posts.json");
   if (fs.existsSync(postsPath)) {
     const rawPosts = JSON.parse(fs.readFileSync(postsPath, "utf-8"));
-    const posts = rawPosts.map((b) => ({
+    const posts = rawPosts
+      .filter((b) => b.status !== "draft" && b.status !== "hold")
+      .map((b) => ({
       id: b.id,
       title: b.title,
       slug: b.slug,

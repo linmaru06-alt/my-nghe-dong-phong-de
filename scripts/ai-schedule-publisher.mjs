@@ -20,17 +20,23 @@
 
 import fs from "fs/promises";
 import path from "path";
+import dns from "node:dns";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 
+// Đảm bảo ưu tiên IPv4 trước IPv6 trong môi trường CI/CD (GitHub Actions) để tránh lỗi "TypeError: fetch failed"
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
+
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || "").trim();
+const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim();
+const SUPABASE_SERVICE_ROLE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
 
 // 5 Mẫu Lời Kêu Gọi Zalo (Frictionless CTAs) giảm rào cản tâm lý mua hàng
 const ZALO_CTA_TEMPLATES = [
@@ -652,7 +658,8 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
         break;
       } catch (err) {
         lastError = err;
-        console.warn(`[Pillar-Engine] ⚠️ Lần thử ${attempt}/${maxRetries} thất bại (${err.message}).`);
+        const causeMsg = err.cause ? ` (Chi tiết cause: ${err.cause.code || err.cause.message || JSON.stringify(err.cause)})` : "";
+        console.warn(`[Pillar-Engine] ⚠️ Lần thử ${attempt}/${maxRetries} thất bại (${err.message}${causeMsg}).`);
         if (attempt < maxRetries) {
           const waitMs = attempt * 3000;
           console.log(`[Pillar-Engine] ⏳ Đang đợi ${waitMs / 1000}s trước khi thử lại...`);
@@ -662,7 +669,8 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     }
 
     if (!syncSuccess) {
-      const errMsg = `[Pillar-Engine] ❌ Lỗi Supabase upsert: Đã thử lại ${maxRetries} lần nhưng vẫn thất bại: ${lastError?.message || lastError}`;
+      const causeMsg = lastError?.cause ? ` (Chi tiết cause: ${lastError.cause.code || lastError.cause.message || JSON.stringify(lastError.cause)})` : "";
+      const errMsg = `[Pillar-Engine] ❌ Lỗi Supabase upsert: Đã thử lại ${maxRetries} lần nhưng vẫn thất bại: ${lastError?.message || lastError}${causeMsg}`;
       console.error(errMsg);
       throw new Error(errMsg);
     }

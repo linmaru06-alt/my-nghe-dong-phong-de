@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      NODE_OPTIONS: "--dns-result-order=ipv4first"
 
     steps:
       - name: Checkout repository

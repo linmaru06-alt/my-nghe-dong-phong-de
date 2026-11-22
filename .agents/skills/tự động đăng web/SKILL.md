@@ -16,3 +16,4 @@ Thư mục này tổng hợp 4 bộ kỹ năng chuyên trách vận hành toàn 
 2. **[programmatic-seo](./programmatic-seo/SKILL.md)**: Cổng kiểm soát dữ liệu tự động, ma trận Content Pillar, chống trùng lặp slug, chống dồn cục từ khóa và xoay vòng Ngũ Hành.
 3. **[blog-seo-check](./blog-seo-check/SKILL.md)**: Thanh tra và kiểm duyệt chất lượng kỹ thuật (tự động gắn `alt` ảnh mộc thật, kiểm tra liên kết nội bộ 7 danh mục, gắn khối lời tâm sự Zalo nghệ nhân).
 4. **[ci-failure-triage](./ci-failure-triage/SKILL.md)**: Chẩn đoán, truy vết và xử lý nhanh mọi sự cố GitHub Actions CI/CD khi xuất bản bài viết tự động.
+

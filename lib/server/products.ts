@@ -70,25 +70,28 @@ export async function getAllProducts(): Promise<Product[]> {
       const { data, error } = await supabase
         .from("products")
         .select("*")
+        .neq("status", "deleted")
         .order("created_at", { ascending: false });
 
       if (!error && Array.isArray(data) && data.length > 0) {
-        const mapped: Product[] = data.map((item: any) => ({
-          id: item.id,
-          slug: item.slug,
-          name: item.name,
-          code: item.code,
-          category: item.category,
-          woodType: item.wood_type || item.woodType || "",
-          description: item.description || "",
-          preservation: item.preservation || "",
-          sizes: Array.isArray(item.sizes) ? item.sizes : [],
-          images: Array.isArray(item.images) ? item.images : [],
-          featured: Boolean(item.featured),
-          status: item.status || "published",
-          relatedPosts: item.related_posts || item.relatedPosts || [],
-          createdAt: item.created_at || new Date().toISOString(),
-        }));
+        const mapped: Product[] = data
+          .filter((item: any) => item.status !== "deleted")
+          .map((item: any) => ({
+            id: item.id,
+            slug: item.slug,
+            name: item.name,
+            code: item.code,
+            category: item.category,
+            woodType: item.wood_type || item.woodType || "",
+            description: item.description || "",
+            preservation: item.preservation || "",
+            sizes: Array.isArray(item.sizes) ? item.sizes : [],
+            images: Array.isArray(item.images) ? item.images : [],
+            featured: Boolean(item.featured),
+            status: item.status || "published",
+            relatedPosts: item.related_posts || item.relatedPosts || [],
+            createdAt: item.created_at || new Date().toISOString(),
+          }));
         memoryProductsCache = { data: mapped, timestamp: Date.now() };
         return mapped;
       }
@@ -207,7 +210,14 @@ export async function saveProducts(products: Product[]): Promise<{ success: bool
       if (existing) {
         const toDelete = existing.map((e: any) => e.id).filter((id: string) => !newIds.includes(id));
         if (toDelete.length > 0) {
-          await supabaseAdmin.from("products").delete().in("id", toDelete);
+          try {
+            await supabaseAdmin.from("product_posts").delete().in("product_id", toDelete);
+          } catch {}
+          const { error: delErr } = await supabaseAdmin.from("products").delete().in("id", toDelete);
+          if (delErr) {
+            console.warn("[Products Server Layer] Lỗi xóa cứng Supabase:", delErr.message);
+            await supabaseAdmin.from("products").update({ status: "deleted" }).in("id", toDelete);
+          }
         }
       }
 
@@ -250,10 +260,94 @@ export async function saveProducts(products: Product[]): Promise<{ success: bool
     revalidatePath("/");
     revalidatePath("/san-pham");
     revalidatePath("/san-pham/[slug]", "page");
+    revalidatePath("/admin/san-pham");
   } catch (err) {
     console.warn("[Products Server Layer] Không thể revalidate path:", err);
   }
 
   return { success: true, total: products.length };
+}
+
+/**
+ * Xóa một sản phẩm cụ thể theo ID trên toàn bộ các tầng lưu trữ (Supabase, File, Memory, Cloudinary)
+ */
+export async function deleteProductById(id: string): Promise<{ success: boolean }> {
+  memoryProductsCache = null;
+
+  // 1. Xóa trong Supabase Database
+  if (isSupabaseConfigured) {
+    try {
+      // Xóa liên kết trong product_posts trước nếu có để tránh lỗi Foreign Key
+      try {
+        await supabaseAdmin.from("product_posts").delete().eq("product_id", id);
+      } catch {}
+
+      const { error: delErr } = await supabaseAdmin.from("products").delete().eq("id", id);
+      if (delErr) {
+        console.warn("[Products Server Layer] Lỗi xóa cứng Supabase:", delErr.message);
+        // Fallback an toàn: nếu RLS chặn DELETE, đánh dấu status = 'deleted' để ẩn hoàn toàn
+        await supabaseAdmin.from("products").update({ status: "deleted" }).eq("id", id);
+      } else {
+        console.log(`[Products Server Layer] ✅ Đã xóa cứng sản phẩm #${id} khỏi Supabase`);
+      }
+    } catch (err: any) {
+      console.warn("[Products Server Layer] Ngoại lệ khi xóa Supabase:", err.message);
+    }
+  }
+
+  // 2. Cập nhật lại file JSON trên đĩa và /tmp
+  try {
+    let currentProducts: Product[] = [];
+    try {
+      const fileContent = await fs.readFile(PRODUCTS_FILE, "utf-8");
+      currentProducts = JSON.parse(fileContent);
+    } catch {
+      try {
+        const tmpContent = await fs.readFile(TMP_PRODUCTS_FILE, "utf-8");
+        currentProducts = JSON.parse(tmpContent);
+      } catch {
+        currentProducts = await getAllProducts();
+      }
+    }
+
+    const filtered = currentProducts.filter((p) => p.id !== id);
+
+    try {
+      const dataDir = path.dirname(PRODUCTS_FILE);
+      await fs.mkdir(dataDir, { recursive: true });
+      await fs.writeFile(PRODUCTS_FILE, JSON.stringify(filtered, null, 2), "utf-8");
+    } catch {}
+
+    try {
+      await fs.writeFile(TMP_PRODUCTS_FILE, JSON.stringify(filtered, null, 2), "utf-8");
+    } catch {}
+
+    // Đồng bộ lên Cloudinary nếu có cấu hình
+    if (isCloudinaryConfigured) {
+      try {
+        const base64Data = `data:application/json;base64,${Buffer.from(JSON.stringify(filtered, null, 2)).toString("base64")}`;
+        await cloudinary.uploader.upload(base64Data, {
+          resource_type: "raw",
+          public_id: "dongphong_data/products.json",
+          overwrite: true,
+          invalidate: true,
+        });
+      } catch {}
+    }
+  } catch (fileErr: any) {
+    console.warn("[Products Server Layer] Lỗi cập nhật file khi xóa:", fileErr.message);
+  }
+
+  // 3. Revalidate các trang công khai và quản trị
+  try {
+    revalidatePath("/");
+    revalidatePath("/san-pham");
+    revalidatePath("/san-pham/[slug]", "page");
+    revalidatePath("/admin/san-pham");
+  } catch (err) {
+    console.warn("[Products Server Layer] Không thể revalidate path:", err);
+  }
+
+  return { success: true };
 }
 

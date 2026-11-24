@@ -31,6 +31,10 @@ export default function BlogClient({ initialTab = "", initialPosts }: BlogClient
   const rawPosts: Post[] = initialPosts || (postsData as unknown as Post[]);
   const posts = React.useMemo(() => {
     return [...rawPosts].sort((a, b) => {
+      // Bài viết nổi bật (featured) luôn lên đầu
+      if (a.featured && !b.featured) return -1;
+      if (!a.featured && b.featured) return 1;
+      // Cùng mức featured thì sắp theo ngày mới nhất
       const dateA = new Date(a.publishedAt || 0).getTime();
       const dateB = new Date(b.publishedAt || 0).getTime();
       return dateB - dateA;
@@ -46,9 +50,9 @@ export default function BlogClient({ initialTab = "", initialPosts }: BlogClient
     ? posts.filter((p) => p.category === activeTab && p.status === "published")
     : posts.filter((p) => p.status === "published");
 
-  // Bài viết tiêu điểm đầu tiên
-  const featuredPost = filteredPosts[0];
-  const remainingPosts = filteredPosts.slice(1);
+  // Bài viết tiêu điểm: ưu tiên bài featured đầu tiên, nếu không có thì lấy bài mới nhất
+  const featuredPost = filteredPosts.find((p) => p.featured) || filteredPosts[0];
+  const remainingPosts = filteredPosts.filter((p) => p !== featuredPost);
 
 
   return (

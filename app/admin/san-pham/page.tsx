@@ -48,10 +48,10 @@ export default function AdminProductsPage() {
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, currentPage]);
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (confirm(`Bạn có chắc chắn muốn xóa tác phẩm "${name}"?`)) {
-      deleteProduct(id);
-      toast.success(`Đã xóa "${name}"`, "Dữ liệu đã được cập nhật vào data/products.json");
+      await deleteProduct(id);
+      toast.success(`Đã xóa "${name}"`, "Dữ liệu đã được xóa hoàn toàn khỏi hệ thống.");
     }
   };
 

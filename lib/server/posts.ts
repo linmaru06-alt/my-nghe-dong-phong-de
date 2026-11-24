@@ -28,6 +28,7 @@ export interface Post {
   thumbnail: string;
   relatedProducts?: string[];
   tags?: string[];
+  featured?: boolean;
   status: "published" | "draft";
   publishedAt: string;
   readingTime: number;
@@ -79,6 +80,7 @@ export async function getAllPosts(): Promise<Post[]> {
           thumbnail: item.thumbnail || "",
           relatedProducts: item.related_products || item.relatedProducts || [],
           tags: item.tags || [],
+          featured: item.featured ?? false,
           status: item.status || "published",
           publishedAt: item.published_at || item.publishedAt || item.created_at || new Date().toISOString().split("T")[0],
           readingTime: item.read_time || item.readingTime || 5,
@@ -189,6 +191,7 @@ export async function savePosts(posts: Post[]): Promise<{ success: boolean; tota
         thumbnail: b.thumbnail || null,
         category: b.category,
         read_time: b.readingTime || 5,
+        featured: b.featured ?? false,
         status: b.status || "published",
         published_at: b.publishedAt || new Date().toISOString().split("T")[0],
         related_products: b.relatedProducts || [],
@@ -213,6 +216,7 @@ export async function savePosts(posts: Post[]): Promise<{ success: boolean; tota
             thumbnail: b.thumbnail || null,
             category: b.category,
             read_time: b.readingTime || 5,
+            featured: b.featured ?? false,
             status: b.status || "published",
           }));
           const { error: fallbackErr } = await supabaseAdmin.from("posts").upsert(fallbackPayload, { onConflict: "id" });

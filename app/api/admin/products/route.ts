@@ -44,3 +44,38 @@ export async function POST(req: Request) {
   }
 }
 
+// DELETE /api/admin/products?id=xxx - Xóa chính xác sản phẩm theo ID
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    let id = searchParams.get("id");
+    if (!id) {
+      try {
+        const body = await req.json();
+        id = body?.id;
+      } catch {}
+    }
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Thiếu tham số id sản phẩm cần xóa" },
+        { status: 400 }
+      );
+    }
+
+    const { deleteProductById } = await import("@/lib/server/products");
+    await deleteProductById(id);
+
+    return NextResponse.json({
+      success: true,
+      message: `Đã xóa sản phẩm ${id} thành công`,
+    });
+  } catch (error: any) {
+    console.error("[API /api/admin/products DELETE] Lỗi xóa sản phẩm:", error);
+    return NextResponse.json(
+      { success: false, error: error.message || "Lỗi khi xóa sản phẩm" },
+      { status: 500 }
+    );
+  }
+}
+

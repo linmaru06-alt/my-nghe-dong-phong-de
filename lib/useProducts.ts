@@ -70,6 +70,7 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const cleanData = json.data.filter((p: any) => p.status !== "deleted");
           const localStored = localStorage.getItem(STORAGE_KEY);
           const localTimestamp = Number(localStorage.getItem(STORAGE_KEY + "_timestamp") || 0);
           const now = Date.now();
@@ -78,13 +79,14 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
             try {
               const parsed = JSON.parse(localStored);
               if (Array.isArray(parsed) && parsed.length > 0) {
-                set({ products: parsed, isLoaded: true });
+                const cleanParsed = parsed.filter((p: any) => p.status !== "deleted");
+                set({ products: cleanParsed, isLoaded: true });
                 return;
               }
             } catch {}
           }
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(json.data));
-          set({ products: json.data, isLoaded: true });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanData));
+          set({ products: cleanData, isLoaded: true });
           return;
         }
       }
@@ -150,6 +152,15 @@ export const useProductsStore = create<ProductsState>((set, get) => ({
       localStorage.setItem(STORAGE_KEY + "_timestamp", Date.now().toString());
     }
     set({ products: list });
+
+    // 1. Gọi trực tiếp endpoint DELETE cho sản phẩm này
+    try {
+      await fetch(`/api/admin/products?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    } catch (e) {
+      console.warn("[useProducts] Lỗi khi gọi DELETE sản phẩm:", e);
+    }
+
+    // 2. Đồng bộ danh sách còn lại vào backend
     return await syncProductsToBackend(list);
   },
 

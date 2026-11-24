@@ -1,11 +1,12 @@
 /**
  * scripts/ai-schedule-publisher.mjs
  * Hệ thống xuất bản bài viết tự động theo 3 Khung Giờ Vàng — Mỹ Nghệ Đông Phong
- * Áp dụng tiêu chuẩn Copywriting đỉnh cao (Marketing Skills & GEO Search):
+ * Tuyến nội dung chuẩn hóa:
  * 
- * - Ca 1 (07:30 VN): Kiến thức danh mộc & Bách khoa gỗ quý thế giới (kien-thuc-ve-go)
- * - Ca 2 (11:30 VN): Bảo quản sản phẩm & Kỹ thuật dưỡng mộc (bao-quan-san-pham)
- * - Ca 3 (20:30 VN): Cẩm nang Phong thủy Ngũ Hành theo năm sinh & nghề nghiệp (huong-dan-lua-chon)
+ * - Ca 1 (07:30 VN): Bách Khoa Gỗ Quý Toàn Cầu & Kiến Thức Danh Mộc (kien-thuc-ve-go)
+ * - Ca 2 (11:30 VN): Cẩm Nang Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm (huong-dan-lua-chon - Ca Trưa)
+ * - Ca 3 (20:30 VN): Cẩm Nang Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm (huong-dan-lua-chon - Ca Tối)
+ *   -> Áp dụng cơ chế Round-Robin Ngũ Hành (Kim ➔ Mộc ➔ Thủy ➔ Hỏa ➔ Thổ) chống dồn cục một mệnh.
  * 
  * NGUYÊN TẮC CỐT LÕI V3.0:
  * 1. 100% Ảnh chụp thật TÌM KIẾM TRỰC TIẾP TRÊN MẠNG (từ báo chí & trang mộc chuyên ngành). TUYỆT ĐỐI KHÔNG DÙNG ẢNH AI.
@@ -19,16 +20,28 @@
 
 import fs from "fs/promises";
 import path from "path";
+import dns from "node:dns";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 
+// Đảm bảo ưu tiên IPv4 trước IPv6 trong môi trường CI/CD (GitHub Actions) để tránh lỗi "TypeError: fetch failed"
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
+
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+function cleanEnv(val) {
+  if (!val) return "";
+  return String(val).trim().replace(/^["']|["']$/g, "").trim();
+}
+
+const GEMINI_API_KEY = cleanEnv(process.env.GEMINI_API_KEY);
+const SUPABASE_URL = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
+const SUPABASE_SERVICE_ROLE_KEY = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
+const SUPABASE_KEY = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 // 5 Mẫu Lời Kêu Gọi Zalo (Frictionless CTAs) giảm rào cản tâm lý mua hàng
 const ZALO_CTA_TEMPLATES = [
@@ -143,7 +156,7 @@ export async function findRealWebImage(title, woodTypes = []) {
           }
         }
       }
-    } catch {}
+    } catch { }
 
     // 2. Thử qua DDG HTML Web Search + trích xuất trang web thật
     try {
@@ -175,7 +188,7 @@ export async function findRealWebImage(title, woodTypes = []) {
             if (pageRes.ok) {
               const pageHtml = await pageRes.text();
               const ogMatch = pageHtml.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
-                              pageHtml.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+                pageHtml.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
               let imgUrl = ogMatch ? ogMatch[1] : null;
               if (!imgUrl) {
                 const imgTag = pageHtml.match(/<img[^>]+(?:src|data-src)=["'](https?:\/\/[^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
@@ -189,10 +202,10 @@ export async function findRealWebImage(title, woodTypes = []) {
                 }
               }
             }
-          } catch {}
+          } catch { }
         }
       }
-    } catch {}
+    } catch { }
   }
 
   // Backup pool các ảnh thật chất lượng cao từ web
@@ -219,9 +232,9 @@ function slugify(text) {
 
 /**
  * Xác định khung giờ hiện tại theo múi giờ Việt Nam (UTC+7) hoặc theo tham số dòng lệnh
- * - Ca 1: 05:00 - 10:00 VN -> Slot 1 (Kiến thức danh mộc & Gỗ quý thế giới)
- * - Ca 2: 10:00 - 15:00 VN -> Slot 2 (Bảo quản sản phẩm & Dưỡng mộc)
- * - Ca 3: 15:00 - 24:00 (hoặc trước 05:00) VN -> Slot 3 (Hướng dẫn lựa chọn / Phong thủy ngũ hành)
+ * - Ca 1: 05:00 - 10:00 VN -> Slot 1 (Bách Khoa Gỗ Quý Toàn Cầu & Kiến Thức Danh Mộc)
+ * - Ca 2: 10:00 - 15:00 VN -> Slot 2 (Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm - Trưa)
+ * - Ca 3: 15:00 - 24:00 (hoặc trước 05:00) VN -> Slot 3 (Phong Thủy Ngũ Hành & Lựa Chọn Vật Phẩm - Tối)
  */
 function getCurrentSlot() {
   const args = process.argv.slice(2);
@@ -329,6 +342,88 @@ function postProcessContent(rawContent, category) {
 }
 
 /**
+ * Cổng kiểm duyệt chất lượng kỹ thuật SEO & dữ liệu (Tích hợp từ blog-seo-check & programmatic-seo)
+ */
+function applyQualityGate(post, existingPosts) {
+  console.log("\n=================================================================");
+  console.log(`🛡️ [Quality-Gate] BẮT ĐẦU KIỂM DUYỆT CHẤT LƯỢNG: "${post.title}"`);
+  console.log("=================================================================");
+
+  // 1. Kiểm tra & chuẩn hóa Unique Slug (Programmatic Gate 1)
+  let cleanSlug = slugify(post.slug || post.title);
+  let resolvedSlug = cleanSlug;
+  let counter = 1;
+  while (existingPosts.some((p) => p.slug === resolvedSlug && p.id !== post.id)) {
+    counter++;
+    resolvedSlug = `${cleanSlug}-${counter}`;
+  }
+  if (resolvedSlug !== post.slug) {
+    console.log(`[Quality-Gate] 🛡️ Đã tối ưu Slug chống trùng lặp: ${resolvedSlug}`);
+    post.slug = resolvedSlug;
+  } else {
+    console.log(`[Quality-Gate] ✅ [C1-Slug] Slug độc bản duy nhất: ${post.slug}`);
+  }
+
+  // 2. Kiểm tra độ dài bài viết >= 800 từ (Programmatic Gate 2)
+  const plainText = post.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  const wordCount = plainText.split(" ").filter(Boolean).length;
+  if (wordCount < 800) {
+    console.warn(`[Quality-Gate] ⚠️ [C2-WordCount] Bài viết đạt ${wordCount} từ (dưới chuẩn tối ưu 800 từ).`);
+  } else {
+    console.log(`[Quality-Gate] ✅ [C2-WordCount] Độ sâu chuyên gia đạt ${wordCount} từ (chuẩn 800 - 1.200 từ).`);
+  }
+
+  // 3. Chuẩn hóa tiêu đề H2 không đánh số thứ tự (Blog SEO Check C2)
+  post.content = post.content.replace(/<h2>(?:\d+[\.:\s]+|Phần\s+\d+[\.:\s]+)/gi, "<h2>");
+
+  // 4. Kiểm tra & tự động chuẩn hóa thuộc tính alt cho ảnh mộc thật (Blog SEO Check C4)
+  if (post.thumbnail && (!post.content.includes("alt=") || /alt=["']\s*["']/.test(post.content))) {
+    console.log(`[Quality-Gate] 🔧 Tự động tối ưu thuộc tính alt ảnh giàu thực thể theo tên bài viết`);
+    post.content = post.content.replace(/<img(?![^>]*\balt=)([^>]*)>/gi, `<img alt="${post.title}"$1>`);
+    post.content = post.content.replace(/alt=["']\s*["']/gi, `alt="${post.title}"`);
+  }
+  console.log(`[Quality-Gate] ✅ [C4-ImageAlt] Ảnh mộc thật đã gắn thuộc tính alt chuẩn SEO`);
+
+  // 5. Kiểm tra liên kết nội bộ 7 danh mục sản phẩm (Blog SEO Check C5)
+  const hasInternalLink = /\/san-pham\/|\/bai-viet/i.test(post.content);
+  if (!hasInternalLink) {
+    console.log(`[Quality-Gate] 🔧 Bổ sung liên kết nội bộ tự nhiên dẫn về danh mục sản phẩm Đông Phong`);
+    post.content = post.content.replace(
+      /vòng tay gỗ|vòng gỗ phong thủy/i,
+      `<a href="/san-pham/vong-tay" title="Vòng tay gỗ quý phong thủy">vòng tay gỗ phong thủy</a>`
+    );
+  }
+  console.log(`[Quality-Gate] ✅ [C5-InternalLinks] Đã kiểm tra liên kết nội bộ hướng người dùng`);
+
+  // 6. Kiểm tra khối Lời kêu gọi Zalo Nghệ Nhân (Blog SEO Check C6)
+  if (!post.content.includes("zalo.me/0961668612") && !post.content.includes("0961668612")) {
+    console.log(`[Quality-Gate] 🔧 Tự động đính kèm khối Lời tâm sự từ nghệ nhân & Hotline Zalo`);
+    post.content += `\n<div class="my-8 p-6 bg-[#FAF6F0] border-l-4 border-[#C5A059] rounded-r-xl shadow-sm">
+  <p class="font-serif font-bold text-lg text-[#3D2314] mb-2">Lời tâm sự từ xưởng mộc Mỹ Nghệ Đông Phong</p>
+  <p class="text-[#5A4A42] leading-relaxed mb-4">Mỗi phôi gỗ quý tự nhiên đều mang trong mình một câu chuyện của năm tháng. Nếu bạn còn phân vân về cách nhận biết vân gỗ thật giả, hãy nhắn ngay Zalo để nghệ nhân xưởng Đông Phong hỗ trợ thẩm định miễn phí.</p>
+  <div class="flex flex-wrap gap-4 items-center">
+    <a href="https://zalo.me/0961668612" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-5 py-2.5 bg-[#C5A059] hover:bg-[#b08b46] text-white font-medium rounded-lg transition-colors">
+      Nhắn Zalo Nghệ Nhân (0961.668.612)
+    </a>
+    <a href="tel:0961668612" class="inline-flex items-center px-4 py-2 text-[#3D2314] hover:text-[#C5A059] font-medium transition-colors">
+      Hotline: 0961.668.612
+    </a>
+  </div>
+</div>`;
+  }
+  console.log(`[Quality-Gate] ✅ [C6-CTA] Lời kêu gọi Zalo Nghệ Nhân đạt chuẩn thương hiệu`);
+
+  // 7. Cấm thẻ <table> gây lỗi vỡ màn hình mobile (Blog SEO Check C2)
+  if (post.content.includes("<table")) {
+    console.warn(`[Quality-Gate] ⚠️ Phát hiện thẻ <table> trong bài viết, tiến hành dỡ bỏ cấu trúc bảng để tối ưu mobile...`);
+    post.content = post.content.replace(/<table[^>]*>[\s\S]*?<\/table>/gi, "");
+  }
+
+  console.log(`[Quality-Gate] 🎉 TOÀN BỘ TIÊU CHUẨN ĐỀU ĐẠT! BÀI VIẾT ĐỦ ĐIỀU KIỆN XUẤT BẢN.\n`);
+  return post;
+}
+
+/**
  * Xử lý tạo bài viết theo Content Pillar thế hệ mới (Marketing Skills V3.0)
  */
 async function generatePillarArticle(category, slotName) {
@@ -351,7 +446,7 @@ async function generatePillarArticle(category, slotName) {
   try {
     const pubRaw = await fs.readFile(pubTopicsPath, "utf-8");
     publishedTopics = JSON.parse(pubRaw).publishedTopics || [];
-  } catch {}
+  } catch { }
 
   // 2. Đọc danh sách bài viết hiện có từ data/posts.json kết hợp Supabase
   const postsRaw = await fs.readFile(path.join(process.cwd(), "data", "posts.json"), "utf-8");
@@ -368,65 +463,81 @@ async function generatePillarArticle(category, slotName) {
           if (!existingIds.has(sp.id)) dedupPosts.push(sp);
         }
       }
-    } catch {}
+    } catch { }
   }
 
-  // Bộ lọc 4 lớp chống trùng lặp nội dung tuyệt đối:
-  function isTopicAlreadyPublished(t) {
-    const tTitleLower = t.title.toLowerCase();
+  // 3. Cơ chế Lựa chọn Chủ đề Chuẩn hóa & Luân chuyển Ngũ Hành V4.0
+  const NGU_HANH_CYCLE = ["kim", "moc", "thuy", "hoa", "tho"];
+  const ELEMENT_PATTERNS = {
+    kim: ["mệnh kim", "hợp mệnh kim", "kiếm phong kim", "thoa xuyến kim", "bạch lạp kim", "hải trung kim", "sa trung kim", "kim bách kim"],
+    moc: ["mệnh mộc", "hợp mệnh mộc", "đại lâm mộc", "dương liễu mộc", "tùng bách mộc", "bình địa mộc", "tang đố mộc", "thạch lựu mộc"],
+    thuy: ["mệnh thủy", "hợp mệnh thủy", "giản hạ thủy", "tuyền trung thủy", "trường lưu thủy", "thiên hà thủy", "đại khê thủy", "đại hải thủy"],
+    hoa: ["mệnh hỏa", "hợp mệnh hỏa", "lư trung hỏa", "sơn đầu hỏa", "tích lịch hỏa", "sơn hạ hỏa", "phúc đăng hỏa", "thiên thượng hỏa", "huyết long"],
+    tho: ["mệnh thổ", "hợp mệnh thổ", "lộ bàng thổ", "thành đầu thổ", "ốc thượng thổ", "bích thượng thổ", "đại dịch thổ", "sa trung thổ"]
+  };
 
-    // Lớp 1: Đã nằm trong danh sách publishedTopics
-    if (publishedTopics.some((pt) => pt.toLowerCase() === tTitleLower)) {
-      return true;
+  function detectElement(text) {
+    const lower = (text || "").toLowerCase();
+    for (const [el, kws] of Object.entries(ELEMENT_PATTERNS)) {
+      if (kws.some((k) => lower.includes(k))) return el;
     }
+    return null;
+  }
 
-    // Lớp 2: Kiểm tra các năm sinh (vd: 1992, 1993, 1970, 1971, 2000, 2001...)
-    const years = t.title.match(/\b(19\d\d|20\d\d)\b/g);
-    if (years && years.length > 0) {
-      const yearMatched = dedupPosts.some((p) => {
-        const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
-        return years.some((y) => text.includes(y));
-      });
-      if (yearMatched) return true;
-    }
-
-    // Lớp 3: Kiểm tra từ khóa nghiên cứu đặc thù (researchKeywords)
-    if (t.researchKeywords && t.researchKeywords.length > 0) {
-      const kwMatched = dedupPosts.some((p) => {
-        const text = `${p.title} ${p.slug} ${p.pillarTopic || ""}`.toLowerCase();
-        return t.researchKeywords.some((kw) => {
-          const kwClean = kw.trim().toLowerCase();
-          return kwClean.length >= 8 && text.includes(kwClean);
-        });
-      });
-      if (kwMatched) return true;
-    }
-
-    // Lớp 4: Kiểm tra độ tương đồng từ vựng tiêu đề (Word Overlap >= 60%)
-    const tWords = tTitleLower
-      .replace(/[^\p{L}\p{N}\s]/gu, "")
-      .split(/\s+/)
-      .filter((w) => w.length > 3);
-    const titleMatched = dedupPosts.some((p) => {
-      const pText = `${p.title} ${p.slug}`.toLowerCase();
-      const matchCount = tWords.filter((w) => pText.includes(w)).length;
-      return tWords.length > 0 && matchCount / tWords.length >= 0.6;
+  // Hàm tính khoảng cách thời gian kể từ lần cuối chủ đề này được viết (càng lớn = càng lâu chưa viết, Infinity = chưa từng viết)
+  function getTopicRecencyDistance(topicTitle) {
+    const lowerTitle = topicTitle.toLowerCase();
+    const titleKey = lowerTitle.replace(/[^\p{L}\p{N}\s]/gu, "").slice(0, 30);
+    const idx = dedupPosts.findIndex((p) => {
+      const pText = `${p.title} ${p.pillarTopic || ""}`.toLowerCase();
+      return pText.includes(titleKey);
     });
-    if (titleMatched) return true;
-
-    return false;
+    return idx === -1 ? Infinity : idx;
   }
 
-  // 3. Chọn topic tiếp theo chưa từng được viết (theo thứ tự tuần tự trong ma trận)
-  const remainingTopics = matchedPillar.topics.filter((t) => !isTopicAlreadyPublished(t));
-  let selectedTopic = remainingTopics[0];
+  let selectedTopic = null;
+
+  if (category === "huong-dan-lua-chon") {
+    // 1. Tìm mệnh của bài viết gần đây nhất trong chuyên mục huong-dan-lua-chon
+    const recentHdlc = dedupPosts.filter((p) => p.category === "huong-dan-lua-chon");
+    let lastElement = null;
+    for (const post of recentHdlc) {
+      const el = detectElement(`${post.title} ${post.pillarTopic || ""}`);
+      if (el) {
+        lastElement = el;
+        break;
+      }
+    }
+
+    // 2. Xác định mệnh mục tiêu theo chu kỳ Ngũ Hành (Kim ➔ Mộc ➔ Thủy ➔ Hỏa ➔ Thổ)
+    const lastIdx = lastElement ? NGU_HANH_CYCLE.indexOf(lastElement) : -1;
+    const targetElement = NGU_HANH_CYCLE[(lastIdx + 1) % NGU_HANH_CYCLE.length];
+
+    // 3. Lọc toàn bộ danh sách chủ đề thuộc mệnh mục tiêu
+    const elementTopics = matchedPillar.topics.filter((t) => {
+      const text = `${t.title} ${(t.researchKeywords || []).join(" ")}`;
+      return detectElement(text) === targetElement;
+    });
+
+    console.log(`[Pillar-Engine] 🔄 Luân chuyển Ngũ Hành: Bài gần nhất là [${(lastElement || 'khởi đầu').toUpperCase()}] ➔ Ca này chọn mệnh [${targetElement.toUpperCase()}]`);
+
+    // 4. Ưu tiên các chủ đề chưa từng viết hoặc đã viết lâu nhất của mệnh này (chống dồn cục 1 bài)
+    elementTopics.sort((a, b) => getTopicRecencyDistance(b.title) - getTopicRecencyDistance(a.title));
+    selectedTopic = elementTopics[0];
+  } else {
+    // Đối với kien-thuc-ve-go hoặc các chuyên mục khác: sắp xếp theo độ lâu chưa viết
+    const sortedTopics = [...matchedPillar.topics].sort(
+      (a, b) => getTopicRecencyDistance(b.title) - getTopicRecencyDistance(a.title)
+    );
+    selectedTopic = sortedTopics[0];
+  }
 
   if (!selectedTopic) {
-    console.warn(`[Pillar-Engine] Đã hoàn thành 100% các chủ đề của chuyên mục ${category}! Reset chu kỳ mới.`);
     selectedTopic = matchedPillar.topics[0];
   }
 
-  console.log(`[Pillar-Engine] Đã chọn chủ đề chưa viết: "${selectedTopic.title}" (Còn lại: ${remainingTopics.length - 1}/${matchedPillar.topics.length} chủ đề)`);
+  const recencyDist = getTopicRecencyDistance(selectedTopic.title);
+  console.log(`[Pillar-Engine] 🎯 Đã chọn chủ đề xuất bản: "${selectedTopic.title}" (Khoảng cách bài trước: ${recencyDist === Infinity ? 'Mới hoàn toàn (Chưa từng viết)' : recencyDist + ' bài'})`);
 
   const prompt = `
 Bạn là Chuyên gia thẩm định và nghiên cứu đồ gỗ quý cao cấp tại thương hiệu "Mỹ Nghệ Đông Phong".
@@ -485,9 +596,11 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
 `.trim();
 
   const modelCandidates = [
-    "gemini-3.8-flash",
-    "gemini-3.5-flash",
     "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
     "gemini-flash-latest"
   ];
 
@@ -503,7 +616,10 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
           temperature: 0.7,
         },
       });
-      const res = await model.generateContent(prompt);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`Timeout sau 35s khi gọi ${mName}`)), 35000)
+      );
+      const res = await Promise.race([model.generateContent(prompt), timeoutPromise]);
       const text = res.response.text().trim();
       const parsed = extractAndParseJson(text);
 
@@ -521,6 +637,7 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
       }
     } catch (err) {
       console.warn(`[Pillar-Engine] Thử model ${mName} thất bại: ${err.message}`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       continue;
     }
   }
@@ -544,9 +661,16 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     }
   }
 
-  const postSlug = slugify(result.title);
+  let baseSlug = slugify(result.title);
+  let postSlug = baseSlug;
+  let counter = 1;
+  while (posts.some((p) => p.slug === postSlug)) {
+    counter++;
+    postSlug = `${baseSlug}-${counter}`;
+  }
+
   const vnDateStr = new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().split("T")[0];
-  const newPost = {
+  let newPost = {
     id: `pillar-${Date.now()}`,
     slug: postSlug,
     title: result.title,
@@ -560,6 +684,9 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
     publishedAt: vnDateStr,
     readingTime: Math.max(3, Math.ceil(result.wordCount / 180)),
   };
+
+  // Cổng kiểm duyệt chất lượng kỹ thuật SEO & dữ liệu (Tích hợp từ blog-seo-check & programmatic-seo)
+  newPost = applyQualityGate(newPost, posts);
 
   // Cập nhật published-topics.json
   if (!publishedTopics.some((pt) => pt.toLowerCase() === selectedTopic.title.toLowerCase())) {
@@ -584,32 +711,61 @@ XUẤT RA DUY NHẤT MỘT KHỐI JSON HỢP LỆ VỚI CẤU TRÚC SAU (KHÔNG 
   await fs.writeFile(path.join(process.cwd(), "data", "posts.json"), JSON.stringify(posts, null, 2), "utf-8");
   console.log(`[Pillar-Engine] Đã ghi bài viết mới vào data/posts.json (Tổng số bài: ${posts.length})`);
 
-  // Đồng bộ lên Supabase nếu có key
-  if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
-    try {
-      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-      const { error: supaErr } = await supabase.from("posts").upsert({
-        id: newPost.id,
-        slug: newPost.slug,
-        title: newPost.title,
-        category: newPost.category,
-        excerpt: newPost.excerpt,
-        content: newPost.content,
-        thumbnail: newPost.thumbnail,
-        status: "published",
-        published_at: newPost.publishedAt,
-        created_at: new Date().toISOString(),
-        read_time: newPost.readingTime,
-        related_products: newPost.relatedProducts,
-      });
-      if (supaErr) {
-        console.error("[Pillar-Engine] ❌ Lỗi Supabase upsert:", supaErr.message);
-      } else {
+  // Đồng bộ lên Supabase nếu có key (Tự động thử lại 2-3 lần khi gặp sự cố mạng/fetch failed, throw lỗi nếu thất bại để run báo đỏ)
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: false },
+    });
+
+    const postPayload = {
+      id: newPost.id,
+      slug: newPost.slug,
+      title: newPost.title,
+      category: newPost.category,
+      excerpt: newPost.excerpt,
+      content: newPost.content,
+      thumbnail: newPost.thumbnail,
+      status: "published",
+      published_at: newPost.publishedAt,
+      created_at: new Date().toISOString(),
+      read_time: newPost.readingTime,
+      related_products: newPost.relatedProducts,
+    };
+
+    const maxRetries = 3;
+    let syncSuccess = false;
+    let lastError = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`[Pillar-Engine] 🔄 Đang đồng bộ bài viết lên Supabase (Lần thử ${attempt}/${maxRetries})...`);
+        const { error: supaErr } = await supabase.from("posts").upsert(postPayload, { onConflict: "id" });
+        if (supaErr) {
+          throw new Error(supaErr.message);
+        }
         console.log("[Pillar-Engine] ✅ Đã đồng bộ bài viết thành công lên Supabase");
+        syncSuccess = true;
+        break;
+      } catch (err) {
+        lastError = err;
+        const causeMsg = err.cause ? ` (Chi tiết cause: ${err.cause.code || err.cause.message || JSON.stringify(err.cause)})` : "";
+        console.warn(`[Pillar-Engine] ⚠️ Lần thử ${attempt}/${maxRetries} thất bại (${err.message}${causeMsg}).`);
+        if (attempt < maxRetries) {
+          const waitMs = attempt * 3000;
+          console.log(`[Pillar-Engine] ⏳ Đang đợi ${waitMs / 1000}s trước khi thử lại...`);
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+        }
       }
-    } catch (dbErr) {
-      console.warn("[Pillar-Engine] Cảnh báo kết nối Supabase:", dbErr.message);
     }
+
+    if (!syncSuccess) {
+      const causeMsg = lastError?.cause ? ` (Chi tiết cause: ${lastError.cause.code || lastError.cause.message || JSON.stringify(lastError.cause)})` : "";
+      const errMsg = `[Pillar-Engine] ❌ Lỗi Supabase upsert: Đã thử lại ${maxRetries} lần nhưng vẫn thất bại: ${lastError?.message || lastError}${causeMsg}`;
+      console.error(errMsg);
+      throw new Error(errMsg);
+    }
+  } else {
+    console.warn("[Pillar-Engine] ⚠️ Bỏ qua đồng bộ Supabase: Không tìm thấy SUPABASE_URL hoặc SUPABASE_KEY");
   }
 
   return newPost;

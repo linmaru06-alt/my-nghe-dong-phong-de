@@ -5,9 +5,19 @@
 
 const fs = require("fs");
 const path = require("path");
+const dns = require("node:dns");
 const { createClient } = require("@supabase/supabase-js");
 
-// Đọc file .env.local thủ công nếu chưa nạp
+// Đảm bảo ưu tiên IPv4 trước IPv6 trong môi trường CI/CD (GitHub Actions) để tránh lỗi "TypeError: fetch failed"
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
+
+function cleanEnv(val) {
+  if (!val) return "";
+  return String(val).trim().replace(/^["']|["']$/g, "").trim();
+}
+
 function loadEnv() {
   const envPath = path.join(__dirname, "..", ".env.local");
   if (fs.existsSync(envPath)) {
@@ -16,7 +26,7 @@ function loadEnv() {
       const trimmed = line.trim();
       if (trimmed && !trimmed.startsWith("#") && trimmed.includes("=")) {
         const [k, ...v] = trimmed.split("=");
-        process.env[k.trim()] = v.join("=").trim().replace(/^["']|["']$/g, "");
+        process.env[k.trim()] = cleanEnv(v.join("="));
       }
     });
   }
@@ -24,9 +34,9 @@ function loadEnv() {
 
 loadEnv();
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_URL = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
 // Ưu tiên SERVICE_ROLE_KEY nếu có để bypass RLS khi seed, nếu không thì dùng ANON_KEY
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_KEY = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes("your-project-id")) {
   console.error("\n❌ LỖI: Chưa cấu hình NEXT_PUBLIC_SUPABASE_URL hoặc NEXT_PUBLIC_SUPABASE_ANON_KEY trong file .env.local!");
@@ -34,7 +44,33 @@ if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes("your-project-id")) 
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false },
+});
+
+// Hàm hỗ trợ upsert có cơ chế thử lại tự động 3 lần (chống lỗi kết nối fetch failed)
+async function upsertWithRetry(tableName, data, options = { onConflict: "id" }, maxRetries = 3) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const { data: resData, error } = await supabase.from(tableName).upsert(data, options);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return resData;
+    } catch (err) {
+      lastError = err;
+      const causeMsg = err.cause ? ` (Chi tiết cause: ${err.cause.code || err.cause.message || JSON.stringify(err.cause)})` : "";
+      console.warn(`⚠️ [${tableName}] Lần thử ${attempt}/${maxRetries} gặp sự cố: ${err.message}${causeMsg}`);
+      if (attempt < maxRetries) {
+        const waitMs = attempt * 2500;
+        console.log(`⏳ Đang đợi ${waitMs / 1000}s trước khi thử lại...`);
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+      }
+    }
+  }
+  throw lastError;
+}
 
 async function seed() {
   console.log("\n🪵 BẮT ĐẦU ĐỒNG BỘ DỮ LIỆU MỸ NGHỆ ĐÔNG PHONG LÊN SUPABASE...");
@@ -53,11 +89,11 @@ async function seed() {
       display_order: c.order || 0,
     }));
 
-    const { error: catErr } = await supabase.from("categories").upsert(categories, { onConflict: "id" });
-    if (catErr) {
-      console.error("⚠️ Lỗi đồng bộ categories (kiểm tra bạn đã tạo bảng categories chưa):", catErr.message);
-    } else {
+    try {
+      await upsertWithRetry("categories", categories, { onConflict: "id" });
       console.log(`✅ Đã đồng bộ thành công ${categories.length} danh mục sản phẩm.`);
+    } catch (catErr) {
+      console.error("⚠️ Lỗi đồng bộ categories (kiểm tra bạn đã tạo bảng categories chưa):", catErr.message);
     }
   }
 
@@ -74,11 +110,11 @@ async function seed() {
       description: w.fullName || null,
     }));
 
-    const { error: woodErr } = await supabase.from("wood_types").upsert(woods, { onConflict: "id" });
-    if (woodErr) {
-      console.error("⚠️ Lỗi đồng bộ wood_types:", woodErr.message);
-    } else {
+    try {
+      await upsertWithRetry("wood_types", woods, { onConflict: "id" });
       console.log(`✅ Đã đồng bộ thành công ${woods.length} loại gỗ quý.`);
+    } catch (woodErr) {
+      console.error("⚠️ Lỗi đồng bộ wood_types:", woodErr.message);
     }
   }
 
@@ -102,19 +138,21 @@ async function seed() {
       related_posts: p.relatedPosts || [],
     }));
 
-    const { error: prodErr } = await supabase.from("products").upsert(products, { onConflict: "id" });
-    if (prodErr) {
-      console.error("⚠️ Lỗi đồng bộ products:", prodErr.message);
-    } else {
+    try {
+      await upsertWithRetry("products", products, { onConflict: "id" });
       console.log(`✅ Đã đồng bộ thành công ${products.length} sản phẩm mỹ nghệ.`);
+    } catch (prodErr) {
+      console.error("⚠️ Lỗi đồng bộ products:", prodErr.message);
     }
   }
 
-  // 4. Đồng bộ Posts
+  // 4. Đồng bộ Posts (chỉ đồng bộ các bài đã xuất bản, giữ lại các bài draft/hold)
   const postsPath = path.join(__dirname, "..", "data", "posts.json");
   if (fs.existsSync(postsPath)) {
     const rawPosts = JSON.parse(fs.readFileSync(postsPath, "utf-8"));
-    const posts = rawPosts.map((b) => ({
+    const posts = rawPosts
+      .filter((b) => b.status !== "draft" && b.status !== "hold")
+      .map((b) => ({
       id: b.id,
       title: b.title,
       slug: b.slug,
@@ -128,11 +166,12 @@ async function seed() {
       related_products: b.relatedProducts || [],
     }));
 
-    const { error: postErr } = await supabase.from("posts").upsert(posts, { onConflict: "id" });
-    if (postErr) {
-      console.error("⚠️ Lỗi đồng bộ posts:", postErr.message);
-    } else {
+    try {
+      await upsertWithRetry("posts", posts, { onConflict: "id" });
       console.log(`✅ Đã đồng bộ thành công ${posts.length} bài viết kiến thức gỗ.`);
+    } catch (postErr) {
+      console.error("❌ Lỗi đồng bộ posts sau các lần thử lại:", postErr.message);
+      throw postErr;
     }
   }
 
@@ -140,5 +179,6 @@ async function seed() {
 }
 
 seed().catch((err) => {
-  console.error("❌ Lỗi thực thi:", err);
+  console.error("❌ Lỗi thực thi seed-supabase:", err);
+  process.exit(1);
 });

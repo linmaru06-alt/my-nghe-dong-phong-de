@@ -1,0 +1,235 @@
+{
+  "name": "Agency Marketing Engine - Standalone Social Publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8,14,20 * * *"
+            }
+          ]
+        }
+      },
+      "id": "node-trigger-schedule",
+      "name": "1. Lịch Đăng Tự Động (08h, 14h, 20h)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [180, 260]
+    },
+    {
+      "parameters": {},
+      "id": "node-trigger-manual",
+      "name": "1b. Bấm Chạy Thử (Manual)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [180, 440]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================================================\n// NẠP ĐẦU VÀO: BẠN CÓ THỂ ĐIỀN CHỦ ĐỀ TÙY Ý HOẶC ĐỂ TỰ ĐỘNG CHỌN\n// =========================================================================\n\nconst sampleTopics = [\n  {\n    brand_or_product: \"Mỹ Nghệ Đông Phong\",\n    topic: \"Vòng tay gỗ Tử Đàn Tiểu Diệp Ấn Độ phôi già chìm nước\",\n    core_benefit: \"Mùi thơm tự nhiên giúp tĩnh tâm, xua tan áp lực thương trường, tôm gỗ mịn lên nước bóng ngọc cổ kính\",\n    target_audience: \"Doanh nhân, người làm kinh doanh thích thú chơi mộc sâu sắc, sợ mua phải gỗ non nhuộm màu\"\n  },\n  {\n    brand_or_product: \"Mỹ Nghệ Đông Phong\",\n    topic: \"Bút ký phong thủy gỗ Hoàng Đàn Tuyết Lạng Sơn\",\n    core_benefit: \"Chất gỗ tự lên lớp tuyết óng ánh như ngọc, làm quà biếu đối tác thể hiện vị thế tinh tế mà không phô trương\",\n    target_audience: \"Người tìm quà tặng sang trọng, ý nghĩa phong thủy cho sếp hoặc đối tác lớn\"\n  },\n  {\n    brand_or_product: \"Mỹ Nghệ Đông Phong\",\n    topic: \"Vòng Nu Bách Xanh Mộc Châu chớp vân biến ảo\",\n    core_benefit: \"Mùi thơm ngọt sắc kéo dài hàng chục năm, thớ nu biến hóa độc nhất vô nhị\",\n    target_audience: \"Người sành gỗ thích sưu tầm vân nu độc bản, tìm kiếm sự an yên và vượng khí\"\n  }\n];\n\n// Chọn 1 chủ đề ngẫu nhiên hoặc lấy từ Webhook/Trigger\nconst chosen = sampleTopics[Math.floor(Math.random() * sampleTopics.length)];\n\nreturn {\n  brand_or_product: chosen.brand_or_product,\n  topic: chosen.topic,\n  core_benefit: chosen.core_benefit,\n  target_audience: chosen.target_audience,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "node-setup-input",
+      "name": "2. Khởi Tạo Chủ Đề & Target Audience",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 360]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CHỦ ĐỀ CẦN NGHIÊN CỨU:\n- Thương hiệu / Sản phẩm: {{ $json.brand_or_product }}\n- Chủ đề cốt lõi: {{ $json.topic }}\n- Lợi ích trọng tâm: {{ $json.core_benefit }}\n- Đối tượng mục tiêu: {{ $json.target_audience }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "You are the Senior Content Strategist from 'agency-agents' (msitarzewski/agency-agents), armed with Corey Haines' 'marketingskills' (coreyhaines31/marketingskills).\n\nYOUR ROLE & VIBE:\nUncompromising, strategic, and acutely aware of human buying psychology. You never accept generic fluff. You find the single sharp angle that stops the scroll.\n\nMARKETING SKILL DIRECTIVES (CORE PRINCIPLES):\n1. ONE IDEA PER POST: Do not try to say everything. Choose exactly ONE compelling idea/insight that matters deeply to the audience.\n2. CUSTOMER LANGUAGE OVER COMPANY LANGUAGE: Uncover how customers actually talk, what they secretly fear (e.g. buying fake chemical-soaked wood, looking foolish, wasting money), and what status/feeling they desire.\n3. FIND THE PROVOCATIVE ANGLE: Identify a common myth, an unexpected paradox, or an authentic craftsman revelation that competitors dare not say.\n\nOUTPUT INSTRUCTIONS:\nReturn ONLY a structured brief:\n- CORE INSIGHT: Nỗi đau hoặc khao khát thầm kín nhất của khách hàng.\n- PROVOCATIVE ANGLE: Góc tiếp cận khác biệt, chống sáo rỗng.\n- THE ONE MESSAGE: Đúng 1 thông điệp cốt lõi duy nhất cho bài viết."
+        }
+      },
+      "id": "node-agent-strategist",
+      "name": "3. [Agent 1] Content Strategist (Agency-Agents)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [720, 360]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=DỮ LIỆU ĐẦU VÀO:\n- Thương hiệu / Sản phẩm: {{ $node[\"2. Khởi Tạo Chủ Đề & Target Audience\"].json.brand_or_product }}\n- Chủ đề: {{ $node[\"2. Khởi Tạo Chủ Đề & Target Audience\"].json.topic }}\n\nCHIẾN LƯỢC TỪ CONTENT STRATEGIST:\n{{ $json.text }}\n\nHãy viết một bản thảo content hoàn chỉnh theo công thức PAS (Problem - Agitate - Solution).",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "You are the Direct-Response Master Copywriter from 'agency-agents' (msitarzewski/agency-agents), trained in Corey Haines' 'marketingskills' (coreyhaines31/marketingskills).\n\nYOUR CRITICAL WRITING RULES:\n1. CUT THROAT-CLEARING: NEVER begin with generic greetings, rhetorical weather chats, or throat-clearing intros ('Chào các bạn...', 'Bạn có biết...', 'Trong bài viết hôm nay...'). Start directly with the raw problem, a tension, or a sharp tactile sensory hook.\n2. BENEFITS OVER FEATURES: Don't just list technical specs. Translate every spec into emotional relief, physical sensation (độ nặng đầm tay, tôm mịn, hương tĩnh tại), or elevated status.\n3. SPECIFICITY OVER VAGUENESS: Use concrete tangible details (e.g., 'ngâm chìm nước tự nhiên', 'mùi thơm ngọt dịu sau 5 năm', 'độ ẩm dưới 12%') instead of lazy words ('rất tốt', 'chất lượng cao').\n4. COPYWRITING FLOW (PAS):\n   - Problem: Chỉ rõ sự thật trần trụi hoặc nỗi lo lắng lớn nhất.\n   - Agitate: Khơi sâu cảm xúc vì sao điều đó gây khó chịu hoặc tiếc nuối.\n   - Solution: Đưa ra giải pháp bằng câu chuyện chân thật, đĩnh đạc."
+        }
+      },
+      "id": "node-agent-copywriter",
+      "name": "4. [Agent 2] Master Copywriter (PAS Flow)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [1020, 360]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=BẢN THẢO CẦN BIÊN TẬP VÀ DIỆT KHUẨN AI:\n{{ $json.text }}\n\nThương hiệu: {{ $node[\"2. Khởi Tạo Chủ Đề & Target Audience\"].json.brand_or_product }}",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "You are the Senior Editorial Critic & Anti-AI-Slop Auditor from 'agency-agents' (msitarzewski/agency-agents), enforcing Corey Haines' strictest marketing standards (coreyhaines31/marketingskills & mysticaltech/marketingskills).\n\nYOUR MISSION: Brutally eliminate all AI writing mannerisms, buzzwords, and generic fluff. Make this copy sound like a worldly, experienced human artisan.\n\nCRITICAL ENFORCEMENT RULES (THE ANTI-AI-SLOP MATRIX):\n1. BAN CONTRAST REVEALS: Strike out patterns like 'Không chỉ là X, mà còn là Y' or 'Đây không phải X, đây là Y'. Speak plainly.\n2. BAN NEGATION LISTS: Strike out patterns like 'Không X, không Y, không Z'.\n3. BAN SELF-ANSWERED QUESTIONS: Remove any rhetorical questions that the author immediately answers.\n4. PURGE BUZZWORD FLUFF: Delete words like 'nâng tầm', 'bứt phá', 'tuyệt đỉnh', 'game-changer', 'seamless', 'unlock', 'streamline'. Replace them with factual, sensory reality.\n5. THE SWAP TEST: Ask yourself: 'If a competitor put their name on this post, could they say the exact same thing?' If YES, you must inject unique, proprietary craftsman details until NO competitor can copy it.\n6. THE 3-QUESTION GATE:\n   - Can the reader immediately picture it in their mind?\n   - Can it be verified as concrete truth?\n   - Is the rhythm punchy, natural, and memorable?\n\nOUTPUT: Trả về BẢN VĂN ĐÃ ĐƯỢC GỌT GIŨA HOÀN HẢO (Không giải thích dông dài, xuất bản trực tiếp bản văn chất lượng cao nhất)."
+        }
+      },
+      "id": "node-agent-editor",
+      "name": "5. [Agent 3] Anti-Slop Editor (Corey Haines Gate)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [1320, 360]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=NỘI DUNG ĐÃ BIÊN TẬP TINH HOA:\n{{ $json.text }}\n\nThương hiệu: {{ $node[\"2. Khởi Tạo Chủ Đề & Target Audience\"].json.brand_or_product }}\nSản phẩm/Chủ đề: {{ $node[\"2. Khởi Tạo Chủ Đề & Target Audience\"].json.topic }}\n\nHãy chuyển thể thành 3 format mạng xã hội riêng biệt.",
+        "hasOutputParser": false,
+        "options": {
+          "systemMessage": "You are the Multi-Channel Distribution Specialist from 'agency-agents' (msitarzewski/agency-agents).\n\nYOUR TASK:\nTransform the polished copy into 3 distinct platform-optimized social media assets:\n\n=== 1. FACEBOOK FANPAGE POST ===\n- Hook giật cảm xúc ngay dòng đầu tiên (dưới 10 từ).\n- Bố cục thoáng, ngắt đoạn 1-2 câu, dùng icon tinh tế (tối đa 3-4 icon).\n- Lời kêu gọi hành động (Frictionless CTA): Nhắn tin tư vấn thẩm định phôi mộc/đo size tay miễn phí.\n- Kèm 3-5 hashtag chất lượng.\n\n=== 2. THREADS / X (TWITTER) POST ===\n- Siêu cô đọng, triết lý sắc bén, khơi gợi thảo luận văn minh.\n- Đậm tính chia sẻ góc nhìn chuyên gia mộc.\n\n=== 3. ZALO 1-1 / TELEGRAM DIRECT MESSAGE ===\n- Giọng điệu tâm tình, ấm áp, nhã nhặn như bạn hữu uống trà.\n- Lời mời kết nối trực tiếp, không tạo áp lực mua hàng."
+        }
+      },
+      "id": "node-agent-social",
+      "name": "6. [Agent 4] Social Media Repurposer",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [1620, 360]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "node-llm-gemini",
+      "name": "Google Gemini Engine (Dùng Chung)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [1160, 600]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=🪵 [HỆ THỐNG CONTENT CHUYÊN GIA — MARKETINGSKILLS + AGENCY-AGENTS]\n\n🎯 CHỦ ĐỀ: {{ $node[\"2. Khởi Tạo Chủ Đề & Target Audience\"].json.topic }}\n\n━━━━━━━━━━━━━━━━━━━━\n📱 NỘI DUNG MẠNG XÃ HỘI HOÀN CHỈNH:\n\n{{ $json.text }}\n\n━━━━━━━━━━━━━━━━━━━━\n✅ Đã qua 3 màng lọc: Chiến lược -> Viết PAS -> Diệt văn phong AI (Anti-Slop) -> Đóng gói đa kênh!",
+        "additionalFields": {}
+      },
+      "id": "node-telegram-output",
+      "name": "7. Gửi Trọn Bộ Content Về Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1920, 360]
+    }
+  ],
+  "connections": {
+    "1. Lịch Đăng Tự Động (08h, 14h, 20h)": {
+      "main": [
+        [
+          {
+            "node": "2. Khởi Tạo Chủ Đề & Target Audience",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1b. Bấm Chạy Thử (Manual)": {
+      "main": [
+        [
+          {
+            "node": "2. Khởi Tạo Chủ Đề & Target Audience",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Khởi Tạo Chủ Đề & Target Audience": {
+      "main": [
+        [
+          {
+            "node": "3. [Agent 1] Content Strategist (Agency-Agents)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. [Agent 1] Content Strategist (Agency-Agents)": {
+      "main": [
+        [
+          {
+            "node": "4. [Agent 2] Master Copywriter (PAS Flow)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. [Agent 2] Master Copywriter (PAS Flow)": {
+      "main": [
+        [
+          {
+            "node": "5. [Agent 3] Anti-Slop Editor (Corey Haines Gate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. [Agent 3] Anti-Slop Editor (Corey Haines Gate)": {
+      "main": [
+        [
+          {
+            "node": "6. [Agent 4] Social Media Repurposer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. [Agent 4] Social Media Repurposer": {
+      "main": [
+        [
+          {
+            "node": "7. Gửi Trọn Bộ Content Về Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Engine (Dùng Chung)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "3. [Agent 1] Content Strategist (Agency-Agents)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "4. [Agent 2] Master Copywriter (PAS Flow)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "5. [Agent 3] Anti-Slop Editor (Corey Haines Gate)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "6. [Agent 4] Social Media Repurposer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
+

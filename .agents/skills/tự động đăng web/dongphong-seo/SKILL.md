@@ -75,10 +75,10 @@ Mỗi bài viết tại `/bai-viet/[slug]` có JSON-LD `@type: BlogPosting`:
 
 Quy định áp dụng cho toàn bộ bài viết trên web và hệ thống xuất bản tự động AI (`scripts/ai-schedule-publisher.mjs`):
 
-### 5.1. Nhịp Xuất Bản 3 Ca Vàng (Tỷ lệ 2 Danh Mộc & Phong Thủy : 1 Bảo Quản)
-- **Ca 1 (07:30 VN - Sáng):** Kiến thức danh mộc & Bách khoa gỗ quý thế giới (`kien-thuc-ve-go`). Khai thác chuỗi 15 bài danh mộc thế giới (Top 10 loài gỗ đắt nhất, African Blackwood, Sandalwood, Bog Oak, Lignum Vitae, Snakewood, Cẩm lai Brazil...) và kỹ thuật nhận diện mộc thật - giả.
-- **Ca 2 (11:30 VN - Trưa):** Bảo quản sản phẩm & Kỹ thuật dưỡng mộc (`bao-quan-san-pham`). Hướng dẫn chống nồm ẩm, xử lý dính nước/mồ hôi, lau mộc cotton, hồi hương tinh dầu, thay dây hạt, chống dị ứng da.
-- **Ca 3 (20:30 VN - Tối):** Cẩm nang Phong thủy Ngũ Hành theo Năm sinh & Nghề nghiệp (`huong-dan-lua-chon`). Khai thác trọn bộ **60 chủ đề ngũ hành** (Kim: 12, Mộc: 12, Thủy: 12, Hỏa: 12, Thổ: 12) từ `data/content-pillars.json`.
+### 5.1. Nhịp Xuất Bản 3 Ca Vàng (1 Bách Khoa Gỗ Quý : 2 Phong Thủy Ngũ Hành)
+- **Ca 1 (07:30 VN - Sáng):** Bách khoa gỗ quý toàn cầu & Kiến thức danh mộc thế giới (`kien-thuc-ve-go`). Khai thác chuỗi 24 bài danh mộc thế giới (Top 10 loài gỗ đắt nhất, African Blackwood, Sandalwood, Bog Oak, Lignum Vitae, Snakewood, Cẩm lai Brazil...) và kỹ thuật nhận diện mộc thật - giả.
+- **Ca 2 (11:30 VN - Trưa):** Cẩm nang Phong thủy Ngũ Hành & Lựa chọn vật phẩm (`huong-dan-lua-chon`). Khai thác trọn bộ **60 chủ đề ngũ hành** (Kim, Mộc, Thủy, Hỏa, Thổ) luân phiên Round-Robin.
+- **Ca 3 (20:30 VN - Tối):** Cẩm nang Phong thủy Ngũ Hành & Lựa chọn vật phẩm (`huong-dan-lua-chon`). Luân chuyển sang Mệnh tiếp theo trong chu kỳ Kim ➔ Mộc ➔ Thủy ➔ Hỏa ➔ Thổ, bảo đảm tính cân bằng và không bao giờ trùng lặp mệnh liên tiếp.
 
 ### 5.2. Nguyên Tắc Copywriting Đỉnh Cao (Marketing Skills Corey Haines)
 1. **Mở bài bằng Hook sắc bén (Cut Throat-Clearing):**
